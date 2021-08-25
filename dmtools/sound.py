@@ -2,12 +2,6 @@ import numpy as np
 from scipy.io import wavfile
 from collections import namedtuple
 
-import os
-import sys
-SOURCE_DIR = os.path.dirname(os.path.abspath(__file__))
-root = os.path.dirname(os.path.dirname(SOURCE_DIR))
-sys.path.insert(0,root)
-
 # https://en.wikipedia.org/wiki/44,100_Hz
 SAMPLE_RATE = 44100
 

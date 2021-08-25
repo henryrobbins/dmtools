@@ -4,14 +4,8 @@ from math import ceil
 import time
 from skimage.color import rgb2gray, gray2rgb
 from typing import List, Callable
-
-import os
-import sys
-SOURCE_DIR = os.path.dirname(os.path.abspath(__file__))
-root = os.path.dirname(os.path.dirname(SOURCE_DIR))
-sys.path.insert(0,root)
-from log import Log
-from animation import sound
+from .log import Log
+from . import sound
 
 
 def clip(path:str, start:int = None, end:int = None) -> List[np.ndarray]:

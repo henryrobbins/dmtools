@@ -1,13 +1,6 @@
 import numpy as np
 from typing import Callable
 
-import os
-import sys
-SOURCE_DIR = os.path.dirname(os.path.abspath(__file__))
-root = os.path.dirname(os.path.dirname(SOURCE_DIR))
-sys.path.insert(0,root)
-
-
 def RGB_to_XYZ(pixels:np.ndarray) -> np.ndarray:
     """Convert a pixel matrix in RGB color space to XYZ color space.
 

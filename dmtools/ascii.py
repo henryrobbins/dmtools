@@ -1,14 +1,14 @@
 import numpy as np
 import time
 from collections import namedtuple
+from . import netpbm
+from .log import Log
 
 import os
 import sys
 SOURCE_DIR = os.path.dirname(os.path.abspath(__file__))
 root = os.path.dirname(SOURCE_DIR)
 sys.path.insert(0,root)
-from netpbm import netpbm
-from log import Log
 
 ascii_map = netpbm.read('%s/%s' % (SOURCE_DIR, 'ascii_to_png.pgm'))
 img_arrays = [np.pad(M,((0,0),(6,6))) for M in np.split(ascii_map.M,13,axis=1)]

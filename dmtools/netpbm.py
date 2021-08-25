@@ -7,12 +7,7 @@ from math import ceil
 from collections import namedtuple
 from skimage.transform import rescale
 from typing import List, Callable
-
-import sys
-SOURCE_DIR = os.path.dirname(os.path.abspath(__file__))
-root = os.path.dirname(os.path.dirname(SOURCE_DIR))
-sys.path.insert(0,root)
-from log import Log
+from .log import Log
 
 
 # Dictionary from Netpbm extentsions to magic number and vice versa
