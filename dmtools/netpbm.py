@@ -7,7 +7,8 @@ from math import ceil
 from collections import namedtuple
 from skimage.transform import rescale
 from typing import List, Callable
-from .log import Log
+from .log import log_msg
+import logging
 
 
 # Dictionary from Netpbm extentsions to magic number and vice versa
@@ -215,7 +216,7 @@ def border(image:Netpbm, b:int, color:int = "white") -> Netpbm:
 
 
 def transform(in_path:str, out_path:str, f:Callable, scale:int = -1,
-              magic_number:int = None, **kwargs) -> Log:
+              magic_number:int = None, **kwargs):
     """Apply f to the image at in_path and write result to out_path.
 
     Args:
@@ -224,9 +225,6 @@ def transform(in_path:str, out_path:str, f:Callable, scale:int = -1,
         f (Callable): Function to apply to the netpbm image.
         scale (int): Scale the image to this dimension. Defaults to -1.
         magic_number (int): "Magic number" {1,2,3}. Defaults to None.
-
-    Returns:
-        Log: log from compiling this file.
     """
     then = time.time()
 
@@ -240,19 +238,16 @@ def transform(in_path:str, out_path:str, f:Callable, scale:int = -1,
     t = time.time() - then
     size = os.stat(out_path).st_size
     name = out_path.split('/')[-1]
-    return (Log(name=name, time=t, size=size))
+    logging.info(log_msg(name, t, size))
 
 
-def generate(path:str, f:Callable, scale:int = -1, **kwargs) -> Log:
+def generate(path:str, f:Callable, scale:int = -1, **kwargs):
     """Generate a Netpbm image using f and write the image to the path.
 
     Args:
         path (str): Path to write the generated Netpbm image to.
         f (Callable): Function used to generate the image.
         scale (int): Scale the image to this dimension. Defaults to -1.
-
-    Returns:
-        Log: log from compiling this file.
     """
     then = time.time()
 
@@ -265,7 +260,7 @@ def generate(path:str, f:Callable, scale:int = -1, **kwargs) -> Log:
     t = time.time() - then
     size = os.stat(path).st_size
     name = path.split('/')[-1]
-    return (Log(name=name, time=t, size=size))
+    logging.info(log_msg(name, t, size))
 
 
 def netpbm_comment(file_name:str):
@@ -286,16 +281,13 @@ def netpbm_comment(file_name:str):
     return lines
 
 
-def animate(pattern:str, out_path:str, fps:int) -> Log:
+def animate(pattern:str, out_path:str, fps:int):
     """Creates an animation by calling the ffmpeg commmand line tool.
 
     Args:
         pattern (str): Pattern of the input frame.
         out_path (str): Path to write the output file to.
         fps (int): Frames per second.
-
-    Returns:
-        Log: log from compiling this file.
     """
     # -r   set frame rate
     # -i   pattern of image frame file names
@@ -310,4 +302,4 @@ def animate(pattern:str, out_path:str, fps:int) -> Log:
     t = time.time() - then
     size = os.stat(out_path).st_size
     name = out_path.split('/')[-1]
-    return (Log(name=name, time=t, size=size))
+    logging.info(log_msg(name, t, size))

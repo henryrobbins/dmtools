@@ -2,7 +2,8 @@ import numpy as np
 import time
 from collections import namedtuple
 from . import netpbm
-from .log import Log
+import logging
+from .log import log_msg
 
 import os
 import sys
@@ -58,4 +59,4 @@ def write(ascii:Ascii, path:str, type:str):
     t = time.time() - then
     size = os.stat(path).st_size
     name = path.split('/')[-1]
-    return (Log(name=name, time=t, size=size))
+    logging.info(log_msg(name, t, size))

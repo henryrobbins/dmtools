@@ -4,8 +4,10 @@ from math import ceil
 import time
 from skimage.color import rgb2gray, gray2rgb
 from typing import List, Callable
-from .log import Log
+import logging
 from . import sound
+from .log import log_msg
+import os
 
 
 def clip(path:str, start:int = None, end:int = None) -> List[np.ndarray]:
@@ -79,7 +81,7 @@ def pad_to_16(M:np.ndarray) -> np.ndarray:
 
 
 def animation(frames:List[np.ndarray], path:str, fps:int, s:int = 1,
-              audio:sound.WAV=None) -> Log:
+              audio:sound.WAV=None):
     """Write an animation as a .mp4 file using ffmpeg through imageio.mp4
 
     Args:
@@ -88,9 +90,6 @@ def animation(frames:List[np.ndarray], path:str, fps:int, s:int = 1,
         path (str): Path where the file should be written.
         fps (int): Frames per second.
         s (int, optional): Multiplier for scaling. Defaults to 1.
-
-    Returns:
-        Log: log from writing this animation file.
     """
     then = time.time()
     frames = [f.astype(np.uint8).clip(0,255) for f in frames]
@@ -110,4 +109,4 @@ def animation(frames:List[np.ndarray], path:str, fps:int, s:int = 1,
     now = time.time()
     name = path.split('/')[-1]
     size = os.stat(path).st_size
-    return Log(name, now-then, size)
+    logging.info(log_msg(name, then-now, size))
