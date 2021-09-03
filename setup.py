@@ -29,7 +29,7 @@ setup(
         'imageio-ffmpeg>=0.4.5',
         'scikit-image>=0.18',
         'scipy>=1.6',
-        'typing>=3.7',
+        'typing>=3.7'
     ],
     python_requires='>=3.5',
 )
