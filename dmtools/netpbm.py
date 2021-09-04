@@ -81,9 +81,6 @@ def write(file_name:str, image:Netpbm):
     """
     with open(file_name, "w") as f:
         f.write('P%d\n' % image.P)
-        comment = netpbm_comment(file_name)
-        for line in comment:
-            f.write(line)
         f.write("%s %s\n" % (image.w, image.h))
         if image.P != 1:
             f.write("%s\n" % (image.k))
@@ -117,9 +114,6 @@ def write_png(file_name:str, image:Netpbm, size:int):
     M = M * (255 / image.k)
     M = M.astype(np.uint8)
 
-    directory = '/'.join(file_name.split('/')[:-1])
-    if not os.path.exists(directory):
-        os.makedirs(directory)
     imageio.imwrite(file_name, M)
 
 
@@ -262,23 +256,23 @@ def generate(path:str, f:Callable, scale:int = -1, **kwargs):
     name = path.split('/')[-1]
     logging.info(log_msg(name, t, size))
 
+# TODO: Comment to write in file should be provided as optional argument
+# def netpbm_comment(file_name:str):
+#     """Comment to be written in the
 
-def netpbm_comment(file_name:str):
-    """Comment to be written in the
-
-    Args:
-        file_name (str): Name of the Netpbm file to be written.
-    """
-    name = file_name.split('/')[-1]
-    lines = ["Title: %s\n" % name,
-             "Compiled on: %s\n" % datetime.datetime.now(), "\n"]
-    readme_path = "/".join(file_name.split('/')[:-1]) + "/README.md"
-    with open(readme_path) as f:
-        readme = f.readlines()
-        indices = [i for i in range(len(readme)) if readme[i] == '\n']
-        lines = lines + readme[:indices[1]]
-    lines = ["# " + line for line in lines]
-    return lines
+#     Args:
+#         file_name (str): Name of the Netpbm file to be written.
+#     """
+#     name = file_name.split('/')[-1]
+#     lines = ["Title: %s\n" % name,
+#              "Compiled on: %s\n" % datetime.datetime.now(), "\n"]
+#     readme_path = "/".join(file_name.split('/')[:-1]) + "/README.md"
+#     with open(readme_path) as f:
+#         readme = f.readlines()
+#         indices = [i for i in range(len(readme)) if readme[i] == '\n']
+#         lines = lines + readme[:indices[1]]
+#     lines = ["# " + line for line in lines]
+#     return lines
 
 
 def animate(pattern:str, out_path:str, fps:int):
