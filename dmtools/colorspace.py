@@ -1,8 +1,34 @@
 import numpy as np
 from typing import Callable
 
+# Referenced colorconv.py from scikit-image for more efficient implementation
+# of colorspace transformations. Will continue to maintain an independent
+# implementation for educational purposes but scikit-image is the standard.
+
+# https://en.wikipedia.org/wiki/Standard_illuminant
+illuminants = \
+    {'D50':(96.4212, 100.0, 82.5188),
+     'D65':(95.0489, 100.0, 108.8840)}
+
+# https://en.wikipedia.org/wiki/CIE_1931_color_space
+b_21 = 0.17697
+rgb_to_xyz = np.array([[0.49000, 0.31000, 0.20000],
+                       [0.17697, 0.81240, 0.01063],
+                       [0.00000, 0.01000, 0.99000]]) / b_21
+xyz_to_rgb = np.linalg.inv(rgb_to_xyz)
+
+# https://en.wikipedia.org/wiki/YUV
+rgb_to_yuv = np.array([[+0.29900, +0.58700, +0.11400],
+                       [-0.14713, -0.28886, +0.43600],
+                       [+0.61500, -0.51499, -0.10001]])
+yuv_to_rgb = np.linalg.inv(rgb_to_yuv)
+
+
 def RGB_to_XYZ(pixels:np.ndarray) -> np.ndarray:
     """Convert a pixel matrix in RGB color space to XYZ color space.
+
+    For details about the conversion from the CIE RGB space to XYZ space, see
+    `CIE 1931 color space <https://en.wikipedia.org/wiki/CIE_1931_color_space>`_.
 
     Args:
         pixels (np.ndarray): Pixels in the RGB color space.
@@ -10,20 +36,14 @@ def RGB_to_XYZ(pixels:np.ndarray) -> np.ndarray:
     Returns:
         np.ndarray: Pixel matrix in the XYZ color space.
     """
-    # See the following link for the implemented conversion
-    # https://en.wikipedia.org/wiki/CIE_1931_color_space
-    b = 0.17697
-    A = np.array([[0.49, 0.31, 0.2],
-                  [0.17697, 0.81240, 0.01063],
-                  [0, 0.01, 0.99]])
-    n,m,k = pixels.shape
-    p = np.reshape(pixels, (n*m,3)).astype(float)
-    p = np.apply_along_axis(lambda x: np.matmul(A,x)/b, 1, p)
-    return np.reshape(p, (n,m,k))
+    return pixels @ rgb_to_xyz.T
 
 
 def XYZ_to_RGB(pixels:np.ndarray) -> np.ndarray:
     """Convert a pixel matrix in XYZ color space to RGB color space.
+
+    For details about the conversion from the CIE XYZ space to RGB space, see
+    `CIE 1931 color space <https://en.wikipedia.org/wiki/CIE_1931_color_space>`_.
 
     Args:
         pixels (np.ndarray): Pixels in the XYZ color space.
@@ -31,19 +51,14 @@ def XYZ_to_RGB(pixels:np.ndarray) -> np.ndarray:
     Returns:
         np.ndarray: Pixel matrix in the RGB color space.
     """
-    # See the following link for the implemented conversion
-    # https://en.wikipedia.org/wiki/CIE_1931_color_space
-    A = np.array([[0.41847, -0.15866, -0.082835],
-                  [-0.091169, 0.25243, 0.015708],
-                  [0.00092090, -0.0025498, 0.17860]])
-    n,m,k = pixels.shape
-    p = np.reshape(pixels, (n*m,3)).astype(float)
-    p = np.apply_along_axis(lambda x: np.matmul(A,x), 1, p)
-    return np.reshape(p, (n,m,k))
+    return pixels @ xyz_to_rgb.T
 
 
 def RGB_to_YUV(pixels:np.ndarray) -> np.ndarray:
     """Convert a pixel matrix in RGB color space to YUV color space.
+
+    For details about the conversion from the RGB space to YUV space, see
+    `YUV <https://en.wikipedia.org/wiki/YUV>`_.
 
     Args:
         pixels (np.ndarray): Pixels in the RGB color space.
@@ -51,28 +66,15 @@ def RGB_to_YUV(pixels:np.ndarray) -> np.ndarray:
     Returns:
         np.ndarray: Pixel matrix in the YUV color space.
     """
-    # See the following link for the implemented conversion
-    # https://en.wikipedia.org/wiki/YUV
-    W_R, W_G, W_B = 0.299, 0.587, 0.114
-    U_max = 0.436
-    V_max = 0.615
-
-    def to_YUV(x):
-        R, G, B = x
-        Y = W_R*R + W_G*G + W_B*B
-        U = U_max*((B-Y)/(1 - W_B))
-        V = V_max*((R-Y)/(1 - W_R))
-        return np.array([Y,U,V])
-
     pixels = normalize(pixels, 'RGB', True)
-    n,m,k = pixels.shape
-    p = np.reshape(pixels, (n*m,3)).astype(float)
-    p = np.apply_along_axis(to_YUV, 1, p)
-    return np.reshape(p, (n,m,k))
+    return pixels @ rgb_to_yuv.T
 
 
 def YUV_to_RGB(pixels:np.ndarray) -> np.ndarray:
     """Convert a pixel matrix in YUV color space to RGB color space.
+
+    For details about the conversion from the RGB space to YUV space, see
+    `YUV <https://en.wikipedia.org/wiki/YUV>`_.
 
     Args:
         pixels (np.ndarray): Pixels in the YUV color space.
@@ -80,29 +82,16 @@ def YUV_to_RGB(pixels:np.ndarray) -> np.ndarray:
     Returns:
         np.ndarray: Pixel matrix in the RGB color space.
     """
-    # See the following link for the implemented conversion
-    # https://en.wikipedia.org/wiki/YUV
-    W_R, W_G, W_B = 0.299, 0.587, 0.114
-    U_max = 0.436
-    V_max = 0.615
-
-    def to_RGB(x):
-        Y, U, V = x
-        R = Y + V*((1-W_R)/V_max)
-        G = Y - U*((W_B*(1-W_B))/(U_max*W_G)) - V*((W_R*(1-W_R))/(V_max*W_G))
-        B = Y + U*((1-W_B)/U_max)
-        return np.array([R,G,B])
-
-    n,m,k = pixels.shape
-    p = np.reshape(pixels, (n*m,3)).astype(float)
-    p = np.apply_along_axis(to_RGB, 1, p)
-    p = np.reshape(p, (n,m,k))
-    return normalize(p, 'RGB', False)
+    pixels = pixels @ yuv_to_rgb.T
+    return normalize(pixels, 'RGB', False)
 
 
 def XYZ_to_Lab(pixels:np.ndarray,
                standard_illuminant:str = 'D65') -> np.ndarray:
     """Convert a pixel matrix in XYZ color space to Lab color space.
+
+    For details about the conversion from the XYZ space to LAB space, see
+    `CIELAB color space <https://en.wikipedia.org/wiki/CIELAB_color_space>`_.
 
     Args:
         pixels (np.ndarray): Pixels in the XYZ color space.
@@ -111,8 +100,6 @@ def XYZ_to_Lab(pixels:np.ndarray,
     Returns:
         np.ndarray: Pixel matrix in the Lab color space.
     """
-    # See the following link for the implemented conversion
-    # https://en.wikipedia.org/wiki/CIELAB_color_space
     X_n, Y_n, Z_n = {'D50':(96.4212, 100.0, 82.5188),
                      'D65':(95.0489, 100.0, 108.8840)}[standard_illuminant]
     delta = 6 / 29
@@ -133,21 +120,22 @@ def XYZ_to_Lab(pixels:np.ndarray,
     return np.reshape(p, (n,m,k))
 
 
-def Lab_to_XYZ(pixels:np.ndarray,
-               standard_illuminant:str = 'D65') -> np.ndarray:
+def Lab_to_XYZ(pixels:np.ndarray, illuminant:str = 'D65') -> np.ndarray:
     """Convert a pixel matrix in Lab color space to XYZ color space.
+
+    For details about the conversion from the XYZ space to LAB space, see
+    `CIELAB color space <https://en.wikipedia.org/wiki/CIELAB_color_space>`_.
 
     Args:
         pixels (np.ndarray): Pixels in the Lab color space.
-        standard_illuminant (str): Standard illuminant {D65, D50}
+        illuminant (str): Standard illuminant {D65, D50}
 
     Returns:
         np.ndarray: Pixel matrix in the XYZ color space.
     """
     # See the following link for the implemented conversion
     # https://en.wikipedia.org/wiki/CIELAB_color_space
-    X_n, Y_n, Z_n = {'D50':(96.4212, 100.0, 82.5188),
-                     'D65':(95.0489, 100.0, 108.8840)}[standard_illuminant]
+    X_n, Y_n, Z_n = illuminants[illuminant]
     delta = 6 / 29
 
     def f_inv(t):
@@ -166,32 +154,30 @@ def Lab_to_XYZ(pixels:np.ndarray,
     return np.reshape(p, (n,m,k))
 
 
-def RGB_to_Lab(pixels:np.ndarray,
-               standard_illuminant:str = 'D65') -> np.ndarray:
+def RGB_to_Lab(pixels:np.ndarray, illuminant:str = 'D65') -> np.ndarray:
     """Convert a pixel matrix in RGB color space to Lab color space.
 
     Args:
         pixels (np.ndarray): Pixels in the RGB color space.
-        standard_illuminant (str): Standard illuminant {D65, D50}
+        illuminant (str): Standard illuminant {D65, D50}
 
     Returns:
         np.ndarray: Pixel matrix in the Lab color space.
     """
-    return XYZ_to_Lab(RGB_to_XYZ(pixels), standard_illuminant)
+    return XYZ_to_Lab(RGB_to_XYZ(pixels), illuminant)
 
 
-def Lab_to_RGB(pixels:np.ndarray,
-               standard_illuminant:str = 'D65') -> np.ndarray:
+def Lab_to_RGB(pixels:np.ndarray, illuminant:str = 'D65') -> np.ndarray:
     """Convert a pixel matrix in Lab color space to RGB color space.
 
     Args:
         pixels (np.ndarray): Pixels in the Lab color space.
-        standard_illuminant (str): Standard illuminant {D65, D50}
+        illuminant (str): Standard illuminant {D65, D50}
 
     Returns:
         np.ndarray: Pixel matrix in the RGB color space.
     """
-    return XYZ_to_RGB(Lab_to_XYZ(pixels, standard_illuminant))
+    return XYZ_to_RGB(Lab_to_XYZ(pixels, illuminant))
 
 
 def apply_to_channels(pixels:np.ndarray,
