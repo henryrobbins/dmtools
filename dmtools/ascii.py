@@ -1,19 +1,25 @@
 import numpy as np
+import os
 import time
+import pkgutil
 from collections import namedtuple
 from . import netpbm
 import logging
 from .log import log_msg
 
-import os
-import sys
-SOURCE_DIR = os.path.dirname(os.path.abspath(__file__))
-root = os.path.dirname(SOURCE_DIR)
-sys.path.insert(0,root)
+# Create a map from ascii characters to their image representation.
+# Here are some scaled-down examples of the mappings in CHAR_TO_IMG.
+#
+#            0 0 0 0 0 0 0             0 0 1 0 1 0 0
+#            0 0 1 0 0 0 0             0 1 1 1 1 1 0
+#    ~  ->   0 1 0 1 0 1 0     #  ->   0 0 1 0 1 0 0
+#            0 0 0 0 1 0 0             0 1 1 1 1 1 0
+#            0 0 0 0 0 0 0             0 0 1 0 1 0 0
 
-ascii_map = netpbm.read('%s/%s' % (SOURCE_DIR, 'ascii_to_png.pgm'))
-img_arrays = [np.pad(M,((0,0),(6,6))) for M in np.split(ascii_map.M,13,axis=1)]
-CHAR_TO_IMG = dict(zip(list(" .,-~:;=!*#$@"), img_arrays))
+file = pkgutil.get_data(__name__, "resources/ascii.pgm").decode().split('\n')
+ascii_M = netpbm._parse(file).M
+char_images = [np.pad(M,((0,0),(6,6))) for M in np.split(ascii_M, 13, axis=1)]
+CHAR_TO_IMG = dict(zip(list(" .,-~:;=!*#$@"), char_images))
 
 Ascii = namedtuple('Ascii', ['M'])
 Ascii.__doc__ = '''\
@@ -21,8 +27,20 @@ Ascii image.
 - M (np.ndarray): Numpy array of ascii characters.'''
 
 
-def netpbm_to_ascii(image:netpbm.Netpbm) -> Ascii:
-    """Return an ascii representation of the given image."""
+def netpbm_to_ascii(image: netpbm.Netpbm) -> Ascii:
+    """Return an ASCII representation of the given image.
+
+    This function uses a particular style of
+    `ASCII art <https://en.wikipedia.org/wiki/ASCII_art>`_
+    in which "symbols with various intensities [are used for] creating
+    gradients or contrasts."
+
+    Args:
+        image (netpbm.Netpbm): Netpbm image.
+
+    Returns:
+        Ascii: ASCII representation of image.
+    """
     chars = "  -~:;=!*#$@"
     M = netpbm.change_gradient(image, len(chars)-1).M.astype(int)
     M = np.array([[chars[i] for i in row] for row in M])
@@ -30,11 +48,11 @@ def netpbm_to_ascii(image:netpbm.Netpbm) -> Ascii:
 
 
 def write(ascii:Ascii, path:str, type:str):
-    """Write the Ascii art to the given path.
+    """Write the ASCII image to the given path.
 
     Args:
-        ascii (Ascii): Ascii art object.
-        path (str): Path to write the ascii art to.
+        ascii (Ascii): An ASCII image.
+        path (str): Path to write the ASCII image to.
         type (string): {"png", "txt"}
     """
     then = time.time()

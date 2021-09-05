@@ -46,6 +46,20 @@ def raw_to_plain(path:str, magic_number:int = None) -> str:
     os.system("convert %s -compress none %s" % (path, out_path))
     return out_path
 
+def _parse(f: List[str]) -> Netpbm:
+    vals = [v for line in f for v in line.split('#')[0].split()]
+    P = int(vals[0][1])
+    if P == 1:
+        w, h, *vals = [int(v) for v in vals[1:]]
+        k = 1
+    else:
+        w, h, k, *vals = [int(v) for v in vals[1:]]
+    if P == 3:
+        M = np.array(vals).reshape(h, w, 3)
+    else:
+        M = np.array(vals).reshape(h, w)
+    return Netpbm(P=P, w=w, h=h, k=k, M=M)
+
 
 def read(file_name:str) -> Netpbm:
     """Read the Netpbm file and return a NumPy matrix.
@@ -58,18 +72,7 @@ def read(file_name:str) -> Netpbm:
     """
     # Adapted from code provided by Dan Torop
     with open(file_name) as f:
-        vals = [v for line in f for v in line.split('#')[0].split()]
-        P = int(vals[0][1])
-        if P == 1:
-            w, h, *vals = [int(v) for v in vals[1:]]
-            k = 1
-        else:
-            w, h, k, *vals = [int(v) for v in vals[1:]]
-        if P == 3:
-            M = np.array(vals).reshape(h, w, 3)
-        else:
-            M = np.array(vals).reshape(h, w)
-        return Netpbm(P=P, w=w, h=h, k=k, M=M)
+        return _parse(f)
 
 
 def write(file_name:str, image:Netpbm):
