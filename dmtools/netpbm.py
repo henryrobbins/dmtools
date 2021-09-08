@@ -36,6 +36,20 @@ class Netpbm:
         self.k = k
         self.M = M
 
+    def set_max_color_value(self, k: int):
+        """Set the maximum gray/color value of this Netpbm image.
+
+        Args:
+            k (int): Maximum gray/color value.
+        """
+        if k == 1:
+            self.M = ((self.M / self.k) > 0.5).astype(int)
+            if self.P == 2:
+                self.P == 1
+        else:
+            step = int(self.k / k)
+            self.M = np.array(list(map(lambda x: x // step, self.M)))
+
     def to_netpbm(self, path:str):
         """Write object to a Netpbm file (pbm, pgm, ppm).
 
@@ -165,20 +179,6 @@ def enlarge(image:Netpbm, k:int) -> Netpbm:
                 order=0, preserve_range=True, multichannel=(image.P == 3))
     w,h = image.w, image.h
     return Netpbm(P=image.P, w=w*k, h=h*k, k=image.k, M=M)
-
-
-def change_gradient(image:Netpbm, k:int) -> Netpbm:
-    """Change the max gradient value of the netpbm image M to n.
-
-    Args:
-        image (Netpbm): Netpbm image to change gradient for.
-        k (int): New max gradient value.
-
-    Returns:
-       Netpbm: Netpbm image with changed gradient.
-    """
-    M_prime = np.array(list(map(lambda x: x // int(image.k / k), image.M)))
-    return Netpbm(P=image.P, w=image.w, h=image.h, k=k, M=M_prime)
 
 
 def image_grid(images:List[Netpbm], w:int, h:int, b:int,
