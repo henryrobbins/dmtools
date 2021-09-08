@@ -17,7 +17,7 @@ from .log import log_msg
 #            0 0 0 0 0 0 0             0 0 1 0 1 0 0
 
 file = pkgutil.get_data(__name__, "resources/ascii.pgm").decode().split('\n')
-ascii_M = netpbm._parse(file).M
+ascii_M = netpbm._parse_ascii_netpbm(file).M
 char_images = [np.pad(M,((0,0),(6,6))) for M in np.split(ascii_M, 13, axis=1)]
 CHAR_TO_IMG = dict(zip(list(" .,-~:;=!*#$@"), char_images))
 

@@ -1,6 +1,5 @@
 import os
 import time
-import datetime
 import imageio
 import numpy as np
 from math import ceil
@@ -11,42 +10,79 @@ from .log import log_msg
 import logging
 
 
-# Dictionary from Netpbm extentsions to magic number and vice versa
-EXT_TO_MAGIC = {"pbm":1, "pgm":2, "ppm":3}
-MAGIC_TO_EXT = {1:"pbm", 2:"pgm", 3:"ppm"}
+# TODO: Improve this class defintion following conventions described in
+# http://netpbm.sourceforge.net.
+class Netpbm:
+    """An object representing a Netpbm image.
 
-Netpbm = namedtuple('Netpbm', ['P', 'w', 'h', 'k', 'M'])
-Netpbm.__doc__ = '''\
-Netpbm image.
-
-- P (int): "Magic number" of the Netpbm image {1,2,3}.
-- w (int): Width of the netpbm image.
-- h (int): Height of the netpbm image.
-- k (int): Maximum value of gradients.
-- M (np.ndarray): h by w NumPy matrix of pixels.'''
-
-
-def raw_to_plain(path:str, magic_number:int = None) -> str:
-    """Convert a netpbm file in raw format to plain format.
-
-    Args:
-        path (str): Path to the file to convert.
-        magic_number (int): "Magic number" {1,2,3}.
-
-    Return:
-        str: Path to the resulting file.
+    For more information about Netpbm images, see the
+    `Netpbm Home Page <http://netpbm.sourceforge.net/>`_.
     """
-    prev = EXT_TO_MAGIC[path[-3:]]
-    magic_number = prev if magic_number is None else magic_number
-    assert magic_number <= prev
-    if magic_number == prev:
-        out_path = path[:-4] + "_plain." + MAGIC_TO_EXT[magic_number]
-    else:
-        out_path = path[:-3] + MAGIC_TO_EXT[magic_number]
-    os.system("convert %s -compress none %s" % (path, out_path))
-    return out_path
+    extension_to_magic_number = {"pbm": 1, "pgm": 2, "ppm": 3}
+    magic_number_to_extension = {1: "pbm", 2: "pgm", 3: "ppm"}
 
-def _parse(f: List[str]) -> Netpbm:
+    def __init__(self, P: int, k: int, w: int, h: int, M: np.ndarray):
+        """Initialize a Netpbm image.
+
+        Args:
+            P (int): Magic number of the Netpbm image.
+            k (int): Maximum gray/color value
+            w (int): Width of the image
+            h (int): Height of the image
+            M (np.ndarray): A NumPy array representing the image pixels.
+        """
+        self.P = P
+        self.w = w
+        self.h = h
+        self.k = k
+        self.M = M
+
+    def to_netpbm(self, path:str):
+        """Write object to a Netpbm file (pbm, pgm, ppm).
+
+        Uses the ASCII (plain) magic numbers.
+
+        Args:
+            path (str): String file path.
+        """
+        with open(path, "w") as f:
+            f.write('P%d\n' % self.P)
+            f.write("%s %s\n" % (self.w, self.h))
+            if self.P != 1:
+                f.write("%s\n" % (self.k))
+            if self.P == 3:
+                M = self.M.reshape(self.h, self.w * 3)
+            else:
+                M = self.M
+            lines = M.clip(0,self.k).astype(int).astype(str).tolist()
+            f.write('\n'.join([' '.join(line) for line in lines]))
+            f.write('\n')
+
+    def to_png(self, path:str, size:int):
+        """Write object to a png file.
+
+        Args:
+            path (str): String file path.
+            size (int): Target width.
+        """
+        # scale to desired size
+        w = self.M.shape[1]
+        image = enlarge(self, ceil(size / w))
+
+        # reverse gradient if portable bit map image
+        M = image.M
+        if image.P == 1:
+            M = np.where(M == 1, 0, 1)
+
+        # scale gradient to 255
+        M = M * (255 / image.k)
+        M = M.astype(np.uint8)
+
+        imageio.imwrite(path, M)
+
+
+def _parse_ascii_netpbm(f: List[str]) -> Netpbm:
+    # adapted from code by Dan Torop
     vals = [v for line in f for v in line.split('#')[0].split()]
     P = int(vals[0][1])
     if P == 1:
@@ -58,66 +94,49 @@ def _parse(f: List[str]) -> Netpbm:
         M = np.array(vals).reshape(h, w, 3)
     else:
         M = np.array(vals).reshape(h, w)
-    return Netpbm(P=P, w=w, h=h, k=k, M=M)
+    return Netpbm(P, w, h, k, M)
 
 
-def read(file_name:str) -> Netpbm:
-    """Read the Netpbm file and return a NumPy matrix.
+# TODO: make the file reading code more robust
+def _parse_binary_netpbm(path: str) -> Netpbm:
+    # adapted from https://www.stackvidhya.com/python-read-binary-file/
+    with open(path, "rb") as f:
+        P = int(f.readline().decode()[1])
+        # change to corresponding ASCII magic number
+        P = int(P / 2)
+        w = int(f.readline().decode()[:-1])
+        h = int(f.readline().decode()[:-1])
+        if P == 1:
+            k = 1
+        else:
+            k = int(f.readline().decode()[:-1])
+        dtype = np.dtype('B')
+        M = np.fromfile(f, dtype)
+        if P == 3:
+            M = M.reshape(h, w, 3)
+        else:
+            M = M.reshape(h, w)
+    return Netpbm(P, w, h, k, M)
+
+
+def read_netpbm(path:str) -> Netpbm:
+    """Read Netpbm file (pbm, pgm, ppm) into Netpbm.
 
     Args:
-        file_name (str): Name of the Netpbm file.
+        path (str): String file path.
 
     Returns:
-        Netpbm: Netpbm image.
+        Netpbm: A Netpbm image
     """
-    # Adapted from code provided by Dan Torop
-    with open(file_name) as f:
-        return _parse(f)
-
-
-def write(file_name:str, image:Netpbm):
-    """Write the Netpbm file given the associated matrix of nunbers.
-
-    Args:
-        file_name (str): Name of the Netpbm file to be written.
-        image (Netpbm): Netpbm image to write.
-    """
-    with open(file_name, "w") as f:
-        f.write('P%d\n' % image.P)
-        f.write("%s %s\n" % (image.w, image.h))
-        if image.P != 1:
-            f.write("%s\n" % (image.k))
-        if image.P == 3:
-            M = image.M.reshape(image.h, image.w * 3)
-        else:
-            M = image.M
-        lines = M.clip(0,image.k).astype(int).astype(str).tolist()
-        f.write('\n'.join([' '.join(line) for line in lines]))
-        f.write('\n')
-
-
-def write_png(file_name:str, image:Netpbm, size:int):
-    """Write the Netpbm file as a PNG file.
-
-    Args:
-        file_name (str): Name of the PNG file to be written.
-        image (Netpbm): Netpbm image to write.
-        size (int): Target width.
-    """
-    # scale to desired size
-    w = image.M.shape[1]
-    image = enlarge(image, ceil(size / w))
-
-    # reverse gradient if portable bit map image
-    M = image.M
-    if image.P == 1:
-        M = np.where(M == 1, 0, 1)
-
-    # scale gradient to 255
-    M = M * (255 / image.k)
-    M = M.astype(np.uint8)
-
-    imageio.imwrite(file_name, M)
+    with open(path, "rb") as f:
+        magic_number = f.read(2).decode()
+    if int(magic_number[1]) <= 3:
+        # P1, P2, P3 are the ASCII (plain) formats
+        with open(path) as f:
+            return _parse_ascii_netpbm(f)
+    else:
+        # P4, P5, P6 are the binary (raw) formats
+        return _parse_binary_netpbm(path)
 
 
 def enlarge(image:Netpbm, k:int) -> Netpbm:
@@ -212,8 +231,7 @@ def border(image:Netpbm, b:int, color:int = "white") -> Netpbm:
     return image_grid([image], w=1, h=1, b=b, color=color)
 
 
-def transform(in_path:str, out_path:str, f:Callable, scale:int = -1,
-              magic_number:int = None, **kwargs):
+def transform(in_path:str, out_path:str, f:Callable, scale:int = -1, **kwargs):
     """Apply f to the image at in_path and write result to out_path.
 
     Args:
@@ -225,12 +243,12 @@ def transform(in_path:str, out_path:str, f:Callable, scale:int = -1,
     """
     then = time.time()
 
-    image = read(raw_to_plain(in_path, magic_number=magic_number))
+    image = read_netpbm(in_path)
     new_image = f(image=image, **kwargs)
     if scale != -1:
         m = ceil(scale / max(new_image.w,new_image.h))
         new_image = enlarge(new_image, m)
-    write(out_path, new_image)
+    new_image.to_netpbm(out_path)
 
     t = time.time() - then
     size = os.stat(out_path).st_size
