@@ -1,9 +1,11 @@
 import numpy as np
 import os
-import time
 import pkgutil
 import copy
 from . import netpbm
+from .log import log_msg
+import logging
+
 
 # Create a map from ascii characters to their image representation.
 # Here are some scaled-down examples of the mappings in CHAR_TO_IMG.
@@ -44,6 +46,7 @@ class Ascii:
             lines = self.M.astype(str).tolist()
             f.write('\n'.join([' '.join(line) for line in lines]))
             f.write('\n')
+        logging.info(log_msg(path, os.stat(path).st_size))
 
     def to_png(self, path: str):
         """Write object to a png file.
@@ -59,6 +62,7 @@ class Ascii:
         M = np.block(M)
         image = netpbm.Netpbm(P=2, k=255, M=M)
         image.to_png(path, 1)
+        logging.info(log_msg(path, os.stat(path).st_size))
 
 
 def netpbm_to_ascii(image: netpbm.Netpbm) -> Ascii:

@@ -91,7 +91,6 @@ def animation(frames:List[np.ndarray], path:str, fps:int, s:int = 1,
         fps (int): Frames per second.
         s (int, optional): Multiplier for scaling. Defaults to 1.
     """
-    then = time.time()
     frames = [f.astype(np.uint8).clip(0,255) for f in frames]
     frames = [pad_to_16(f) for f in frames]
     imageio.mimwrite(uri="tmp.mp4" if audio is not None else path,
@@ -106,7 +105,5 @@ def animation(frames:List[np.ndarray], path:str, fps:int, s:int = 1,
                   % ("tmp.mp4", "tmp.wav", path))
         os.system("rm tmp.mp4")
         os.system("rm tmp.wav")
-    now = time.time()
     name = path.split('/')[-1]
-    size = os.stat(path).st_size
-    logging.info(log_msg(name, then-now, size))
+    logging.info(log_msg(name, os.stat(path).st_size))

@@ -70,6 +70,7 @@ class Netpbm:
             lines = M.clip(0,self.k).astype(int).astype(str).tolist()
             f.write('\n'.join([' '.join(line) for line in lines]))
             f.write('\n')
+        logging.info(log_msg(path, os.stat(path).st_size))
 
     def to_png(self, path:str, size:int):
         """Write object to a png file.
@@ -92,6 +93,7 @@ class Netpbm:
         M = M.astype(np.uint8)
 
         imageio.imwrite(path, M)
+        logging.info(log_msg(path, os.stat(path).st_size))
 
 
 def _parse_ascii_netpbm(f: List[str]) -> Netpbm:
@@ -225,53 +227,6 @@ def border(image:Netpbm, b:int, color:int = "white") -> Netpbm:
     """
     return image_grid([image], w=1, h=1, b=b, color=color)
 
-
-def transform(in_path:str, out_path:str, f:Callable, scale:int = -1, **kwargs):
-    """Apply f to the image at in_path and write result to out_path.
-
-    Args:
-        in_path (str): Path of the image to be transformed.
-        out_path (str): Path the transformed image is written to.
-        f (Callable): Function to apply to the netpbm image.
-        scale (int): Scale the image to this dimension. Defaults to -1.
-        magic_number (int): "Magic number" {1,2,3}. Defaults to None.
-    """
-    then = time.time()
-
-    image = read_netpbm(in_path)
-    new_image = f(image=image, **kwargs)
-    if scale != -1:
-        m = ceil(scale / max(new_image.w,new_image.h))
-        new_image = enlarge(new_image, m)
-    new_image.to_netpbm(out_path)
-
-    t = time.time() - then
-    size = os.stat(out_path).st_size
-    name = out_path.split('/')[-1]
-    logging.info(log_msg(name, t, size))
-
-
-def generate(path:str, f:Callable, scale:int = -1, **kwargs):
-    """Generate a Netpbm image using f and write the image to the path.
-
-    Args:
-        path (str): Path to write the generated Netpbm image to.
-        f (Callable): Function used to generate the image.
-        scale (int): Scale the image to this dimension. Defaults to -1.
-    """
-    then = time.time()
-
-    image = f(**kwargs)
-    if scale != -1:
-        m = ceil(scale / max(image.M.shape))
-        image = enlarge(image, m)
-    image.to_netpbm(path)
-
-    t = time.time() - then
-    size = os.stat(path).st_size
-    name = path.split('/')[-1]
-    logging.info(log_msg(name, t, size))
-
 # TODO: Comment to write in file should be provided as optional argument
 # def netpbm_comment(file_name:str):
 #     """Comment to be written in the
@@ -289,27 +244,3 @@ def generate(path:str, f:Callable, scale:int = -1, **kwargs):
 #         lines = lines + readme[:indices[1]]
 #     lines = ["# " + line for line in lines]
 #     return lines
-
-
-def animate(pattern:str, out_path:str, fps:int):
-    """Creates an animation by calling the ffmpeg command line tool.
-
-    Args:
-        pattern (str): Pattern of the input frame.
-        out_path (str): Path to write the output file to.
-        fps (int): Frames per second.
-    """
-    # -r   set frame rate
-    # -i   pattern of image frame file names
-    # -y   overwrite output files
-    # -an  disable audio
-    # -vb  video bitrate
-    # -sn  disable subtitle
-    then = time.time()
-    command = ("ffmpeg -r %d -i %s -y -an -vb 20M -sn %s"
-               % (fps, pattern, out_path))
-    os.system(command)
-    t = time.time() - then
-    size = os.stat(out_path).st_size
-    name = out_path.split('/')[-1]
-    logging.info(log_msg(name, t, size))
