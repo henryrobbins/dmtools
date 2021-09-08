@@ -11,6 +11,9 @@ illuminants = \
     {'D50': (96.4212, 100.0, 82.5188),
      'D65': (95.0489, 100.0, 108.8840)}
 
+# http://poynton.ca/PDFs/ColorFAQ.pdf
+rgb_to_gray = np.array([0.2125, 0.7154, 0.0721])
+
 # https://wikipedia.org/wiki/CIE_1931_color_space
 b_21 = 0.17697
 rgb_to_xyz = np.array([[0.49000, 0.31000, 0.20000],
@@ -32,6 +35,33 @@ norm = \
              'shift': (0.0, -128.0, -128.0)},
      'YUV': {'scale': (1.0, 0.872, 1.23),
              'shift': (0.0, -0.436, -0.615)}}
+
+
+def RGB_to_gray(image: np.ndarray) -> np.ndarray:
+    """Convert an image in CIE RGB space to grayscale.
+
+    For details about the implemented conversion, see
+    `Frequently Asked Questions about Color <http://poynton.ca/PDFs/ColorFAQ.pdf>`_.
+
+    Args:
+        image (np.ndarray): Image in CIE RGB space.
+
+    Returns:
+        np.ndarray: Image in grayscale.
+    """
+    return image @ rgb_to_gray.T
+
+
+def gray_to_RGB(image: np.ndarray) -> np.ndarray:
+    """Convert an image in grayscale to CIE RGB space.
+
+    Args:
+        image (np.ndarray): Image in grayscale.
+
+    Returns:
+        np.ndarray: Image in CIE RGB space.
+    """
+    return np.stack(3 * (image,), axis=-1)
 
 
 def RGB_to_XYZ(image: np.ndarray) -> np.ndarray:
