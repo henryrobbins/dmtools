@@ -2,6 +2,7 @@ import numpy as np
 import os
 import time
 import pkgutil
+import copy
 from collections import namedtuple
 from . import netpbm
 import logging
@@ -42,7 +43,9 @@ def netpbm_to_ascii(image: netpbm.Netpbm) -> Ascii:
         Ascii: ASCII representation of image.
     """
     chars = "  -~:;=!*#$@"
-    M = netpbm.change_gradient(image, len(chars)-1).M.astype(int)
+    image = copy.copy((image))
+    image.set_max_color_value(len(chars)-1)
+    M = image.M
     M = np.array([[chars[i] for i in row] for row in M])
     return Ascii(M=M)
 

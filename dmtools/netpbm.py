@@ -51,7 +51,7 @@ class Netpbm:
                 self.P == 1
         else:
             step = int(self.k / k)
-            self.M = np.array(list(map(lambda x: x // step, self.M)))
+            self.M = np.array(list(map(lambda x: x // step, self.M)), dtype=int)
 
     def to_netpbm(self, path:str):
         """Write object to a Netpbm file (pbm, pgm, ppm).
