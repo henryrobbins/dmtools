@@ -36,6 +36,9 @@ class Netpbm:
         self.k = k
         self.M = M
 
+    def __copy__(self):
+        return Netpbm(P=self.P, w=self.w, h=self.h, k=self.k, M=self.M)
+
     def set_max_color_value(self, k: int):
         """Set the maximum gray/color value of this Netpbm image.
 
