@@ -20,7 +20,7 @@ class Netpbm:
     extension_to_magic_number = {"pbm": 1, "pgm": 2, "ppm": 3}
     magic_number_to_extension = {1: "pbm", 2: "pgm", 3: "ppm"}
 
-    def __init__(self, P: int, k: int, w: int, h: int, M: np.ndarray):
+    def __init__(self, P: int, w: int, h: int, k: int, M: np.ndarray):
         """Initialize a Netpbm image.
 
         Args:
@@ -93,7 +93,7 @@ def _parse_ascii_netpbm(f: List[str]) -> Netpbm:
         M = np.array(vals).reshape(h, w, 3)
     else:
         M = np.array(vals).reshape(h, w)
-    return Netpbm(P, w, h, k, M)
+    return Netpbm(P=P, w=w, h=h, k=k, M=M)
 
 
 # TODO: make the file reading code more robust
@@ -115,7 +115,7 @@ def _parse_binary_netpbm(path: str) -> Netpbm:
             M = M.reshape(h, w, 3)
         else:
             M = M.reshape(h, w)
-    return Netpbm(P, w, h, k, M)
+    return Netpbm(P=P, w=w, h=h, k=k, M=M)
 
 
 def read_netpbm(path:str) -> Netpbm:
