@@ -3,10 +3,7 @@ import os
 import time
 import pkgutil
 import copy
-from collections import namedtuple
 from . import netpbm
-import logging
-from .log import log_msg
 
 # Create a map from ascii characters to their image representation.
 # Here are some scaled-down examples of the mappings in CHAR_TO_IMG.
@@ -22,10 +19,47 @@ ascii_M = netpbm._parse_ascii_netpbm(file).M
 char_images = [np.pad(M,((0,0),(6,6))) for M in np.split(ascii_M, 13, axis=1)]
 CHAR_TO_IMG = dict(zip(list(" .,-~:;=!*#$@"), char_images))
 
-Ascii = namedtuple('Ascii', ['M'])
-Ascii.__doc__ = '''\
-Ascii image.
-- M (np.ndarray): Numpy array of ascii characters.'''
+
+class Ascii:
+    """An object representing an ASCII image.
+
+    For more information about ASCII, see
+    `ASCII <https://wikipedia.org/wiki/ASCII>`_
+    """
+    def __init__(self, M: np.ndarray):
+        """Initialize an ASCII image.
+
+        Args:
+            M (np.ndarray): A NumPy array of ASCII characters.
+        """
+        self.M = M
+
+    def to_txt(self, path: str):
+        """Write object to a txt file.
+
+        Args:
+            path (str): String file path.
+        """
+        with open(path, "w") as f:
+            lines = self.M.astype(str).tolist()
+            f.write('\n'.join([' '.join(line) for line in lines]))
+            f.write('\n')
+
+    def to_png(self, path: str):
+        """Write object to a png file.
+
+        Args:
+            path (str): String file path.
+        """
+        A = self.M
+        n,m = A.shape
+        M = []
+        for i in range(n):
+            M.append([CHAR_TO_IMG[A[i,j]] for j in range(m)])
+        M = np.block(M)
+        n,m = M.shape
+        image = netpbm.Netpbm(P=2, w=m, h=n, k=255, M=M)
+        image.to_png(path, 1)
 
 
 def netpbm_to_ascii(image: netpbm.Netpbm) -> Ascii:
@@ -48,36 +82,3 @@ def netpbm_to_ascii(image: netpbm.Netpbm) -> Ascii:
     M = image.M
     M = np.array([[chars[i] for i in row] for row in M])
     return Ascii(M=M)
-
-
-def write(ascii:Ascii, path:str, type:str):
-    """Write the ASCII image to the given path.
-
-    Args:
-        ascii (Ascii): An ASCII image.
-        path (str): Path to write the ASCII image to.
-        type (string): {"png", "txt"}
-    """
-    then = time.time()
-
-    if type == "txt":
-        with open(path, "w") as f:
-            lines = ascii.M.astype(str).tolist()
-            f.write('\n'.join([' '.join(line) for line in lines]))
-            f.write('\n')
-    else:
-        A = np.array([[' ', '$'],['#', ' '],['~', ',']])
-        A = ascii.M
-        n,m = A.shape
-        M = []
-        for i in range(n):
-            M.append([CHAR_TO_IMG[A[i,j]] for j in range(m)])
-        M = np.block(M)
-        n,m = M.shape
-        image = netpbm.Netpbm(P=2, w=m, h=n, k=255, M=M)
-        image.to_png(path, 1)
-
-    t = time.time() - then
-    size = os.stat(path).st_size
-    name = path.split('/')[-1]
-    logging.info(log_msg(name, t, size))
