@@ -57,8 +57,7 @@ class Ascii:
         for i in range(n):
             M.append([CHAR_TO_IMG[A[i,j]] for j in range(m)])
         M = np.block(M)
-        n,m = M.shape
-        image = netpbm.Netpbm(P=2, w=m, h=n, k=255, M=M)
+        image = netpbm.Netpbm(P=2, k=255, M=M)
         image.to_png(path, 1)
 
 

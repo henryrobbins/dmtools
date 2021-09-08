@@ -20,24 +20,21 @@ class Netpbm:
     extension_to_magic_number = {"pbm": 1, "pgm": 2, "ppm": 3}
     magic_number_to_extension = {1: "pbm", 2: "pgm", 3: "ppm"}
 
-    def __init__(self, P: int, w: int, h: int, k: int, M: np.ndarray):
+    def __init__(self, P: int, k: int, M: np.ndarray):
         """Initialize a Netpbm image.
 
         Args:
             P (int): Magic number of the Netpbm image.
             k (int): Maximum gray/color value
-            w (int): Width of the image
-            h (int): Height of the image
             M (np.ndarray): A NumPy array representing the image pixels.
         """
         self.P = P
-        self.w = w
-        self.h = h
+        self.h, self.w, *_ = M.shape
         self.k = k
         self.M = M
 
     def __copy__(self):
-        return Netpbm(P=self.P, w=self.w, h=self.h, k=self.k, M=self.M)
+        return Netpbm(P=self.P, k=self.k, M=self.M)
 
     def set_max_color_value(self, k: int):
         """Set the maximum gray/color value of this Netpbm image.
@@ -110,7 +107,7 @@ def _parse_ascii_netpbm(f: List[str]) -> Netpbm:
         M = np.array(vals).reshape(h, w, 3)
     else:
         M = np.array(vals).reshape(h, w)
-    return Netpbm(P=P, w=w, h=h, k=k, M=M)
+    return Netpbm(P=P, k=k, M=M)
 
 
 # TODO: make the file reading code more robust
@@ -132,7 +129,7 @@ def _parse_binary_netpbm(path: str) -> Netpbm:
             M = M.reshape(h, w, 3)
         else:
             M = M.reshape(h, w)
-    return Netpbm(P=P, w=w, h=h, k=k, M=M)
+    return Netpbm(P=P, k=k, M=M)
 
 
 def read_netpbm(path:str) -> Netpbm:
@@ -180,8 +177,7 @@ def enlarge(image:Netpbm, k:int) -> Netpbm:
     # NEAREST_NEIGHBOR (order=0)
     M = rescale(image.M, k,
                 order=0, preserve_range=True, multichannel=(image.P == 3))
-    w,h = image.w, image.h
-    return Netpbm(P=image.P, w=w*k, h=h*k, k=image.k, M=M)
+    return Netpbm(P=image.P, k=image.k, M=M)
 
 
 def image_grid(images:List[Netpbm], w:int, h:int, b:int,
@@ -213,10 +209,7 @@ def image_grid(images:List[Netpbm], w:int, h:int, b:int,
             p += 1
         grid_layout = np.vstack((grid_layout, row))
         grid_layout = np.vstack((grid_layout, h_border))
-    return Netpbm(P=images[0].P,
-                  w=w*m + (w+1)*b,
-                  h=h*n + (h+1)*b,
-                  k=k, M=grid_layout.astype(int))
+    return Netpbm(P=images[0].P, k=k, M=grid_layout.astype(int))
 
 
 def border(image:Netpbm, b:int, color:int = "white") -> Netpbm:
