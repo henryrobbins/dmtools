@@ -269,7 +269,7 @@ def generate(path:str, f:Callable, scale:int = -1, **kwargs):
     if scale != -1:
         m = ceil(scale / max(image.M.shape))
         image = enlarge(image, m)
-    image.write_netpbm(path)
+    image.to_netpbm(path)
 
     t = time.time() - then
     size = os.stat(path).st_size
