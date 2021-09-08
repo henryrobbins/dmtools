@@ -72,7 +72,7 @@ def write(ascii:Ascii, path:str, type:str):
         M = np.block(M)
         n,m = M.shape
         image = netpbm.Netpbm(P=2, w=m, h=n, k=255, M=M)
-        netpbm.write_png(path, image, 1)
+        image.to_png(path, 1)
 
     t = time.time() - then
     size = os.stat(path).st_size
