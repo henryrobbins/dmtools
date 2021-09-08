@@ -3,7 +3,6 @@ import time
 import imageio
 import numpy as np
 from math import ceil
-from collections import namedtuple
 from skimage.transform import rescale
 from typing import List, Callable
 from .log import log_msg
@@ -148,8 +147,8 @@ def enlarge(image:Netpbm, k:int) -> Netpbm:
     Returns:
        Netpbm: Enlarged Netpbm image.
     """
-    # old implementation -- now using skimage for efficency
-    # =====================================================
+    # old implementation -- now using skimage for efficiency
+    # ======================================================
     # M = image.M
     # n,m = M.shape
     # expanded_rows = np.zeros((n*k,m))
@@ -159,7 +158,7 @@ def enlarge(image:Netpbm, k:int) -> Netpbm:
     # for j in range(m*k):
     #     expanded[:,j] = expanded_rows[:,j // k]
     # M_prime = expanded.astype(int)
-    # =====================================================
+    # ======================================================
 
     # NEAREST_NEIGHBOR (order=0)
     M = rescale(image.M, k,
@@ -270,7 +269,7 @@ def generate(path:str, f:Callable, scale:int = -1, **kwargs):
     if scale != -1:
         m = ceil(scale / max(image.M.shape))
         image = enlarge(image, m)
-    write(path, image)
+    image.write_netpbm(path)
 
     t = time.time() - then
     size = os.stat(path).st_size
@@ -297,7 +296,7 @@ def generate(path:str, f:Callable, scale:int = -1, **kwargs):
 
 
 def animate(pattern:str, out_path:str, fps:int):
-    """Creates an animation by calling the ffmpeg commmand line tool.
+    """Creates an animation by calling the ffmpeg command line tool.
 
     Args:
         pattern (str): Pattern of the input frame.
