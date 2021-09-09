@@ -1,10 +1,8 @@
 import os
-import time
 import imageio
 import numpy as np
-from math import ceil
 from skimage.transform import rescale
-from typing import List, Callable
+from typing import List
 from ._log import _log_msg
 import logging
 
@@ -50,7 +48,7 @@ class Netpbm:
             step = int(self.k / k)
             self.M = np.array(list(map(lambda x: x // step, self.M)), dtype=int)
 
-    def to_netpbm(self, path:str):
+    def to_netpbm(self, path: str):
         """Write object to a Netpbm file (pbm, pgm, ppm).
 
         Uses the ASCII (plain) magic numbers.
@@ -67,12 +65,12 @@ class Netpbm:
                 M = self.M.reshape(self.h, self.w * 3)
             else:
                 M = self.M
-            lines = M.clip(0,self.k).astype(int).astype(str).tolist()
+            lines = M.clip(0, self.k).astype(int).astype(str).tolist()
             f.write('\n'.join([' '.join(line) for line in lines]))
             f.write('\n')
         logging.info(_log_msg(path, os.stat(path).st_size))
 
-    def to_png(self, path:str):
+    def to_png(self, path: str):
         """Write object to a png file.
 
         Args:
@@ -124,7 +122,7 @@ def _parse_binary_netpbm(path: str) -> Netpbm:
     return Netpbm(P=P, k=k, M=M)
 
 
-def read_netpbm(path:str) -> Netpbm:
+def read_netpbm(path: str) -> Netpbm:
     """Read Netpbm file (pbm, pgm, ppm) into Netpbm.
 
     Args:
@@ -144,7 +142,7 @@ def read_netpbm(path:str) -> Netpbm:
         return _parse_binary_netpbm(path)
 
 
-def enlarge(image:Netpbm, k:int) -> Netpbm:
+def enlarge(image: Netpbm, k: int) -> Netpbm:
     """Enlarge the netpbm image by the multiplier k.
 
     Args:
@@ -172,8 +170,8 @@ def enlarge(image:Netpbm, k:int) -> Netpbm:
     return Netpbm(P=image.P, k=image.k, M=M)
 
 
-def image_grid(images:List[Netpbm], w:int, h:int, b:int,
-               color:int = "white") -> Netpbm:
+def image_grid(images: List[Netpbm], w: int, h: int, b: int,
+               color: int = "white") -> Netpbm:
     """Create a w * h grid of images with a border of width b.
 
     Args:
@@ -188,7 +186,7 @@ def image_grid(images:List[Netpbm], w:int, h:int, b:int,
     """
     n,m = images[0].M.shape
     k = images[0].k
-    c = {'white':k, 'black':0}[color]
+    c = {'white': k, 'black': 0}[color]
     h_border = c*np.ones((b, w*m + (w+1)*b))
     v_border = c*np.ones((n, b))
     grid_layout = h_border
@@ -204,7 +202,7 @@ def image_grid(images:List[Netpbm], w:int, h:int, b:int,
     return Netpbm(P=images[0].P, k=k, M=grid_layout.astype(int))
 
 
-def border(image:Netpbm, b:int, color:int = "white") -> Netpbm:
+def border(image: Netpbm, b: int, color: int = "white") -> Netpbm:
     """Add a border of width b to the image
 
     Args:

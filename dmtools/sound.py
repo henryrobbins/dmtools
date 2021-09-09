@@ -14,7 +14,7 @@ Sound wave sample
 '''
 
 
-def wave(f:float, a:float, t:float) -> np.ndarray:
+def wave(f: float, a: float, t: float) -> np.ndarray:
     """Generate the samples of a sound wave.
 
     Args:
@@ -29,7 +29,7 @@ def wave(f:float, a:float, t:float) -> np.ndarray:
     return a*np.sin(sample_points*f)
 
 
-def wave_sequence(frequencies:np.ndarray, t) -> WAV:
+def wave_sequence(frequencies: np.ndarray, t) -> WAV:
     """Return a Wav sound which iterates through the given frequencies.
 
     Args:
@@ -44,7 +44,7 @@ def wave_sequence(frequencies:np.ndarray, t) -> WAV:
     return WAV(r=w, l=w)
 
 
-def write(file_name:str, wave:WAV):
+def write(file_name: str, wave: WAV):
     """Write a .wav file.
 
     Args:

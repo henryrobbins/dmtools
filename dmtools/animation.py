@@ -8,7 +8,7 @@ from ._log import _log_msg
 import os
 
 
-def clip(path:str, start:int = 0, end:int = -1) -> List[np.ndarray]:
+def clip(path: str, start: int = 0, end: int = -1) -> List[np.ndarray]:
     """Return a list of images in the given directory.
 
     Images are ordered according to their name. Hence, the following naming
@@ -36,7 +36,7 @@ def clip(path:str, start:int = 0, end:int = -1) -> List[np.ndarray]:
     return frames
 
 
-def _pad_to_16(M:np.ndarray) -> np.ndarray:
+def _pad_to_16(M: np.ndarray) -> np.ndarray:
     # TODO: Get a better understanding why image demensions need to be
     # multiplies of 16. It appears this requirement is no longer from ffmpeg.
     # Adapted from code by: https://stackoverflow.com/users/9698684/yatu
@@ -46,13 +46,13 @@ def _pad_to_16(M:np.ndarray) -> np.ndarray:
     x_pad = (ceil(n/16)*16-n)
     x_pad_split = (x_pad // 2, x_pad // 2 + x_pad % 2)
     if len(M.shape) == 3:
-        return np.pad(M,(y_pad_split, x_pad_split, (0,0)))
+        return np.pad(M, (y_pad_split, x_pad_split, (0, 0)))
     else:
-        return np.pad(M,(y_pad_split, x_pad_split))
+        return np.pad(M, (y_pad_split, x_pad_split))
 
 
-def to_mp4(frames:List[np.ndarray], path:str, fps:int, s:int = 1,
-           audio:sound.WAV=None):
+def to_mp4(frames: List[np.ndarray], path: str, fps: int, s: int = 1,
+           audio: sound.WAV = None):
     """Write an animation as a .mp4 file using ffmpeg through imageio.mp4
 
     Args:
@@ -62,13 +62,13 @@ def to_mp4(frames:List[np.ndarray], path:str, fps:int, s:int = 1,
         fps (int): Frames per second.
         s (int, optional): Multiplier for scaling. Defaults to 1.
     """
-    frames = [f.astype(np.uint8).clip(0,255) for f in frames]
+    frames = [f.astype(np.uint8).clip(0, 255) for f in frames]
     frames = [_pad_to_16(f) for f in frames]
     imageio.mimwrite(uri="tmp.mp4" if audio is not None else path,
                      ims=frames,
                      format='FFMPEG',
                      fps=fps,
-                     output_params=["-vf","scale=iw*%d:ih*%d" % (s,s),
+                     output_params=["-vf", "scale=iw*%d:ih*%d" % (s, s),
                                     "-sws_flags", "neighbor"])
     if audio is not None:
         sound.write("tmp.wav", audio)
