@@ -72,26 +72,16 @@ class Netpbm:
             f.write('\n')
         logging.info(_log_msg(path, os.stat(path).st_size))
 
-    def to_png(self, path:str, size:int):
+    def to_png(self, path:str):
         """Write object to a png file.
 
         Args:
             path (str): String file path.
-            size (int): Target width.
         """
-        # scale to desired size
-        w = self.M.shape[1]
-        image = enlarge(self, ceil(size / w))
-
-        # reverse gradient if portable bit map image
-        M = image.M
-        if image.P == 1:
+        M = self.M
+        if self.P == 1:
             M = np.where(M == 1, 0, 1)
-
-        # scale gradient to 255
-        M = M * (255 / image.k)
-        M = M.astype(np.uint8)
-
+        M = np.array(M * (255 / self.k), dtype=np.uint8)
         imageio.imwrite(path, M)
         logging.info(_log_msg(path, os.stat(path).st_size))
 

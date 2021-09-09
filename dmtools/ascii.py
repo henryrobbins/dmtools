@@ -61,7 +61,7 @@ class Ascii:
             M.append([CHAR_TO_IMG[A[i,j]] for j in range(m)])
         M = np.block(M)
         image = netpbm.Netpbm(P=2, k=255, M=M)
-        image.to_png(path, 1)
+        image.to_png(path)
         logging.info(_log_msg(path, os.stat(path).st_size))
 
 
