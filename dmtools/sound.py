@@ -1,17 +1,36 @@
 import numpy as np
 from scipy.io import wavfile
-from collections import namedtuple
 
 # https://en.wikipedia.org/wiki/44,100_Hz
 SAMPLE_RATE = 44100
 
-WAV = namedtuple('WAV', ['r', 'l'])
-WAV.__doc__ = '''\
-Sound wave sample
 
-- r (np.ndarray): NumPy array of samples of the right channel.
-- l (np.ndarray): NumPy array of samples of the left channel.
-'''
+class WAV:
+    """An object representing a WAV audio file.
+
+    For more information about the audio file format, see
+    `WAV <https://en.wikipedia.org/wiki/WAV>`_
+    """
+    def __init__(self, r: np.ndarray, l: np.ndarray,
+                 sample_rate: int = SAMPLE_RATE):
+        """Initialize a WAV sound.
+
+        Args:
+            r (np.ndarray): NumPy array of samples of the right channel.
+            l (np.ndarray): NumPy array of samples of the left channel.
+            sample_rate (int): Sample rate. Defaults to SAMPLE_RATE.
+        """
+        self.r = r
+        self.l = l
+        self.sample_rate = sample_rate
+
+    def to_wav(self, path):
+        """Write object to a WAV audio file (wav)
+
+        Args:
+            path (str): String file path.
+        """
+        wavfile.write(path, self.sample_rate, np.array([self.r, self.l]).T)
 
 
 def wave(f: float, a: float, t: float) -> np.ndarray:
@@ -42,13 +61,3 @@ def wave_sequence(frequencies: np.ndarray, t) -> WAV:
     d = t / len(frequencies)
     w = np.array([list(wave(f,1,d)) for f in frequencies]).flatten()
     return WAV(r=w, l=w)
-
-
-def write(file_name: str, wave: WAV):
-    """Write a .wav file.
-
-    Args:
-        file_name (str): Name of the .wav file to be written.
-        wave (WAV): Wav file to write.
-    """
-    wavfile.write(file_name, SAMPLE_RATE, np.array([wave.r, wave.l]).T)

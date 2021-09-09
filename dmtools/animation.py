@@ -71,7 +71,7 @@ def to_mp4(frames: List[np.ndarray], path: str, fps: int, s: int = 1,
                      output_params=["-vf", "scale=iw*%d:ih*%d" % (s, s),
                                     "-sws_flags", "neighbor"])
     if audio is not None:
-        sound.write("tmp.wav", audio)
+        audio.to_wav("tmp.wav")
         os.system("ffmpeg -i %s -i %s -c:v copy -c:a aac -y %s"
                   % ("tmp.mp4", "tmp.wav", path))
         os.system("rm tmp.mp4")
