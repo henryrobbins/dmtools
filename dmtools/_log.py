@@ -1,4 +1,4 @@
-def log_msg(name: str, size: int) -> str:
+def _log_msg(name: str, size: int) -> str:
     """Return log message for creation of file.
 
     Args:

@@ -3,7 +3,7 @@ import os
 import pkgutil
 import copy
 from . import netpbm
-from .log import log_msg
+from ._log import _log_msg
 import logging
 
 
@@ -46,7 +46,7 @@ class Ascii:
             lines = self.M.astype(str).tolist()
             f.write('\n'.join([' '.join(line) for line in lines]))
             f.write('\n')
-        logging.info(log_msg(path, os.stat(path).st_size))
+        logging.info(_log_msg(path, os.stat(path).st_size))
 
     def to_png(self, path: str):
         """Write object to a png file.
@@ -62,7 +62,7 @@ class Ascii:
         M = np.block(M)
         image = netpbm.Netpbm(P=2, k=255, M=M)
         image.to_png(path, 1)
-        logging.info(log_msg(path, os.stat(path).st_size))
+        logging.info(_log_msg(path, os.stat(path).st_size))
 
 
 def netpbm_to_ascii(image: netpbm.Netpbm) -> Ascii:

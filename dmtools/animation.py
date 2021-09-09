@@ -4,7 +4,7 @@ from math import ceil
 from typing import List
 import logging
 from . import sound
-from .log import log_msg
+from ._log import _log_msg
 import os
 
 
@@ -77,4 +77,4 @@ def to_mp4(frames:List[np.ndarray], path:str, fps:int, s:int = 1,
         os.system("rm tmp.mp4")
         os.system("rm tmp.wav")
     name = path.split('/')[-1]
-    logging.info(log_msg(name, os.stat(path).st_size))
+    logging.info(_log_msg(name, os.stat(path).st_size))

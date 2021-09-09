@@ -11,4 +11,3 @@ from . import ascii
 from . import colorspace
 from . import netpbm
 from . import sound
-from . import log

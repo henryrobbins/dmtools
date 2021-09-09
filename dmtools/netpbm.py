@@ -5,7 +5,7 @@ import numpy as np
 from math import ceil
 from skimage.transform import rescale
 from typing import List, Callable
-from .log import log_msg
+from ._log import _log_msg
 import logging
 
 
@@ -70,7 +70,7 @@ class Netpbm:
             lines = M.clip(0,self.k).astype(int).astype(str).tolist()
             f.write('\n'.join([' '.join(line) for line in lines]))
             f.write('\n')
-        logging.info(log_msg(path, os.stat(path).st_size))
+        logging.info(_log_msg(path, os.stat(path).st_size))
 
     def to_png(self, path:str, size:int):
         """Write object to a png file.
@@ -93,7 +93,7 @@ class Netpbm:
         M = M.astype(np.uint8)
 
         imageio.imwrite(path, M)
-        logging.info(log_msg(path, os.stat(path).st_size))
+        logging.info(_log_msg(path, os.stat(path).st_size))
 
 
 def _parse_ascii_netpbm(f: List[str]) -> Netpbm:

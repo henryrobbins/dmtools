@@ -40,11 +40,3 @@ dmtools.sound module
    :members:
    :undoc-members:
    :show-inheritance:
-
-dmtools.log module
-------------------
-
-.. automodule:: dmtools.log
-   :members:
-   :undoc-members:
-   :show-inheritance:
