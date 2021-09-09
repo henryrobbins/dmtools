@@ -1,22 +1,25 @@
 import imageio
 import numpy as np
 from math import ceil
-import time
-from skimage.color import rgb2gray, gray2rgb
-from typing import List, Callable
+from typing import List
 import logging
 from . import sound
 from .log import log_msg
 import os
 
 
-def clip(path:str, start:int = None, end:int = None) -> List[np.ndarray]:
-    """Return a list of images in the given directory at the path.
+def clip(path:str, start:int = 0, end:int = -1) -> List[np.ndarray]:
+    """Return a list of images in the given directory.
+
+    Images are ordered according to their name. Hence, the following naming
+    convention is recommend.
+
+    name0000.png, name0001.png, ...
 
     Args:
-        path (str): Path to directory containing image files.
-        start (int, optional): Starting frame. Defaults to None.
-        end (int, optional): Ending frame. Defaults to None.
+        path (str): String directory path.
+        start (int, optional): Starting frame. Defaults to 0.
+        end (int, optional): Ending frame. Defaults to -1.
 
     Returns:
         List[np.ndarray]: List of NumPy arrays representing images.
@@ -27,72 +30,40 @@ def clip(path:str, start:int = None, end:int = None) -> List[np.ndarray]:
                 yield f
 
     files = sorted(listdir_nohidden(path))
-    if start is not None and end is not None:
-        files = files[start-1:end]
+    files = files[start:end]
     paths = ["%s/%s" % (path, f) for f in files]
     frames = [imageio.imread(path) for path in paths]
     return frames
 
 
-def transform(frames:List[np.ndarray],
-              f:Callable,
-              greyscale:bool = False, **kwargs) -> List[np.ndarray]:
-    """Transform the frames using the provided function.
-
-    Args:
-        frames (List[np.ndarray]): List of images.
-        f (Callable): Function to apply to each image in frames.
-        greyscale (bool): True if frames are greyscale. Defaults to False.
-
-    Returns:
-        List[np.ndarray]: List of transformed images.
-    """
-    tmp = list(frames)
-    for i in range(len(tmp)):
-        M = tmp[i]
-        if greyscale:
-            M = rgb2gray(M)*255
-            M = f(M,**kwargs)
-        else:
-            n,m,_ = M.shape
-            M = f(M,**kwargs)
-        if greyscale:
-            M = gray2rgb(M)
-        tmp[i] = M
-    return tmp
-
-
-def pad_to_16(M:np.ndarray) -> np.ndarray:
-    """Return M padded such that dimensions are multiples of 16."""
+def _pad_to_16(M:np.ndarray) -> np.ndarray:
+    # TODO: Get a better understanding why image demensions need to be
+    # multiplies of 16. It appears this requirement is no longer from ffmpeg.
     # Adapted from code by: https://stackoverflow.com/users/9698684/yatu
+    m,n,*_ = M.shape
+    y_pad = (ceil(m/16)*16-m)
+    y_pad_split = (y_pad // 2, y_pad // 2 + y_pad % 2)
+    x_pad = (ceil(n/16)*16-n)
+    x_pad_split = (x_pad // 2, x_pad // 2 + x_pad % 2)
     if len(M.shape) == 3:
-        m,n,_ = M.shape
-        y_pad = (ceil(m/16)*16-m)
-        x_pad = (ceil(n/16)*16-n)
-        return np.pad(M,((y_pad // 2, y_pad // 2 + y_pad % 2),
-                         (x_pad // 2, x_pad // 2 + x_pad % 2),
-                         (0,0)))
+        return np.pad(M,(y_pad_split, x_pad_split, (0,0)))
     else:
-        m,n = M.shape
-        y_pad = (ceil(m/16)*16-m)
-        x_pad = (ceil(n/16)*16-n)
-        return np.pad(M,((y_pad // 2, y_pad // 2 + y_pad % 2),
-                         (x_pad // 2, x_pad // 2 + x_pad % 2)))
+        return np.pad(M,(y_pad_split, x_pad_split))
 
 
-def animation(frames:List[np.ndarray], path:str, fps:int, s:int = 1,
-              audio:sound.WAV=None):
+def to_mp4(frames:List[np.ndarray], path:str, fps:int, s:int = 1,
+           audio:sound.WAV=None):
     """Write an animation as a .mp4 file using ffmpeg through imageio.mp4
 
     Args:
         frames (List[np.ndarray]): List of frames in the animation.
         audio (sound.WAV): Audio for the animation (None if no audio).
-        path (str): Path where the file should be written.
+        path (str): String file path.
         fps (int): Frames per second.
         s (int, optional): Multiplier for scaling. Defaults to 1.
     """
     frames = [f.astype(np.uint8).clip(0,255) for f in frames]
-    frames = [pad_to_16(f) for f in frames]
+    frames = [_pad_to_16(f) for f in frames]
     imageio.mimwrite(uri="tmp.mp4" if audio is not None else path,
                      ims=frames,
                      format='FFMPEG',
