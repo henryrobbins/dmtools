@@ -48,6 +48,21 @@ class Netpbm:
             step = int(self.k / k)
             self.M = np.array(list(map(lambda x: x // step, self.M)), dtype=int)
 
+    def rescale(self, k: int):
+        """Rescale the image by the desired scaling factor.
+
+        Uses Nearest-neighbor interpolation as the image scaling algorithm.
+        Read more about image scaling algorithms at
+        `Image scaling <https://wikipedia.org/wiki/Image_scaling>`_.
+
+        Args:
+            k (int): Scale factor
+        """
+        # Note that order=0 is equivalent to the nearest neighbor algorithm
+        self.M = rescale(self.M, k, order=0, preserve_range=True,
+                         multichannel=(self.P == 3))
+        self.h, self.w, *_ = self.M.shape
+
     def to_netpbm(self, path: str):
         """Write object to a Netpbm file (pbm, pgm, ppm).
 
@@ -140,34 +155,6 @@ def read_netpbm(path: str) -> Netpbm:
     else:
         # P4, P5, P6 are the binary (raw) formats
         return _parse_binary_netpbm(path)
-
-
-def enlarge(image: Netpbm, k: int) -> Netpbm:
-    """Enlarge the netpbm image by the multiplier k.
-
-    Args:
-        image (Netpbm): Netpbm image to enlarge.
-
-    Returns:
-       Netpbm: Enlarged Netpbm image.
-    """
-    # old implementation -- now using skimage for efficiency
-    # ======================================================
-    # M = image.M
-    # n,m = M.shape
-    # expanded_rows = np.zeros((n*k,m))
-    # for i in range(n*k):
-    #     expanded_rows[i] = M[i // k]
-    # expanded = np.zeros((n*k, m*k))
-    # for j in range(m*k):
-    #     expanded[:,j] = expanded_rows[:,j // k]
-    # M_prime = expanded.astype(int)
-    # ======================================================
-
-    # NEAREST_NEIGHBOR (order=0)
-    M = rescale(image.M, k,
-                order=0, preserve_range=True, multichannel=(image.P == 3))
-    return Netpbm(P=image.P, k=image.k, M=M)
 
 
 def image_grid(images: List[Netpbm], w: int, h: int, b: int,
