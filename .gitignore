@@ -138,3 +138,7 @@ dmypy.json
 cython_debug/
 
 .DS_Store
+
+# Example output
+*.ppm
+!examples/colorspace/barn.ppm
