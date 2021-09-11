@@ -107,16 +107,19 @@ class Netpbm:
                          multichannel=(self.P == 3))
         self.h, self.w, *_ = self.M.shape
 
-    def to_netpbm(self, path: str):
+    def to_netpbm(self, path: str, comment: List[str] = []):
         """Write object to a Netpbm file (pbm, pgm, ppm).
 
         Uses the ASCII (plain) magic numbers.
 
         Args:
             path (str): String file path.
+            comment (str): List of comment lines to include in the file.
         """
         with open(path, "w") as f:
             f.write('P%d\n' % self.P)
+            for line in comment:
+                f.write('# %s\n' % line)
             f.write("%s %s\n" % (self.w, self.h))
             if self.P != 1:
                 f.write("%s\n" % (self.k))
@@ -245,21 +248,3 @@ def border(image: Netpbm, b: int, color: int = "white") -> Netpbm:
         Netpbm: Image with border added.
     """
     return image_grid([image], w=1, h=1, b=b, color=color)
-
-# TODO: Comment to write in file should be provided as optional argument
-# def netpbm_comment(file_name:str):
-#     """Comment to be written in the
-
-#     Args:
-#         file_name (str): Name of the Netpbm file to be written.
-#     """
-#     name = file_name.split('/')[-1]
-#     lines = ["Title: %s\n" % name,
-#              "Compiled on: %s\n" % datetime.datetime.now(), "\n"]
-#     readme_path = "/".join(file_name.split('/')[:-1]) + "/README.md"
-#     with open(readme_path) as f:
-#         readme = f.readlines()
-#         indices = [i for i in range(len(readme)) if readme[i] == '\n']
-#         lines = lines + readme[:indices[1]]
-#     lines = ["# " + line for line in lines]
-#     return lines
