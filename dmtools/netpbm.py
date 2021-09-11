@@ -7,13 +7,57 @@ from ._log import _log_msg
 import logging
 
 
-# TODO: Improve this class defintion following conventions described in
-# http://netpbm.sourceforge.net.
 class Netpbm:
     """An object representing a Netpbm image.
 
-    For more information about Netpbm images, see the
-    `Netpbm Home Page <http://netpbm.sourceforge.net/>`_.
+    Netpbm is a package of graphics programs and a programming library. These
+    programs work with a set of graphics formats called the "netpbm" formats.
+    Each format is identified by a "magic number" which is denoted as :code:`P`
+    followed by the number identifier. This class works with the following
+    formats.
+
+    - `pbm`_: Pixels are black or white (:code:`P1` and :code:`P4`).
+    - `pgm`_: Pixels are shades of gray (:code:`P2` and :code:`P5`).
+    - `ppm`_: Pixels are in full color (:code:`P3` and :code:`P6`).
+
+    Each of the formats has two "magic numbers" associated with it. The lower
+    number corresponds to the ASCII (plain) format while the higher number
+    corresponds to the binary (raw) format. This class can handle reading both
+    the plain and raw formats though it can only export Netpbm images in the
+    plain formats (:code:`P1`, :code:`P2`, and :code:`P3`).
+
+    The plain formats for all three of pbm, pgm, and ppm are quite similar.
+    Here is an example pgm format.
+
+    .. code-block:: text
+
+        P2
+        5 3
+        4
+        1 1 0 1 0
+        2 0 3 0 1
+        2 2 3 1 0
+
+    The first row of the file contains the "magic number". In this example, the
+    file is a grayscale pgm image. The second row gives the file
+    dimensions (width by height) separated by whitespace. The third row gives
+    the maximum gray/color value. In this case, it is the maximum gray value
+    since this is a grayscale pgm image. Essentially, this number encodes how
+    many different gradients there are in the image. Lastly, the remaining
+    lines of the file encode the actual pixels of the image. In a pbm image,
+    the third line is not needed since pixels have binary (black or white)
+    values. In a ppm full-color image, each pixels has three values represeting
+    it--the values of the red, green, and blue channels.
+
+    This descriptions serves as a brief overview of the Netpbm formats with the
+    relevant knowledge for using this class. For more information about Netpbm,
+    see the `Netpbm Home Page`_.
+
+    .. _pbm: http://netpbm.sourceforge.net/doc/pbm.html
+    .. _pgm: http://netpbm.sourceforge.net/doc/pgm.html
+    .. _ppm: http://netpbm.sourceforge.net/doc/ppm.html
+    .. _Netpbm Home Page: http://netpbm.sourceforge.net
+
     """
     extension_to_magic_number = {"pbm": 1, "pgm": 2, "ppm": 3}
     magic_number_to_extension = {1: "pbm", 2: "pgm", 3: "ppm"}
