@@ -142,3 +142,6 @@ cython_debug/
 # Example output
 *.ppm
 !examples/colorspace/barn.ppm
+
+# Project planning document
+TODO.md

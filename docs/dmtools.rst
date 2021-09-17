@@ -40,3 +40,12 @@ dmtools.sound module
    :members:
    :undoc-members:
    :show-inheritance:
+
+
+dmtools.arrange module
+----------------------
+
+.. automodule:: dmtools.arrange
+   :members:
+   :undoc-members:
+   :show-inheritance:
