@@ -1,5 +1,8 @@
-dmtools
-=======
+.. image:: branding/dmtools_dark.png
+  :height: 150
+  :alt: dmtools
+
+|
 
 dmtools (Digital Media Tools) is a Python package providing low-level tools for
 working with digital media programmatically. The netpbm module allows one to
