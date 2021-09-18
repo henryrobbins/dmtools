@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name="dmtools",
-    version="0.1.0",
+    version="0.1.3",
     author="Henry Robbins",
     author_email="hwr26@cornell.edu",
     description="A Python package providing low-level tools for working with "
