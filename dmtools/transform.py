@@ -4,9 +4,24 @@ from math import floor, ceil
 
 def _rescale_axis(image: np.ndarray, axis: int, k: int) -> np.ndarray:
     # TODO: provide different resizing algorithms
+
+    # triangle filter
+    # def f(x : float):
+    #     return max(1-x, 0)
+    # support = 1.0
+
+    # box filter
+    # def f(x : float):
+    #     return 1 if x <= 0.5 else 0
+    # support = 0.5
+
+    # point filter
     def f(x : float):
-        return max(1-x, 0)
-    support = 1.0
+        return 1 if x <= 0.5 else 0
+    support = 0.0
+
+    if k > 1:
+        support = support * k
 
     if axis == 1:
         image = np.swapaxes(image,0,1)
@@ -21,7 +36,7 @@ def _rescale_axis(image: np.ndarray, axis: int, k: int) -> np.ndarray:
         a = max((bisect - support) / k, 0.0)
         b = min((bisect + support) / k, n)
         if (b-a < 1):
-            # determine where the majority of the interval lies
+            # fall back to nearest neighbor heuristic
             if ceil(a) - a > ((b - a) / 2.0):
                 a = floor(a)
             else:
@@ -32,10 +47,12 @@ def _rescale_axis(image: np.ndarray, axis: int, k: int) -> np.ndarray:
         row = image[a:b,:]
 
         # use weighting function to weight rows
-        if row.shape[0] > 1:
+        if k <= 1:
             weights = [f(abs((i+0.5) - (bisect / k)) * k) for i in range(a,b)]
-            density = np.sum(weights)
-            row = np.dot(weights, row) / density
+        else:
+            weights = [f(abs((i+0.5) - (bisect / k))) for i in range(a,b)]
+        density = np.sum(weights)
+        row = np.dot(weights, row) / density
 
         # set row of rescaled image
         rescaled_image[i,:] = row
