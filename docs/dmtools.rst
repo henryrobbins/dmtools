@@ -9,6 +9,14 @@ dmtools.netpbm module
    :undoc-members:
    :show-inheritance:
 
+dmtools.transform module
+----------------------
+
+.. automodule:: dmtools.transform
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 dmtools.colorspace module
 -------------------------
 
