@@ -32,10 +32,31 @@ def triangle_resize_weighting_function(x: float) -> float:
     return max(1 - x, 0.0)
 
 
+def catmull_rom_resize_weighting_function(x: float) -> float:
+    """Catmull-Rom filter's weighting function.
+
+    For more information about the Catmull-Rom filter, see
+    `Cubic Filters <https://legacy.imagemagick.org/Usage/filter/#cubics>`_.
+
+    Args:
+        x (float): distance to source pixel.
+
+    Returns:
+        float: weight on the source pixel.
+    """
+    if x <= 1:
+        return -x**3 + 5*x**2 - 8*x + 4
+    elif x <= 2:
+        return 3*x**3 - 5*x**2 + 2
+    else:
+        return 0
+
+
 RESIZE_FILTERS = \
-    {'point':    (box_resize_weighting_function,      0.0),
-     'box':      (box_resize_weighting_function,      0.5),
-     'triangle': (triangle_resize_weighting_function, 1.0)}
+    {'point':    (box_resize_weighting_function,         0.0),
+     'box':      (box_resize_weighting_function,         0.5),
+     'triangle': (triangle_resize_weighting_function,    1.0),
+     'catrom':   (catmull_rom_resize_weighting_function, 2.0)}
 
 
 def _rescale_axis(image: np.ndarray, axis: int, k: int, filter: str) -> np.ndarray:
@@ -88,7 +109,7 @@ def rescale(image: np.ndarray, k: int, filter: str='point') -> np.ndarray:
     Args:
         image (np.ndarray): Image to rescale.
         k (int): Scaling factor.
-        filter (str): {point, box, triangle}. Defaults to point.
+        filter (str): {point, box, triangle, catrom}. Defaults to point.
 
     Returns:
         np.ndarray: Rescaled image.
