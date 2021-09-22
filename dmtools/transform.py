@@ -2,24 +2,44 @@ import numpy as np
 from math import floor, ceil
 
 
-def _rescale_axis(image: np.ndarray, axis: int, k: int) -> np.ndarray:
-    # TODO: provide different resizing algorithms
+def box_resize_weighting_function(x: float) -> float:
+    """Box filter's weighting function.
 
-    # triangle filter
-    # def f(x : float):
-    #     return max(1-x, 0)
-    # support = 1.0
+    For more information about the Box filter, see
+    `Box <https://legacy.imagemagick.org/Usage/filter/#box>`_.
 
-    # box filter
-    # def f(x : float):
-    #     return 1 if x <= 0.5 else 0
-    # support = 0.5
+    Args:
+        x (float): distance to source pixel.
 
-    # point filter
-    def f(x : float):
-        return 1 if x <= 0.5 else 0
-    support = 0.0
+    Returns:
+        float: weight on the source pixel.
+    """
+    return 1 if x <= 0.5 else 0
 
+
+def triangle_resize_weighting_function(x: float) -> float:
+    """Triangle filter's weighting function.
+
+    For more information about the Triangle filter, see
+    `Triangle <https://legacy.imagemagick.org/Usage/filter/#triangle>`_.
+
+    Args:
+        x (float): distance to source pixel.
+
+    Returns:
+        float: weight on the source pixel.
+    """
+    return max(1 - x, 0.0)
+
+
+RESIZE_FILTERS = \
+    {'point':    (box_resize_weighting_function,      0.0),
+     'box':      (box_resize_weighting_function,      0.5),
+     'triangle': (triangle_resize_weighting_function, 1.0)}
+
+
+def _rescale_axis(image: np.ndarray, axis: int, k: int, filter: str) -> np.ndarray:
+    f, support = RESIZE_FILTERS[filter]
     if k > 1:
         support = support * k
 
@@ -63,16 +83,17 @@ def _rescale_axis(image: np.ndarray, axis: int, k: int) -> np.ndarray:
     return rescaled_image
 
 
-def rescale(image: np.ndarray, k: int) -> np.ndarray:
+def rescale(image: np.ndarray, k: int, filter: str='point') -> np.ndarray:
     """Rescale the image by the given scaling factor.
 
     Args:
         image (np.ndarray): Image to rescale.
         k (int): Scaling factor.
+        filter (str): {point, box, triangle}. Defaults to point.
 
     Returns:
         np.ndarray: Rescaled image.
     """
-    rescaled_image = _rescale_axis(image=image, axis=0, k=k)
-    rescaled_image = _rescale_axis(image=rescaled_image, axis=1, k=k)
+    rescaled_image = _rescale_axis(image=image, axis=0, k=k, filter=filter)
+    rescaled_image = _rescale_axis(image=rescaled_image, axis=1, k=k, filter=filter)
     return rescaled_image
