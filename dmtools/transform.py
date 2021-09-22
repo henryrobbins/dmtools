@@ -1,5 +1,6 @@
 import numpy as np
 from math import floor, ceil
+from typing import Callable
 
 
 def box_resize_weighting_function(x: float) -> float:
@@ -59,8 +60,21 @@ RESIZE_FILTERS = \
      'catrom':   (catmull_rom_resize_weighting_function, 2.0)}
 
 
-def _rescale_axis(image: np.ndarray, axis: int, k: int, filter: str) -> np.ndarray:
-    f, support = RESIZE_FILTERS[filter]
+def _rescale_axis(image: np.ndarray,
+                  axis: int,
+                  k: int,
+                  filter: str,
+                  weighting_function: Callable=None,
+                  support: Callable=None) -> np.ndarray:
+    # set the weighting function and support
+    if weighting_function is not None:
+        if support is None:
+            raise ValueError('Weighting function provided without support.')
+        f = weighting_function
+        support = support
+    else:
+        f, support = RESIZE_FILTERS[filter]
+
     if k > 1:
         support = support * k
 
@@ -103,17 +117,28 @@ def _rescale_axis(image: np.ndarray, axis: int, k: int, filter: str) -> np.ndarr
     return rescaled_image
 
 
-def rescale(image: np.ndarray, k: int, filter: str='point') -> np.ndarray:
+def rescale(image: np.ndarray,
+            k: int,
+            filter: str='point',
+            weighting_function: Callable=None,
+            support: Callable=None) -> np.ndarray:
     """Rescale the image by the given scaling factor.
 
     Args:
         image (np.ndarray): Image to rescale.
         k (int): Scaling factor.
         filter (str): {point, box, triangle, catrom}. Defaults to point.
+        weighting_function (Callable): Weighting function to use.
+        support (float): Support of the provided weighting function.
 
     Returns:
         np.ndarray: Rescaled image.
     """
-    rescaled_image = _rescale_axis(image=image, axis=0, k=k, filter=filter)
-    rescaled_image = _rescale_axis(image=rescaled_image, axis=1, k=k, filter=filter)
+    rescaled_image = _rescale_axis(image=image, axis=0, k=k, filter=filter,
+                                   weighting_function=weighting_function,
+                                   support=support)
+    rescaled_image = _rescale_axis(image=rescaled_image, axis=1, k=k,
+                                  filter=filter,
+                                   weighting_function=weighting_function,
+                                   support=support)
     return rescaled_image
