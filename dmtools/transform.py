@@ -5,12 +5,9 @@ from math import floor, ceil
 def _rescale_axis(image: np.ndarray, axis: int, k: int) -> np.ndarray:
     # TODO: provide different resizing algorithms
     support = 0.5
-    old_shape = image.shape
-    n,m = old_shape
-    if axis == 0:
-        new_shape = (int(k*n), m)
-    else:
-        new_shape = (n, int(k*m))
+    old_shape = np.array(image.shape)
+    new_shape = old_shape
+    new_shape[axis] = old_shape[axis] * k
     rescaled_image = np.zeros((new_shape))
     for i in range(new_shape[axis]):
         bisect = i + 0.5
