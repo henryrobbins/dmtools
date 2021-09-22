@@ -71,8 +71,7 @@ def _rescale_axis(image: np.ndarray, axis: int, k: int, filter: str) -> np.ndarr
             weights = [f(abs((i+0.5) - (bisect / k)) * k) for i in range(a,b)]
         else:
             weights = [f(abs((i+0.5) - (bisect / k))) for i in range(a,b)]
-        density = np.sum(weights)
-        row = np.dot(weights, row) / density
+        row = np.average(row, axis=0, weights=weights)
 
         # set row of rescaled image
         rescaled_image[i,:] = row
