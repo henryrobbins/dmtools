@@ -4,7 +4,9 @@ from math import floor, ceil
 
 def _rescale_axis(image: np.ndarray, axis: int, k: int) -> np.ndarray:
     # TODO: provide different resizing algorithms
-    support = 0.5
+    def f(x : float):
+        return max(1-x, 0)
+    support = 1.0
 
     if axis == 1:
         image = np.swapaxes(image,0,1)
@@ -14,6 +16,7 @@ def _rescale_axis(image: np.ndarray, axis: int, k: int) -> np.ndarray:
     new_shape[0] = int(new_shape[0] * k)
     rescaled_image = np.zeros(new_shape)
     for i in range(new_shape[0]):
+        # get range of rows in the support
         bisect = i + 0.5
         a = max((bisect - support) / k, 0.0)
         b = min((bisect + support) / k, n)
@@ -26,7 +29,16 @@ def _rescale_axis(image: np.ndarray, axis: int, k: int) -> np.ndarray:
             b = a + 1
         a = round(a)
         b = round(b)
-        rescaled_image[i,:] = np.mean(image[a:b,:], axis=0)
+        row = image[a:b,:]
+
+        # use weighting function to weight rows
+        if row.shape[0] > 1:
+            weights = [f(abs((i+0.5) - (bisect / k)) * k) for i in range(a,b)]
+            density = np.sum(weights)
+            row = np.dot(weights, row) / density
+
+        # set row of rescaled image
+        rescaled_image[i,:] = row
 
     if axis == 1:
         rescaled_image = np.swapaxes(rescaled_image,0,1)
