@@ -114,7 +114,7 @@ def _rescale_axis(image: np.ndarray,
     if axis == 1:
         rescaled_image = np.swapaxes(rescaled_image,0,1)
 
-    return rescaled_image.astype(np.uint8)
+    return np.clip(rescaled_image, 0.0, 255.0).astype(np.uint8)
 
 
 def rescale(image: np.ndarray,
