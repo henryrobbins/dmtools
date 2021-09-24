@@ -1,6 +1,7 @@
 import numpy as np
 from typing import List
 
+
 def image_grid(images: List[np.ndarray], w: int, h: int, b: int,
                color: int = "white", k: int = 255) -> np.ndarray:
     """Create a w * h grid of images with a border of width b.

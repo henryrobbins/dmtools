@@ -41,7 +41,7 @@ def RGB_to_gray(image: np.ndarray) -> np.ndarray:
     """Convert an image in CIE RGB space to grayscale.
 
     For details about the implemented conversion, see
-    `Frequently Asked Questions about Color <http://poynton.ca/PDFs/ColorFAQ.pdf>`_.
+    `FAQs about Color <http://poynton.ca/PDFs/ColorFAQ.pdf>`_.
 
     Args:
         image (np.ndarray): Image in CIE RGB space.

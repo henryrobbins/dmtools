@@ -90,7 +90,7 @@ class Netpbm:
                 self.P == 1
         else:
             step = int(self.k / k)
-            self.M = np.array(list(map(lambda x: x // step, self.M)), dtype=int)
+            self.M = np.floor_divide(self.M, step)
 
     def rescale(self, k: int):
         """Rescale the image by the desired scaling factor.
