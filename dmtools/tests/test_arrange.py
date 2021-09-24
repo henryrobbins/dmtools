@@ -1,7 +1,6 @@
 import pytest
 import numpy as np
 from dmtools.arrange import image_grid, border
-from dmtools.colorspace import gray_to_RGB
 
 # -----------
 # TEST IMAGES

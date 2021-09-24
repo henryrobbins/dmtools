@@ -9,5 +9,5 @@ max-line-length = 79
 per-file-ignores =
     ./__init__.py:F401
     dmtools/__init__.py:F401
-    dmtools/tests/test_transform.py:E201
+    dmtools/tests/*:E201
     ; standard to ignore F401 in __init__.py
