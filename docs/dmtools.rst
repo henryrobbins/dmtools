@@ -1,6 +1,15 @@
 dmtools package
 ===============
 
+dmtools.io module
+---------------------
+
+.. automodule:: dmtools.io
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
 dmtools.netpbm module
 ---------------------
 

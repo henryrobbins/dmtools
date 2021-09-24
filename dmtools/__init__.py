@@ -19,3 +19,4 @@ from . import netpbm
 from . import sound
 from . import arrange
 from . import transform
+from .io import read_png, write_png
