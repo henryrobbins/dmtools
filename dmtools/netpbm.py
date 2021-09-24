@@ -1,7 +1,7 @@
 import os
 import imageio
 import numpy as np
-from skimage.transform import rescale
+from .transform import rescale
 from typing import List
 from ._log import _log_msg
 import logging
@@ -103,8 +103,7 @@ class Netpbm:
             k (int): Scale factor
         """
         # Note that order=0 is equivalent to the nearest neighbor algorithm
-        self.M = rescale(self.M, k, order=0, preserve_range=True,
-                         multichannel=(self.P == 3))
+        self.M = rescale(self.M, k, filter='point')
         self.h, self.w, *_ = self.M.shape
 
     def to_netpbm(self, path: str, comment: List[str] = []):

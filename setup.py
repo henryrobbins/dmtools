@@ -27,7 +27,6 @@ setup(
         'numpy>=1.19',
         'imageio>=2.9',
         'imageio-ffmpeg>=0.4.5',
-        'scikit-image>=0.18',
         'scipy>=1.6',
         'typing>=3.7'
     ],
