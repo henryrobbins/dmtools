@@ -31,5 +31,11 @@ setup(
         'scipy>=1.6',
         'typing>=3.7'
     ],
+    extras_require= {
+        "dev": ['pytest>=5',
+                'mock>=3',
+                'coverage>=4.5',
+                'tox>=3']
+    },
     python_requires='>=3.5',
 )

@@ -64,8 +64,8 @@ def _rescale_axis(image: np.ndarray,
                   axis: int,
                   k: int,
                   filter: str,
-                  weighting_function: Callable=None,
-                  support: Callable=None) -> np.ndarray:
+                  weighting_function: Callable = None,
+                  support: Callable = None) -> np.ndarray:
     # set the weighting function and support
     if weighting_function is not None:
         if support is None:
@@ -114,14 +114,14 @@ def _rescale_axis(image: np.ndarray,
     if axis == 1:
         rescaled_image = np.swapaxes(rescaled_image,0,1)
 
-    return rescaled_image
+    return rescaled_image.astype(np.uint8)
 
 
 def rescale(image: np.ndarray,
             k: int,
-            filter: str='point',
-            weighting_function: Callable=None,
-            support: Callable=None) -> np.ndarray:
+            filter: str = 'point',
+            weighting_function: Callable = None,
+            support: Callable = None) -> np.ndarray:
     """Rescale the image by the given scaling factor.
 
     Args:
@@ -138,7 +138,7 @@ def rescale(image: np.ndarray,
                                    weighting_function=weighting_function,
                                    support=support)
     rescaled_image = _rescale_axis(image=rescaled_image, axis=1, k=k,
-                                  filter=filter,
+                                   filter=filter,
                                    weighting_function=weighting_function,
                                    support=support)
     return rescaled_image
