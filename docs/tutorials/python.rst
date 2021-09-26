@@ -147,7 +147,7 @@ file and try running ``python hello_world.py`` in the terminal.
 
 You just created your first Python script! The remainder of this tutorial will
 walk you through the basics of Python through multiple example Python
-scripts. Again, it is recommended you follow along by creating and running
+`scripts`_ . Again, it is recommended you follow along by creating and running
 these scripts. Even better, try modifying them to see if the output changes as
 you would expect!
 
@@ -338,4 +338,5 @@ resource if you get an error message when trying to run your Python script.
 .. _VS Code: https://code.visualstudio.com/
 .. _Notepad++: https://notepad-plus-plus.org/
 .. _Vim: https://www.vim.org/
+.. _scripts: https://github.com/henryrobbins/dmtools/tree/master/docs/tutorials/scripts
 .. _Stack Overflow: https://stackoverflow.com/
