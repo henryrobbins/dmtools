@@ -80,17 +80,7 @@ should display ``Hello World!`` as the result of the command! You can then type
     Hello World!
     >>> quit()
 
-You now have Python installed on your computer! Terminal is not a very friendly
-place to learn to write code. For this reason, it is recommended you install
-`Juypter Notebook`_ at this point. See the :ref:`jupyter_tutorial` tutorial for
-more information. To install, navigate to the Home tab of the
-Anaconda Navigator application and click install under Jupyter Notebook (Not
-JupyterLab).
-
-.. image:: images/anaconda_apps.png
-  :alt: Anaconda Applications
-
-After installing, the "Install" button should become a "Launch" button.
+You now have Python installed on your computer!
 
 .. _GUIs: https://wikipedia.org/wiki/Graphical_user_interface
 .. _syntax: https://wikipedia.org/wiki/Syntax_(programming_languages)

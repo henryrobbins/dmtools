@@ -2,16 +2,16 @@ Tutorials
 =========
 
 This section includes a few tutorials to get you up and running and using
-dmtools effectivley. The first tutorial is an introduction to Jupyter Notebooks
-which are a tool for writing and exectuting Python code. It is highly
-recommended that you follow this tutorial before proceeding to the Python
-tutorial as the Python introduction will utilize Jupyter Notebooks and Following
-along is the best way to learn. Similarly, the introduction to NumPy will use
-Jupyter Notebooks.
+dmtools effectivley. The first tutorial is a quick introduction to the Python
+programming language and how you can write and run your own Python code. The
+following tutorial gives an introduction to the `NumPy`_ python package which
+will be pivotal to your ability to transform and create images.
+
 
 .. toctree::
    :maxdepth: 1
 
-   jupyter
    python
    numpy
+
+.. _NumPy: https://numpy.org/
