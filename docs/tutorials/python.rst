@@ -16,12 +16,11 @@ in a terminal where you can enter Python commands and run them. Anything more
 than a one line command is going to be bothersome to write in a prompt.
 Furthermore, it will not be repeatable. The python script addresses these
 issues. A Python script is a text file with the ``.py`` extension. We can write
-these files in any text editor. On macOS, TextEdit is the default text editor.
-However, you may want to use another text editor like `VS Code`_ (recommended),
-`Notepad++`_, or `Vim`_. After creating a Python script, you can run the script
-from a terminal with ``python hello_world.py``. However, there is one catch:
-you must be in the directory where the ``hello_world.py`` script is located.
-Hence, we need to be able to navigate directories while in a terminal.
+these files in any text editor. This tutorial assumes you are using `VS Code`_
+(see :ref:`vscode_tutorial`). After creating a Python script, you can run the
+script from a terminal with ``python hello_world.py``. However, there is one
+catch: you must be in the directory where the ``hello_world.py`` script is
+located. Hence, we need to be able to navigate directories while in a terminal.
 
 Navigating Directories in a Terminal
 ------------------------------------
@@ -89,8 +88,8 @@ These few commands are really all you need to know to navigate directories
 while in a terminal!
 
 
-Setup
------
+Hello World!
+------------
 
 In this section, we will create a directory where we will put our Python
 scripts and create our first script.
@@ -117,8 +116,7 @@ there is nothing in it yet.
     (base) Name-Of-Machine:scripts Name-Of-User$ ls
     (base) Name-Of-Machine:scripts Name-Of-User$
 
-Now, let's create our first Python script! Here, we will assume you have
-downloaded the recommended text editor, `VS Code`_. Rather than opening VS Code
+Now, let's create our first Python script! Rather than opening VS Code
 in the traditional way you open applications, we will open it from the
 terminal. This is because it will automatically put the files we create in the
 working directory which will prevent us from running into issues when trying to
