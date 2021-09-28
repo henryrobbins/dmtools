@@ -133,19 +133,90 @@ this notation also works with the Python list.
     #  [1. 1. 0.]
     #  [0. 0. 0.]]
 
-
 Conditional Array
 -----------------
 
+Another way to slice an array is with a condition. The syntax for this is
+``x[condition]``. If we just look at the result of the condition, it returns
+an array of boolean values where the value is ``True`` if the corresponding
+element satisfied the condition and ``False`` otherwise. Passing this boolean
+array to the slicing notation indicates which values to keep.
 
-Array Operations
-----------------
+.. code-block:: python
 
+    # condition_array.py
+    import numpy as np
+
+    A = np.array([1, 2, 3, 4, 5])
+
+    print(A > 2)     # [False False True True True]
+    print(A[A > 2])  # [3 4 5]
+
+    B = np.array([[1, 2], [3, 4]])
+
+    print(B < 4)
+    # [[ True  True]
+    #  [ True False]]
+    print(B[B < 4])  # [1 2 3]
+
+Array Math
+----------
+
+The addition, subtraction, multiplication, and division operations for values
+correspond to the element-wise operations for arrays. Element-wise meaning that
+the operation is applied to corresponding elements in the two arrays. We can
+also apply more advanced mathematical functions to an array using the NumPy
+implmentation.
+
+.. code-block:: python
+
+    # array_math.py
+    import numpy as np
+
+    A = np.array([1, 2, 3])
+    B = np.array([4, 5, 6])
+
+    print(A + B)  # [5 7 9]
+    print(B - A)  # [3 3 3]
+    print(A * B)  # [ 4 10 18]
+    print(B / A)  # [4.  2.5 2. ]
+
+    print(np.power(A,2))  # [1 4 9]
+    print(np.sin(A))      # [0.84147098 0.90929743 0.14112001]
 
 Miscellaneous Operations
 ------------------------
 
-``.max()``, ``.min()`` ,  ``.vstack()``, ``.hstack``, ``.T``
+There are some additional array operations that may be useful. ``.max()`` and
+``.min()`` can be used to get the minimum or maximum element in an array
+respectively. An array can be transposed (axes swapped) with ``.T``. Lastly,
+``.vstack()`` and ``.hstack()`` can be used to vertically or horizontally stack
+a pair of arrays.
 
+.. code-block:: python
+
+    # misc_operations.py
+    import numpy as np
+
+    A = np.array([[1, 2], [3, 4]])
+    B = np.array([[5, 6], [7, 8]])
+
+    print(A.min())  # 1
+    print(A.max())  # 4
+    print(A.T)
+    # [[1 3]
+    #  [2 4]]
+    print(np.hstack((A,B)))
+    # [[1 2 5 6]
+    #  [3 4 7 8]]
+    print(np.vstack((A,B)))
+    # [[1 2]
+    #  [3 4]
+    #  [5 6]
+    #  [7 8]]
+
+That concludes the tutorial! There is an endless amount to learn about the
+NumPy Python package. Feel free to explore the `documentation`_ further to
+learn more neat capabilities.
 
 .. _documentation: https://numpy.org/doc/stable/user/absolute_beginners.html#
