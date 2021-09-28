@@ -329,6 +329,45 @@ the syntax for a loop allowing us to define a list with less code.
     y = [i**2 for i in range(4) if i**2 != 4]
     print(y)  # [0, 1, 9]
 
+
+Functions
+---------
+
+One of the most important concepts in programming is the function. Functions
+allow us to avoid writing the same code multiple times. A function has
+parameters or inputs. Sometimes it has an output and other times, it does not.
+The notation for a function declaration in Python is ``def f(x, y, ...):`` where
+``f`` is the name of the function and ``x, y, ...`` are the function parameters.
+Like we have seen before, we use indentation in Python to denote the function
+body. This is the code that will be run every time the function is called.
+If the function will return a value, we use the keyword ``return``. Lastly,
+when we want to call the function, we use the notation ``f(x, y, ...)`` where
+``f`` is the name of the function and ``x, y, ...`` are the arguments or actual
+values we are assigning the parameters of that function.
+
+
+.. code-block:: python
+
+    # functions.py
+
+    # this function returns something
+    def add(x, y):
+        return x + y
+
+    x = add(2,3)
+    y = add(7,8)
+    print(x)       # 5
+    print(y)       # 15
+
+    # this function does not return anything
+    def append_one(x):
+        x.append(1)
+
+    x = [4, 3, 2]
+    y = append_one(x)
+    print(x)       # [4, 3, 2, 1]
+    print(y)       # None
+
 That concludes the tutorial! If you want to do something in Python but don't
 know the syntax, `Stack Overflow`_ is a great resource. It is also a great
 resource if you get an error message when trying to run your Python script.
