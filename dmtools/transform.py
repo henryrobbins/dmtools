@@ -1,9 +1,9 @@
 import numpy as np
-from math import floor, ceil
+from math import floor, ceil, sqrt
 from typing import Callable
 
 
-def box_resize_weighting_function(x: float) -> float:
+def box_weighting_function(x: float) -> float:
     """Box filter's weighting function.
 
     For more information about the Box filter, see
@@ -18,7 +18,7 @@ def box_resize_weighting_function(x: float) -> float:
     return 1 if x <= 0.5 else 0
 
 
-def triangle_resize_weighting_function(x: float) -> float:
+def triangle_weighting_function(x: float) -> float:
     """Triangle filter's weighting function.
 
     For more information about the Triangle filter, see
@@ -33,7 +33,7 @@ def triangle_resize_weighting_function(x: float) -> float:
     return max(1 - x, 0.0)
 
 
-def catmull_rom_resize_weighting_function(x: float) -> float:
+def catmull_rom_weighting_function(x: float) -> float:
     """Catmull-Rom filter's weighting function.
 
     For more information about the Catmull-Rom filter, see
@@ -53,11 +53,30 @@ def catmull_rom_resize_weighting_function(x: float) -> float:
         return 0
 
 
+def gaussian_weighting_function(x: float,
+                                blur: float = 1.0) -> float:
+    """Gaussian blur function.
+
+    For information about Gaussian blur, see
+    `Gaussian <https://legacy.imagemagick.org/Usage/filter/#gaussian>`_.
+
+    Args:
+        x (float): distance to source pixel.
+        blur (float): adjust the amount of blurring this filter produces.
+
+    Returns:
+        float: weight on the source pixel.
+    """
+    sigma = 0.5 * blur
+    return (1 / sqrt(2*np.pi*sigma**2))*np.power(np.e, -x**2 / (2*sigma**2))
+
+
 RESIZE_FILTERS = \
-    {'point':    (box_resize_weighting_function,         0.0),
-     'box':      (box_resize_weighting_function,         0.5),
-     'triangle': (triangle_resize_weighting_function,    1.0),
-     'catrom':   (catmull_rom_resize_weighting_function, 2.0)}
+    {'point':    (box_weighting_function,          0.0),
+     'box':      (box_weighting_function,          0.5),
+     'triangle': (triangle_weighting_function,     1.0),
+     'catrom':   (catmull_rom_weighting_function,  2.0),
+     'gaussian': (gaussian_weighting_function,     2.0)}
 
 
 def _rescale_axis(image: np.ndarray,
@@ -66,7 +85,8 @@ def _rescale_axis(image: np.ndarray,
                   clip: bool,
                   filter: str,
                   weighting_function: Callable = None,
-                  support: Callable = None) -> np.ndarray:
+                  support: Callable = None,
+                  **kwargs) -> np.ndarray:
     # set the weighting function and support
     if weighting_function is not None:
         if support is None:
@@ -75,6 +95,10 @@ def _rescale_axis(image: np.ndarray,
         support = support
     else:
         f, support = RESIZE_FILTERS[filter]
+
+    # scale support if blur keyword argument is passed
+    if 'blur' in kwargs:
+        support = support * kwargs['blur']
 
     if k > 1:
         support = support * k
@@ -104,9 +128,9 @@ def _rescale_axis(image: np.ndarray,
 
         # use weighting function to weight rows
         if k <= 1:
-            weights = [f(abs((i+0.5) - (bisect / k)) * k) for i in range(a,b)]
+            weights = [f(abs((i+0.5) - (bisect / k)) * k, **kwargs) for i in range(a,b)]
         else:
-            weights = [f(abs((i+0.5) - (bisect / k))) for i in range(a,b)]
+            weights = [f(abs((i+0.5) - (bisect / k)), **kwargs) for i in range(a,b)]
         row = np.average(row, axis=0, weights=weights)
 
         # set row of rescaled image
@@ -126,7 +150,8 @@ def rescale(image: np.ndarray,
             filter: str = 'point',
             weighting_function: Callable = None,
             support: Callable = None,
-            clip: bool = True) -> np.ndarray:
+            clip: bool = True,
+            **kwargs) -> np.ndarray:
     """Rescale the image by the given scaling factor.
 
     Args:
@@ -142,9 +167,9 @@ def rescale(image: np.ndarray,
     """
     rescaled_image = _rescale_axis(image=image, axis=0, k=k, filter=filter,
                                    weighting_function=weighting_function,
-                                   support=support, clip=clip)
+                                   support=support, clip=clip, **kwargs)
     rescaled_image = _rescale_axis(image=rescaled_image, axis=1, k=k,
                                    filter=filter,
                                    weighting_function=weighting_function,
-                                   support=support, clip=clip)
+                                   support=support, clip=clip, **kwargs)
     return rescaled_image

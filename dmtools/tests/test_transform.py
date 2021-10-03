@@ -1,7 +1,11 @@
+import os
 import pytest
 import numpy as np
 from dmtools.transform import rescale
 from dmtools.colorspace import gray_to_RGB
+from dmtools.io import read_png
+
+RESOURCES_PATH = os.path.join(os.path.dirname(__file__), 'resources')
 
 # Checkerboard tests derived from https://legacy.imagemagick.org/Usage/filter/
 
@@ -345,3 +349,14 @@ def test_rescale(source, filter, k, new):
     source = gray_to_RGB(source)
     new = gray_to_RGB(new)
     assert np.array_equal(new, rescale(image=source, k=k, filter=filter))
+
+
+@pytest.mark.parametrize("image,k,blur,new_path",[
+    ('pixel_5', 300, 0.5, 'blur_0.5.png'),
+    ('pixel_5', 300, 1.0, 'blur_1.0.png'),
+    ('pixel_5', 300, 1.5, 'blur_1.5.png')])
+def test_gaussian_blur(image, k, blur, new_path):
+    src = read_png(os.path.join(RESOURCES_PATH, image, 'src.png'))
+    new = read_png(os.path.join(RESOURCES_PATH, image, new_path))
+    assert np.allclose(new, rescale(src, k=k, filter='gaussian', blur=blur),
+                       atol=3)
