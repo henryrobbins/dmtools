@@ -17,6 +17,7 @@ RESOURCES_PATH = os.path.join(os.path.dirname(__file__), 'resources')
 # Triangle filter: https://legacy.imagemagick.org/Usage/filter/#triangle
 # Gaussian filter: https://legacy.imagemagick.org/Usage/filter/#gaussian
 
+
 @pytest.mark.parametrize("image,filter,k,new_name",[
     ('checks_10', 'point', 0.9, 'point_0.9'),
     ('checks_10', 'point', 0.8, 'point_0.8'),

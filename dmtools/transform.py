@@ -126,11 +126,15 @@ def _rescale_axis(image: np.ndarray,
         b = round(b)
         row = image[a:b,:]
 
+        def x(i):
+            """Return distance to source pixel."""
+            return abs((i+0.5) - (bisect / k))
+
         # use weighting function to weight rows
         if k <= 1:
-            weights = [f(abs((i+0.5) - (bisect / k)) * k, **kwargs) for i in range(a,b)]
+            weights = [f(x(i) * k, **kwargs) for i in range(a,b)]
         else:
-            weights = [f(abs((i+0.5) - (bisect / k)), **kwargs) for i in range(a,b)]
+            weights = [f(x(i), **kwargs) for i in range(a,b)]
         row = np.average(row, axis=0, weights=weights)
 
         # set row of rescaled image
