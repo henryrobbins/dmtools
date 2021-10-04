@@ -1,7 +1,7 @@
 import os
 import pytest
 import numpy as np
-from dmtools.transform import rescale
+from dmtools.transform import rescale, clip, normalize, wraparound
 from dmtools.colorspace import gray_to_RGB
 from dmtools.io import read_png
 
@@ -70,3 +70,27 @@ def test_gaussian_blur(image, k, blur, new_name):
     new = read_png(os.path.join(RESOURCES_PATH, image, new_name + '.png'))
     assert np.allclose(new, rescale(src, k=k, filter='gaussian', blur=blur),
                        atol=2)
+
+
+@pytest.mark.parametrize("src,k,new",[
+    (np.array([[5,5],[5,5]]), 5, np.array([[5,5],[5,5]])),
+    (np.array([[5,5],[5,5]]), 4, np.array([[4,4],[4,4]])),
+    (np.array([[-1,5],[5,-1]]), 4, np.array([[0,4],[4,0]]))])
+def test_clip(src, k, new):
+    assert np.allclose(new, clip(src, k), atol=0)
+
+
+@pytest.mark.parametrize("src,k,new",[
+    (np.array([[5,5],[5,5]]), 4, np.array([[4,4],[4,4]])),
+    (np.array([[0,2],[4,6]]), 12, np.array([[0,4],[8,12]])),
+    (np.array([[0,2],[4,6]]), 3, np.array([[0,1],[2,3]]))])
+def test_normalize(src, k, new):
+    assert np.allclose(new, normalize(src, k), atol=0)
+
+
+@pytest.mark.parametrize("src,k,new",[
+    (np.array([[5,5],[5,5]]), 4, np.array([[0,0],[0,0]])),
+    (np.array([[0,2],[4,6]]), 12, np.array([[0,2],[4,6]])),
+    (np.array([[0,2],[4,6]]), 3, np.array([[0,2],[0,2]]))])
+def test_wraparound(src, k, new):
+    assert np.allclose(new, wraparound(src, k), atol=0)

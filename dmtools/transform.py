@@ -177,3 +177,55 @@ def rescale(image: np.ndarray,
                                    weighting_function=weighting_function,
                                    support=support, clip=clip, **kwargs)
     return rescaled_image
+
+
+def clip(image: np.ndarray, k:int = 255) -> np.ndarray:
+    """Clip the image so the maximum gray/color value is k.
+
+    Every value less than 0 is mapped to 0 and every value more than k is
+    mapped to k. Values in [0,k] are untouched.
+
+    Args:
+        image (np.ndarray): Image to clip.
+        k (int): Maximum gray/color value. Defaults to 255.
+
+    Returns:
+        np.ndarray: Clipped image.
+    """
+    return np.clip(image, 0, k)
+
+
+def normalize(image: np.ndarray, k:int = 255) -> np.ndarray:
+    """Normalize the image so the maximum gray/color value is k.
+
+    Normalize the range of values in the image to [0,k]. If applied to a
+    three channel image, normalizes each channel by the same amount.
+
+    Args:
+        image (np.ndarray): Image to normalize.
+        k (int): Maximum gray/color value. Defaults to 255.
+
+    Returns:
+        np.ndarray: Normalized image.
+    """
+    if np.max(image) == np.min(image):
+        # every value in the image is the same--fall back to clip
+        return clip(image, k)
+    image = image - np.min(image)
+    return image * (k / (np.max(image)))
+
+
+def wraparound(image: np.ndarray, k:int = 255) -> np.ndarray:
+    """Wraparound the image so the maximum gray/color value is k.
+
+    Each value x is mapped to x mod k+1 such that values outside of [0,k]
+    wraparound until they fall in the desired range.
+
+    Args:
+        image (np.ndarray): Image to wraparound
+        k (int): Maximum gray/color value. Defaults to 255.
+
+    Returns:
+        np.ndarray: Wraparound image.
+    """
+    return np.mod(image, k+1)
