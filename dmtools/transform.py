@@ -82,7 +82,6 @@ RESIZE_FILTERS = \
 def _rescale_axis(image: np.ndarray,
                   axis: int,
                   k: int,
-                  clip: bool,
                   filter: str,
                   weighting_function: Callable = None,
                   support: Callable = None,
@@ -143,10 +142,7 @@ def _rescale_axis(image: np.ndarray,
     if axis == 1:
         rescaled_image = np.swapaxes(rescaled_image,0,1)
 
-    if clip:
-        rescaled_image = np.clip(rescaled_image, 0.0, 255.0)
-
-    return rescaled_image.astype(np.uint8)
+    return rescaled_image
 
 
 def rescale(image: np.ndarray,
@@ -154,7 +150,6 @@ def rescale(image: np.ndarray,
             filter: str = 'point',
             weighting_function: Callable = None,
             support: Callable = None,
-            clip: bool = True,
             **kwargs) -> np.ndarray:
     """Rescale the image by the given scaling factor.
 
@@ -164,18 +159,17 @@ def rescale(image: np.ndarray,
         filter (str): {point, box, triangle, catrom}. Defaults to point.
         weighting_function (Callable): Weighting function to use.
         support (float): Support of the provided weighting function.
-        clip (bool): Clip values into [0,255] if True. Defaults to true.
 
     Returns:
         np.ndarray: Rescaled image.
     """
     rescaled_image = _rescale_axis(image=image, axis=0, k=k, filter=filter,
                                    weighting_function=weighting_function,
-                                   support=support, clip=clip, **kwargs)
+                                   support=support, **kwargs)
     rescaled_image = _rescale_axis(image=rescaled_image, axis=1, k=k,
                                    filter=filter,
                                    weighting_function=weighting_function,
-                                   support=support, clip=clip, **kwargs)
+                                   support=support, **kwargs)
     return rescaled_image
 
 
