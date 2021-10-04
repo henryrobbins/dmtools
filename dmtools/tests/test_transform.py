@@ -1,7 +1,7 @@
 import os
 import pytest
 import numpy as np
-from dmtools.transform import rescale, clip, normalize, wraparound
+from dmtools.transform import rescale, blur, clip, normalize, wraparound
 from dmtools.colorspace import gray_to_RGB
 from dmtools.io import read_png
 
@@ -80,6 +80,18 @@ def test_gaussian_blur(image, k, blur, new_name):
     new = read_png(os.path.join(RESOURCES_PATH, image, new_name + '.png'))
     assert np.allclose(new, rescale(src, k=k, filter='gaussian', blur=blur),
                        atol=2)
+
+
+@pytest.mark.parametrize("image,sigma,new_name",[
+    ('red_blue_square', 2, 'blur_2'),
+    ('red_blue_square', 3, 'blur_3'),
+    ('red_blue_square', 5, 'blur_5'),
+    ('red_blue_square', 10, 'blur_10'),
+    ('red_blue_square', 20, 'blur_20')])
+def test_blur(image, sigma, new_name):
+    src = read_png(os.path.join(RESOURCES_PATH, image, 'src.png'))
+    new = read_png(os.path.join(RESOURCES_PATH, image, new_name + '.png'))
+    assert np.allclose(new, blur(src, sigma=sigma), atol=2)
 
 
 @pytest.mark.parametrize("src,k,new",[

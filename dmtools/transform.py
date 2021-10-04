@@ -1,5 +1,6 @@
 import numpy as np
 from math import floor, ceil, sqrt
+from functools import partial
 from typing import Callable
 
 
@@ -54,6 +55,7 @@ def catmull_rom_weighting_function(x: float) -> float:
 
 
 def gaussian_weighting_function(x: float,
+                                sigma: float = 0.5,
                                 blur: float = 1.0) -> float:
     """Gaussian blur function.
 
@@ -61,13 +63,14 @@ def gaussian_weighting_function(x: float,
     `Gaussian <https://legacy.imagemagick.org/Usage/filter/#gaussian>`_.
 
     Args:
-        x (float): distance to source pixel.
-        blur (float): adjust the amount of blurring this filter produces.
+        x (float): Distance to source pixel.
+        sigma (float): Determines the "neighborhood" of blur. Defaults to 0.5.
+        blur (float): Scale sigma by some multiplier. Defaults to 1.0.
 
     Returns:
         float: weight on the source pixel.
     """
-    sigma = 0.5 * blur
+    sigma = sigma * blur
     return (1 / sqrt(2*np.pi*sigma**2))*np.power(np.e, -x**2 / (2*sigma**2))
 
 
@@ -156,7 +159,7 @@ def rescale(image: np.ndarray,
     Args:
         image (np.ndarray): Image to rescale.
         k (int): Scaling factor.
-        filter (str): {point, box, triangle, catrom}. Defaults to point.
+        filter (str): {point, box, triangle, catrom, gaussian}.
         weighting_function (Callable): Weighting function to use.
         support (float): Support of the provided weighting function.
 
@@ -171,6 +174,24 @@ def rescale(image: np.ndarray,
                                    weighting_function=weighting_function,
                                    support=support, **kwargs)
     return rescaled_image
+
+
+def blur(image: np.ndarray, sigma: float, radius: float = 0) -> np.ndarray:
+    """Blur the image by the given amount.
+
+    Args:
+        image (np.ndarray): Image to be blurred.
+        sigma (float): Argument for the Gaussian function. Determines the
+                       "neighborhood" of the blur. A larger value is blurrier.
+        radius (float): Determines limit of the blur. Defaults to 4 x sigma.
+
+    Returns:
+        np.ndarray: Blurred image.
+    """
+    if radius == 0:
+        radius = 4 * sigma
+    f = partial(gaussian_weighting_function, sigma=sigma)
+    return rescale(image, k=1, weighting_function=f, support=radius)
 
 
 def clip(image: np.ndarray, k:int = 255) -> np.ndarray:

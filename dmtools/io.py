@@ -11,7 +11,11 @@ def read_png(path: str) -> np.ndarray:
     Returns:
         np.ndarray: NumPy array representing the image.
     """
-    return imread(uri=path, format='png')
+    image = imread(uri=path, format='png')
+    # ignore the transparency channel when reading png files
+    if len(image.shape) > 2 and image.shape[2] == 4:
+        image = image[:,:,:3]
+    return image
 
 
 def write_png(image: np.ndarray, path: str):
