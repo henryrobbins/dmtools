@@ -4,7 +4,7 @@ from functools import partial
 from typing import Callable
 
 
-def box_weighting_function(x: float) -> float:
+def _box_weighting_function(x: float) -> float:
     """Box filter's weighting function.
 
     For more information about the Box filter, see
@@ -19,7 +19,7 @@ def box_weighting_function(x: float) -> float:
     return 1 if x <= 0.5 else 0
 
 
-def triangle_weighting_function(x: float) -> float:
+def _triangle_weighting_function(x: float) -> float:
     """Triangle filter's weighting function.
 
     For more information about the Triangle filter, see
@@ -34,7 +34,7 @@ def triangle_weighting_function(x: float) -> float:
     return max(1 - x, 0.0)
 
 
-def catmull_rom_weighting_function(x: float) -> float:
+def _catmull_rom_weighting_function(x: float) -> float:
     """Catmull-Rom filter's weighting function.
 
     For more information about the Catmull-Rom filter, see
@@ -54,9 +54,9 @@ def catmull_rom_weighting_function(x: float) -> float:
         return 0
 
 
-def gaussian_weighting_function(x: float,
-                                sigma: float = 0.5,
-                                blur: float = 1.0) -> float:
+def _gaussian_weighting_function(x: float,
+                                 sigma: float = 0.5,
+                                 blur: float = 1.0) -> float:
     """Gaussian blur function.
 
     For information about Gaussian blur, see
@@ -75,11 +75,11 @@ def gaussian_weighting_function(x: float,
 
 
 RESIZE_FILTERS = \
-    {'point':    (box_weighting_function,          0.0),
-     'box':      (box_weighting_function,          0.5),
-     'triangle': (triangle_weighting_function,     1.0),
-     'catrom':   (catmull_rom_weighting_function,  2.0),
-     'gaussian': (gaussian_weighting_function,     2.0)}
+    {'point':    (_box_weighting_function,          0.0),
+     'box':      (_box_weighting_function,          0.5),
+     'triangle': (_triangle_weighting_function,     1.0),
+     'catrom':   (_catmull_rom_weighting_function,  2.0),
+     'gaussian': (_gaussian_weighting_function,     2.0)}
 
 
 def _rescale_axis(image: np.ndarray,
@@ -190,7 +190,7 @@ def blur(image: np.ndarray, sigma: float, radius: float = 0) -> np.ndarray:
     """
     if radius == 0:
         radius = 4 * sigma
-    f = partial(gaussian_weighting_function, sigma=sigma)
+    f = partial(_gaussian_weighting_function, sigma=sigma)
     return rescale(image, k=1, weighting_function=f, support=radius)
 
 
