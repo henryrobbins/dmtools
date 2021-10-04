@@ -48,17 +48,27 @@ RESOURCES_PATH = os.path.join(os.path.dirname(__file__), 'resources')
     ('checks_5', 'triangle', 1.4, 'triangle_1.4'),
     ('checks_5', 'triangle', 1.6, 'triangle_1.6'),
     ('checks_5', 'triangle', 1.8, 'triangle_1.8'),
-    ('checks_5', 'triangle', 2.0, 'triangle_2.0')])
+    ('checks_5', 'triangle', 2.0, 'triangle_2.0'),
+    ('checks_10', 'catrom', 0.9, 'catrom_0.9'),
+    ('checks_10', 'catrom', 0.8, 'catrom_0.8'),
+    ('checks_10', 'catrom', 0.7, 'catrom_0.7'),
+    ('checks_10', 'catrom', 0.6, 'catrom_0.6'),
+    ('checks_10', 'catrom', 0.5, 'catrom_0.5'),
+    ('checks_5', 'catrom', 1.2, 'catrom_1.2'),
+    ('checks_5', 'catrom', 1.4, 'catrom_1.4'),
+    ('checks_5', 'catrom', 1.6, 'catrom_1.6'),
+    ('checks_5', 'catrom', 1.8, 'catrom_1.8'),
+    ('checks_5', 'catrom', 2.0, 'catrom_2.0')])
 def test_rescale(image, filter, k, new_name):
     # single channel
     src = read_png(os.path.join(RESOURCES_PATH, image, 'src.png'))
     new = read_png(os.path.join(RESOURCES_PATH, image, new_name + '.png'))
-    assert np.allclose(new, rescale(image=src, k=k, filter=filter), atol=2)
+    assert np.allclose(new, clip(rescale(src, k=k, filter=filter)), atol=2)
 
     # three channel
     src = gray_to_RGB(src)
     new = gray_to_RGB(new)
-    assert np.allclose(new, rescale(image=src, k=k, filter=filter), atol=2)
+    assert np.allclose(new, clip(rescale(src, k=k, filter=filter)), atol=2)
 
 
 @pytest.mark.parametrize("image,k,blur,new_name",[

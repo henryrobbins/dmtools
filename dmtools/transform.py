@@ -46,9 +46,9 @@ def catmull_rom_weighting_function(x: float) -> float:
         float: weight on the source pixel.
     """
     if x <= 1:
-        return -x**3 + 5*x**2 - 8*x + 4
+        return (3*x**3 - 5*x**2 + 2) / 2
     elif x <= 2:
-        return 3*x**3 - 5*x**2 + 2
+        return (-x**3 + 5*x**2 - 8*x + 4) / 2
     else:
         return 0
 
