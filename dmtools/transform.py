@@ -156,6 +156,25 @@ def rescale(image: np.ndarray,
             **kwargs) -> np.ndarray:
     """Rescale the image by the given scaling factor.
 
+    This image rescale implentation is largley based off of the `ImageMagick`_
+    impmenetation. The following filters are built-in:
+
+    - `Point Filter`_ ("point"): Nearest-neighbor heuristic.
+    - `Box Filter`_ ("box"): Average of neighboring pixels.
+    - `Triangle Filter`_ ("triangle"): Linear decrease in pixel weight.
+    - `Catmull-Rom Filter`_ ("catrom"): Produces a sharper edge.
+    - `Gaussian Filter`_ ("gaussian"): Blurs image. Useful as low pass filter.
+
+    Additionally, advanced users can specify a custom filter by providing a
+    weighting function and a support.
+
+    .. _ImageMagick: https://imagemagick.org/script/index.php
+    .. _Point Filter: https://legacy.imagemagick.org/Usage/filter/#point
+    .. _Box Filter: https://legacy.imagemagick.org/Usage/filter/#box
+    .. _Triangle Filter: https://legacy.imagemagick.org/Usage/filter/#triangle
+    .. _Catmull-Rom Filter: https://legacy.imagemagick.org/Usage/filter/#cubics
+    .. _Gaussian Filter: https://legacy.imagemagick.org/Usage/filter/#gaussian
+
     Args:
         image (np.ndarray): Image to rescale.
         k (int): Scaling factor.
@@ -177,13 +196,19 @@ def rescale(image: np.ndarray,
 
 
 def blur(image: np.ndarray, sigma: float, radius: float = 0) -> np.ndarray:
-    """Blur the image by the given amount.
+    """Blur the image.
+
+    This image blur implentation is largley based off of the `ImageMagick`_
+    impmenetation. It uses a `Gaussian Filter`_ with parameter ``sigma`` and
+    a support of ``radius`` to blur the image.
+
+    .. _ImageMagick: https://imagemagick.org/script/index.php
+    .. _Gaussian Filter: https://legacy.imagemagick.org/Usage/filter/#gaussian
 
     Args:
         image (np.ndarray): Image to be blurred.
-        sigma (float): Argument for the Gaussian function. Determines the
-                       "neighborhood" of the blur. A larger value is blurrier.
-        radius (float): Determines limit of the blur. Defaults to 4 x sigma.
+        sigma (float): "Neighborhood" of the blur. A larger value is blurrier.
+        radius (float): Limit of the blur. Defaults to 4 x sigma.
 
     Returns:
         np.ndarray: Blurred image.
