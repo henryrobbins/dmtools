@@ -43,9 +43,19 @@ manipulations. Note that this example script assumes that the script
 transform
 ---------
 
-The transform module contains many functions for manuipulating images. The full
+The transform module contains many functions for manipulating images. The full
 API reference can be found here: :py:mod:`dmtools.transform`. In this section,
 we will highlight some of the functionality.
+
+Currently, the transform module is mainly focused on image manipulations
+related to rescaling an image. Frequently, the first step in image rescaling is
+blurring the image. This provides a good removal of "noise" from the image.
+The :py:func:`dmtools.transform.blur` functions does just that. It takes a
+parameter called ``sigma`` which indicates how much to blur the image.
+Usually, ``sigma=0.5`` is a good default. The example script below reads
+``red_blue_square.png`` and then blurs the image with two different values of
+``sigma``. You can see the resulting images below where the larger ``sigma``
+results in a blurrier image.
 
 .. code-block:: python
 
@@ -84,6 +94,54 @@ we will highlight some of the functionality.
 
             red_blue_square_blur_10.png
 
+After blurring, we can actually rescale the image. This step is also called
+"resampling." This is done with :py:func:`dmtools.transform.rescale`. This
+takes a parameter ``k`` which specifies by what factor to scale the image.
+Hence, ``k=2`` would double the width and height of the image.
+
+When scaling down an image, we have more than one source pixel for each new
+pixel and we must decide how to assign a color to that new pixel. Similarly,
+when scaling up an image, we have many pixels in the new image for which there
+are no corresponding source pixels. Again, we must decide how to assign these
+pixels a color based on their proximity to the source pixels. A filter is a
+combination of a weighting function and support which determine how we choose.
+
+In the dmtools rescale implementation, there are multiple built-in filters.
+A comprehensive list of them is given in the documentation:
+:py:func:`dmtools.transform.rescale`. Depending on the use case, one or more of
+the filters may be applicable. The exciting feature of this implementation is
+the ability to provide one's own weighting function and support to define
+custom filters. The weighting function (blue) and supports (red) of some common
+filters are given below. The weighting function tells us how much to weight the
+color of a source pixel as a function of its distance to the new pixel. The
+support defines the "neighborhood" of pixels. In most cases, that is the
+furthest a source pixel can be while still contributing some weight.
+
+.. list-table::
+    :align: center
+
+    * - .. figure:: images/box_filter.png
+            :alt: box_filter.png
+            :align: center
+
+            Box Filter
+
+      - .. figure:: images/triangle_filter.png
+            :alt: triangle_filter.png
+            :align: center
+
+            Triangle Filter
+
+      - .. figure:: images/custom_filter.png
+            :alt: custom_filter.png
+            :align: center
+
+            Custom Filter
+
+In the example script below, we load the 10x10 checkerboard image and scale it
+up using three different filters: "point" or "nearest neighbor", "triangle",
+and a custom filter. You can ignore ``transform.clip`` and
+``transform.normalize`` for now. The resulting images are also shown.
 
 .. code-block:: python
 
@@ -130,3 +188,72 @@ we will highlight some of the functionality.
             :align: center
 
             checks_10_custom.png
+
+You can see how "point" is the best filter for maintaining the pixels of the
+original image. Here, the "triangle" filter causes the image to be blurred
+since it is takes the average of surrounding white and black pixels causing the
+gray space between them. Any reasonable filter will mostly decrease the weight
+as the distance gets further. Furthermore, they will not have significant
+negative weights. For that reason, the custom filter used here does all sorts
+of strange things to the image.
+
+After rescaling the image, we would like to write it to a PNG file. However,
+the rescaling step results in pixels having non-integer values which can also
+be outside of the [0, 255] range (especially when using strange filters). The
+transform module provides three different functions to adjust values back into
+the [0, 255] range: :py:func:`dmtools.transform.clip`,
+:py:func:`dmtools.transform.normalize`, :py:func:`dmtools.transform.wraparound`.
+It is recommended to use ``.astype(np.uint8)`` to round. The example script
+below shows how the choice of which of these you use affects the resulting image.
+
+.. code-block:: python
+
+    # clamping_ex.py
+    import dmtools
+    from dmtools import transform
+    import numpy as np
+
+    def f(x):
+        return np.sin(x)
+
+    image = dmtools.read_png('checks_10.png')
+    scaled_image = transform.rescale(image, k=10, weighting_function=f, support=7)
+
+    clip_image = transform.clip(scaled_image).astype(np.uint8)
+    dmtools.write_png(clip_image, 'checks_10_clip.png')
+
+    normalize_image = transform.normalize(scaled_image).astype(np.uint8)
+    dmtools.write_png(normalize_image, 'checks_10_normalize.png')
+
+    wraparound_image = transform.wraparound(scaled_image).astype(np.uint8)
+    dmtools.write_png(wraparound_image, 'checks_10_wraparound.png')
+
+.. list-table::
+    :align: center
+
+    * - .. figure:: images/checks_10_clip.png
+            :alt: checks_10_clip.png
+            :align: center
+
+            checks_10_clip.png
+
+      - .. figure:: images/checks_10_normalize.png
+            :alt: checks_10_normalize.png
+            :align: center
+
+            checks_10_normalize.png
+
+      - .. figure:: images/checks_10_wraparound.png
+            :alt: checks_10_wraparound.png
+            :align: center
+
+            checks_10_wraparound.png
+
+In ``checks_10_wraparound.png``, we can see harsh contrast between gradients
+where a gradient progressively gets darker until it switches white. This is
+arising from dark values above 255 (black) wrapping around to 0 (white) and
+vice versa. In ``checks_10_clip.png``, these are the darkest and whitest areas
+in the image since values above or below just get clipped to 0 and 255
+respectively. Lastly, ``checks_10_normalize.png`` normalizes the minimum and
+largest value to 0 and 255 causing this image to loose contrast in the center
+when compared to the clipping algorithm.
