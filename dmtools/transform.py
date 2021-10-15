@@ -81,6 +81,8 @@ RESIZE_FILTERS = \
      'catrom':   (_catmull_rom_weighting_function,  2.0),
      'gaussian': (_gaussian_weighting_function,     2.0)}
 
+EPSILON = 1.0e-6
+
 
 def _rescale_axis(image: np.ndarray,
                   axis: int,
@@ -134,9 +136,11 @@ def _rescale_axis(image: np.ndarray,
 
         # use weighting function to weight rows
         if k <= 1:
-            weights = [f(x(i) * k, **kwargs) for i in range(a,b)]
+            weights = np.array([f(x(i) * k, **kwargs) for i in range(a,b)])
         else:
-            weights = [f(x(i), **kwargs) for i in range(a,b)]
+            weights = np.array([f(x(i), **kwargs) for i in range(a,b)])
+
+        weights = weights / max(np.sum(weights), EPSILON)  # normalize weights
         row = np.average(row, axis=0, weights=weights)
 
         # set row of rescaled image
