@@ -140,7 +140,10 @@ def _rescale_axis(image: np.ndarray,
         else:
             weights = np.array([f(x(i), **kwargs) for i in range(a,b)])
 
-        weights = weights / max(np.sum(weights), EPSILON)  # normalize weights
+        # TODO: This is the numerically stable way to implement this.
+        #       Need to decide if this implementation should be used.
+        # weights = weights / max(np.sum(weights), EPSILON) # normalize weights
+        # row = np.dot(weights, np.swapaxes(row,0,1))
         row = np.average(row, axis=0, weights=weights)
 
         # set row of rescaled image
