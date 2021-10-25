@@ -94,25 +94,25 @@ def test_blur(image, sigma, new_name):
     assert np.allclose(new, blur(src, sigma=sigma), atol=2)
 
 
-@pytest.mark.parametrize("src,k,new",[
-    (np.array([[5,5],[5,5]]), 5, np.array([[5,5],[5,5]])),
-    (np.array([[5,5],[5,5]]), 4, np.array([[4,4],[4,4]])),
-    (np.array([[-1,5],[5,-1]]), 4, np.array([[0,4],[4,0]]))])
-def test_clip(src, k, new):
-    assert np.allclose(new, clip(src, k), atol=0)
+@pytest.mark.parametrize("src,new",[
+    (np.array([[1,1],[1,1]]), np.array([[1,1],[1,1]])),
+    (np.array([[1.25,1.25],[1.25,1.25]]), np.array([[1,1],[1,1]])),
+    (np.array([[-0.25,1.25],[1.25,-0.25]]), np.array([[0,1],[1,0]]))])
+def test_clip(src, new):
+    assert np.allclose(new, clip(src), atol=0)
 
 
-@pytest.mark.parametrize("src,k,new",[
-    (np.array([[5,5],[5,5]]), 4, np.array([[4,4],[4,4]])),
-    (np.array([[0,2],[4,6]]), 12, np.array([[0,4],[8,12]])),
-    (np.array([[0,2],[4,6]]), 3, np.array([[0,1],[2,3]]))])
-def test_normalize(src, k, new):
-    assert np.allclose(new, normalize(src, k), atol=0)
+@pytest.mark.parametrize("src,new",[
+    (np.array([[1,1],[1,1]]), np.array([[1,1],[1,1]])),
+    (np.array([[0,0.1],[0.25,0.5]]), np.array([[0,0.2],[0.5,1]])),
+    (np.array([[0,0.5],[1,2]]), np.array([[0,0.25],[0.5,1]]))])
+def test_normalize(src, new):
+    assert np.allclose(new, normalize(src), atol=0)
 
 
-@pytest.mark.parametrize("src,k,new",[
-    (np.array([[5,5],[5,5]]), 4, np.array([[0,0],[0,0]])),
-    (np.array([[0,2],[4,6]]), 12, np.array([[0,2],[4,6]])),
-    (np.array([[0,2],[4,6]]), 3, np.array([[0,2],[0,2]]))])
-def test_wraparound(src, k, new):
-    assert np.allclose(new, wraparound(src, k), atol=0)
+@pytest.mark.parametrize("src,new",[
+    (np.array([[1.25,1.25],[1.25,1.25]]), np.array([[0.25,0.25],[0.25,0.25]])),
+    (np.array([[0,0.1],[0.25,0.5]]), np.array([[0,0.1],[0.25,0.5]])),
+    (np.array([[0,-0.25],[1.25,1]]), np.array([[0,0.75],[0.25,1]]))])
+def test_wraparound(src, new):
+    assert np.allclose(new, wraparound(src), atol=0)

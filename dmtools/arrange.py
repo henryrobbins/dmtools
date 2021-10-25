@@ -3,7 +3,7 @@ from typing import List
 
 
 def image_grid(images: List[np.ndarray], w: int, h: int, b: int,
-               color: int = "white", k: int = 255) -> np.ndarray:
+               color: int = "white") -> np.ndarray:
     """Create a w * h grid of images with a border of width b.
 
     Args:
@@ -12,13 +12,12 @@ def image_grid(images: List[np.ndarray], w: int, h: int, b: int,
         h (int): number of images in each column of the grid.
         b (int): width of the border/margin.
         color (int): color of border {'white', 'black'} (defaults to white).
-        k (int): white point (defaults to 255).
 
     Returns:
         np.ndarray: grid layout of the images.
     """
     n,m = images[0].shape
-    c = {'white': k, 'black': 0}[color]
+    c = {'white': 1, 'black': 0}[color]
     h_border = c*np.ones((b, w*m + (w+1)*b))
     v_border = c*np.ones((n, b))
     grid_layout = h_border
@@ -31,20 +30,18 @@ def image_grid(images: List[np.ndarray], w: int, h: int, b: int,
             p += 1
         grid_layout = np.vstack((grid_layout, row))
         grid_layout = np.vstack((grid_layout, h_border))
-    return grid_layout.astype(int)
+    return grid_layout
 
 
-def border(image: np.ndarray, b: int,
-           color: int = "white", k: int = 255) -> np.ndarray:
+def border(image: np.ndarray, b: int, color: int = "white",) -> np.ndarray:
     """Add a border of width b to the image.
 
     Args:
         image (Netpbm): Netpbm image to add a border to
         b (int): width of the border/margin.
         color (int): color of border {'white', 'black'} (defaults to white).
-        k (int): white point (defaults to 255).
 
     Returns:
         np.ndarray: Image with border added.
     """
-    return image_grid([image], w=1, h=1, b=b, color=color, k=k)
+    return image_grid([image], w=1, h=1, b=b, color=color)

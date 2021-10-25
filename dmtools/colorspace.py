@@ -29,12 +29,12 @@ yuv_to_rgb = np.linalg.inv(rgb_to_yuv)
 
 # Used to normalize an image in a colorspace to [0,1]
 norm = \
-    {'RGB': {'scale': (255.0, 255.0, 255.0),
+    {'RGB': {'scale': (1.0, 1.0, 1.0),
              'shift': (0.0, 0.0, 0.0)},
-     'Lab': {'scale': (255.0, 255.0, 255.0),
-             'shift': (0.0, -128.0, -128.0)},
-     'YUV': {'scale': (1.0, 0.872, 1.23),
-             'shift': (0.0, -0.436, -0.615)}}
+     'Lab': {'scale': (1.0, 1.0, 1.0),
+             'shift': (0.0, -0.5, -0.5)},
+     'YUV': {'scale': (1.0, 1.0, 1.0),
+             'shift': (0.0, -0.5, -0.5)}}
 
 
 def RGB_to_gray(image: np.ndarray) -> np.ndarray:
@@ -106,7 +106,7 @@ def RGB_to_YUV(image: np.ndarray) -> np.ndarray:
     Returns:
         np.ndarray: Image in YUV space.
     """
-    return normalize(image, 'RGB') @ rgb_to_yuv.T
+    return image @ rgb_to_yuv.T
 
 
 def YUV_to_RGB(image: np.ndarray) -> np.ndarray:
@@ -121,7 +121,7 @@ def YUV_to_RGB(image: np.ndarray) -> np.ndarray:
     Returns:
         np.ndarray: Image in CIE RGB space.
     """
-    return denormalize(image @ yuv_to_rgb.T, 'RGB')
+    return image @ yuv_to_rgb.T
 
 
 def XYZ_to_Lab(image: np.ndarray, illuminant: str = 'D65') -> np.ndarray:

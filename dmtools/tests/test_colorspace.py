@@ -9,13 +9,13 @@ from dmtools.colorspace import \
 # -----------
 
 # single white pixel (single channel)
-ONE_CHANNEL_WHITE_PIXEL = np.array([[255]])
+ONE_CHANNEL_WHITE_PIXEL = np.array([[1]])
 
 # single white pixel (three channels)
-THREE_CHANNEL_WHITE_PIXEL = np.array([[[255, 255, 255]]])
+THREE_CHANNEL_WHITE_PIXEL = np.array([[[1, 1, 1]]])
 
 # single color pixel
-COLOR_PIXEL = np.array([[[34, 76, 230]]])
+COLOR_PIXEL = np.array([[[0.45, 0.33, 0.98]]])
 
 
 @pytest.mark.parametrize("f,source,new",[

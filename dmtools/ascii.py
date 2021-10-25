@@ -81,7 +81,8 @@ def netpbm_to_ascii(image: netpbm.Netpbm) -> Ascii:
     """
     chars = "  -~:;=!*#$@"
     image = copy.copy((image))
-    image.set_max_color_value(len(chars)-1)
-    M = image.M.astype(np.uint8)
+    k = len(chars)-1
+    image = (image.M * k).astype(int)
+    M = image.astype(np.uint8)
     M = np.array([[chars[i] for i in row] for row in M])
     return Ascii(M=M)

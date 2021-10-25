@@ -1,7 +1,7 @@
 import os
-import imageio
 import numpy as np
 from .transform import rescale
+from .io import write_png
 from typing import List
 from ._log import _log_msg
 import logging
@@ -84,13 +84,7 @@ class Netpbm:
         Args:
             k (int): Maximum gray/color value.
         """
-        if k == 1:
-            self.M = ((self.M / self.k) > 0.5).astype(int)
-            if self.P == 2:
-                self.P == 1
-        else:
-            step = int(self.k / k)
-            self.M = np.floor_divide(self.M, step)
+        self.k = k
 
     def rescale(self, k: int):
         """Rescale the image by the desired scaling factor.
@@ -126,7 +120,8 @@ class Netpbm:
                 M = self.M.reshape(self.h, self.w * 3)
             else:
                 M = self.M
-            lines = M.clip(0, self.k).astype(int).astype(str).tolist()
+            M = np.ceil(self.k*M - 0.5).astype(int)
+            lines = M.astype(str).tolist()
             f.write('\n'.join([' '.join(line) for line in lines]))
             f.write('\n')
         logging.info(_log_msg(path, os.stat(path).st_size))
@@ -140,8 +135,7 @@ class Netpbm:
         M = self.M
         if self.P == 1:
             M = np.where(M == 1, 0, 1)
-        M = np.array(M * (255 / self.k), dtype=np.uint8)
-        imageio.imwrite(path, M)
+        write_png(M, path)
         logging.info(_log_msg(path, os.stat(path).st_size))
 
 
@@ -158,6 +152,7 @@ def _parse_ascii_netpbm(f: List[str]) -> Netpbm:
         M = np.array(vals).reshape(h, w, 3)
     else:
         M = np.array(vals).reshape(h, w)
+    M = M / k
     return Netpbm(P=P, k=k, M=M)
 
 
@@ -180,6 +175,7 @@ def _parse_binary_netpbm(path: str) -> Netpbm:
             M = M.reshape(h, w, 3)
         else:
             M = M.reshape(h, w)
+    M = M / k
     return Netpbm(P=P, k=k, M=M)
 
 
