@@ -9,15 +9,6 @@ dmtools.io module
    :undoc-members:
    :show-inheritance:
 
-
-dmtools.netpbm module
----------------------
-
-.. automodule:: dmtools.netpbm
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 dmtools.transform module
 ----------------------
 
