@@ -2,7 +2,7 @@ import numpy as np
 import os
 import pkgutil
 import copy
-from . import netpbm
+from .io import write_png, _parse_ascii_netpbm
 from ._log import _log_msg
 import logging
 
@@ -17,7 +17,7 @@ import logging
 #            0 0 0 0 0 0 0             0 0 1 0 1 0 0
 
 file = pkgutil.get_data(__name__, "resources/ascii.pgm").decode().split('\n')
-ascii_M = netpbm._parse_ascii_netpbm(file).M
+ascii_M, _ = _parse_ascii_netpbm(file)
 char_images = [np.pad(M,((0,0),(6,6))) for M in np.split(ascii_M, 13, axis=1)]
 CHAR_TO_IMG = dict(zip(list(" .,-~:;=!*#$@"), char_images))
 
@@ -60,12 +60,11 @@ class Ascii:
         for i in range(n):
             M.append([CHAR_TO_IMG[A[i,j]] for j in range(m)])
         M = np.block(M)
-        image = netpbm.Netpbm(P=2, k=255, M=M)
-        image.to_png(path)
+        write_png(M, path)
         logging.info(_log_msg(path, os.stat(path).st_size))
 
 
-def netpbm_to_ascii(image: netpbm.Netpbm) -> Ascii:
+def image_to_ascii(image: np.ndarray) -> Ascii:
     """Return an ASCII representation of the given image.
 
     This function uses a particular style of
@@ -74,7 +73,7 @@ def netpbm_to_ascii(image: netpbm.Netpbm) -> Ascii:
     gradients or contrasts."
 
     Args:
-        image (netpbm.Netpbm): Netpbm image.
+        image (np.ndarray): An image.
 
     Returns:
         Ascii: ASCII representation of image.
@@ -82,7 +81,7 @@ def netpbm_to_ascii(image: netpbm.Netpbm) -> Ascii:
     chars = "  -~:;=!*#$@"
     image = copy.copy((image))
     k = len(chars)-1
-    image = (image.M * k).astype(int)
+    image = (image * k).astype(int)
     M = image.astype(np.uint8)
     M = np.array([[chars[i] for i in row] for row in M])
     return Ascii(M=M)

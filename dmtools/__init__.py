@@ -15,8 +15,7 @@ __author__ = 'Henry Robbins'
 from . import animation
 from . import ascii
 from . import colorspace
-from . import netpbm
 from . import sound
 from . import arrange
 from . import transform
-from .io import read_png, write_png
+from .io import read_png, write_png, read_netpbm, write_netpbm
