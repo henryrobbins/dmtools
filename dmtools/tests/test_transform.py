@@ -3,7 +3,7 @@ import pytest
 import numpy as np
 from dmtools.transform import rescale, blur, clip, normalize, wraparound
 from dmtools.colorspace import gray_to_RGB
-from dmtools.io import read_png
+from dmtools.io import read
 
 RESOURCES_PATH = os.path.join(os.path.dirname(__file__), 'resources')
 
@@ -61,8 +61,8 @@ RESOURCES_PATH = os.path.join(os.path.dirname(__file__), 'resources')
     ('checks_5', 'catrom', 2.0, 'catrom_2.0')])
 def test_rescale(image, filter, k, new_name):
     # single channel
-    src = read_png(os.path.join(RESOURCES_PATH, image, 'src.png'))
-    new = read_png(os.path.join(RESOURCES_PATH, image, new_name + '.png'))
+    src = read(os.path.join(RESOURCES_PATH, image, 'src.png'))
+    new = read(os.path.join(RESOURCES_PATH, image, new_name + '.png'))
     assert np.allclose(new, clip(rescale(src, k=k, filter=filter)), atol=2)
 
     # three channel
@@ -76,8 +76,8 @@ def test_rescale(image, filter, k, new_name):
     ('pixel_5', 300, 1.0, 'blur_1.0'),
     ('pixel_5', 300, 1.5, 'blur_1.5')])
 def test_gaussian_blur(image, k, blur, new_name):
-    src = read_png(os.path.join(RESOURCES_PATH, image, 'src.png'))
-    new = read_png(os.path.join(RESOURCES_PATH, image, new_name + '.png'))
+    src = read(os.path.join(RESOURCES_PATH, image, 'src.png'))
+    new = read(os.path.join(RESOURCES_PATH, image, new_name + '.png'))
     assert np.allclose(new, rescale(src, k=k, filter='gaussian', blur=blur),
                        atol=2)
 
@@ -89,8 +89,8 @@ def test_gaussian_blur(image, k, blur, new_name):
     ('red_blue_square', 10, 'blur_10'),
     ('red_blue_square', 20, 'blur_20')])
 def test_blur(image, sigma, new_name):
-    src = read_png(os.path.join(RESOURCES_PATH, image, 'src.png'))
-    new = read_png(os.path.join(RESOURCES_PATH, image, new_name + '.png'))
+    src = read(os.path.join(RESOURCES_PATH, image, 'src.png'))
+    new = read(os.path.join(RESOURCES_PATH, image, new_name + '.png'))
     assert np.allclose(new, blur(src, sigma=sigma), atol=2)
 
 

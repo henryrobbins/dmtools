@@ -200,3 +200,23 @@ def write_netpbm(image: np.ndarray, k: int, path: str,
         f.write('\n'.join([' '.join(line) for line in lines]))
         f.write('\n')
         logging.info(_log_msg(path, os.stat(path).st_size))
+
+
+def read(path: str) -> np.ndarray:
+    """Read an image file into a NumPy array.
+
+    Args:
+        path (str): String file path with extention in {png, pbm, pgm, ppm}.
+
+    Returns:
+        np.ndarray: NumPy array representing the image.
+    """
+    _, ext = os.path.splitext(path)
+    read_f = {'.png': read_png,
+              '.pbm': read_netpbm,
+              '.pgm': read_netpbm,
+              '.ppm': read_netpbm}
+    if ext not in read_f.keys():
+        raise ValueError("File extension not supported.")
+    else:
+        return read_f[ext](path)
