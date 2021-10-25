@@ -1,7 +1,7 @@
 import os
 import numpy as np
 from imageio import imread, imwrite
-from typing import List, Tuple
+from typing import List
 from ._log import _log_msg
 import logging
 
@@ -63,7 +63,7 @@ def write_png(image: np.ndarray, path: str):
     imwrite(im=im, uri=path, format='png')
 
 
-def _parse_ascii_netpbm(f: List[str]) -> Tuple[np.ndarray, int]:
+def _parse_ascii_netpbm(f: List[str]) -> np.ndarray:
     # adapted from code by Dan Torop
     vals = [v for line in f for v in line.split('#')[0].split()]
     P = int(vals[0][1])
@@ -76,12 +76,11 @@ def _parse_ascii_netpbm(f: List[str]) -> Tuple[np.ndarray, int]:
         M = np.array(vals).reshape(h, w, 3)
     else:
         M = np.array(vals).reshape(h, w)
-    M = _continuous(M, k)
-    return (M, k)
+    return _continuous(M, k)
 
 
 # TODO: make the file reading code more robust
-def _parse_binary_netpbm(path: str) -> Tuple[np.ndarray, int]:
+def _parse_binary_netpbm(path: str) -> np.ndarray:
     # adapted from https://www.stackvidhya.com/python-read-binary-file/
     with open(path, "rb") as f:
         P = int(f.readline().decode()[1])
@@ -99,11 +98,10 @@ def _parse_binary_netpbm(path: str) -> Tuple[np.ndarray, int]:
             M = M.reshape(h, w, 3)
         else:
             M = M.reshape(h, w)
-    M = _continuous(M, k)
-    return (M, k)
+    return _continuous(M, k)
 
 
-def read_netpbm(path: str) -> Tuple[np.ndarray, int]:
+def read_netpbm(path: str) -> np.ndarray:
     """Read a Netpbm file (pbm, pgm, ppm) into a NumPy array.
 
     Netpbm is a package of graphics programs and a programming library. These
