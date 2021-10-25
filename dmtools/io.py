@@ -6,6 +6,33 @@ from ._log import _log_msg
 import logging
 
 
+def _continuous(image: np.ndarray, k: int) -> np.ndarray:
+    """Make a discrete image continuous.
+
+    Args:
+        image (np.ndarray): Discrete image with values in [0,k].
+        k (int): Maximum color/gray value.
+
+    Returns:
+        np.ndarray: Continuous image with values in [0,1].
+    """
+    return image / k
+
+
+def _discretize(image: np.ndarray, k: int) -> np.ndarray:
+    """Discretize a continuous image.
+
+    Args:
+        image (np.ndarray): Continuous image with values in [0,1].
+        k (int): Maximum color/gray value.
+
+    Returns:
+        np.ndarray: Discrete image with values in [0,k].
+    """
+    # TODO: Is this the right way to discretize?
+    return np.ceil(k*image - 0.5).astype(int)
+
+
 def read_png(path: str) -> np.ndarray:
     """Read a png file into a NumPy array.
 
@@ -19,9 +46,7 @@ def read_png(path: str) -> np.ndarray:
     # ignore the transparency channel when reading png files
     if len(image.shape) > 2 and image.shape[2] == 4:
         image = image[:,:,:3]
-    # transform range of image from [0,255] to [0,1]
-    image = image / 255
-    return image
+    return _continuous(image, 255)
 
 
 def write_png(image: np.ndarray, path: str):
@@ -34,8 +59,7 @@ def write_png(image: np.ndarray, path: str):
         image (np.ndarray): NumPy array representing image.
         path (str): String file path.
     """
-    # TODO: Is this the right way to discretize?
-    im = np.ceil(255*image - 0.5).astype(np.uint8)
+    im = _discretize(image, 255).astype(np.uint8)
     imwrite(im=im, uri=path, format='png')
 
 
@@ -52,7 +76,7 @@ def _parse_ascii_netpbm(f: List[str]) -> Tuple[np.ndarray, int]:
         M = np.array(vals).reshape(h, w, 3)
     else:
         M = np.array(vals).reshape(h, w)
-    M = M / k
+    M = _continuous(M, k)
     return (M, k)
 
 
@@ -75,7 +99,7 @@ def _parse_binary_netpbm(path: str) -> Tuple[np.ndarray, int]:
             M = M.reshape(h, w, 3)
         else:
             M = M.reshape(h, w)
-    M = M / k
+    M = _continuous(M, k)
     return (M, k)
 
 
@@ -173,7 +197,7 @@ def write_netpbm(image: np.ndarray, k: int, path: str,
             f.write("%s\n" % (k))
         if P == 3:
             image = image.reshape(h, w * 3)
-        image = np.ceil(k*image - 0.5).astype(int)
+        image = _discretize(image, k)
         lines = image.astype(str).tolist()
         f.write('\n'.join([' '.join(line) for line in lines]))
         f.write('\n')
