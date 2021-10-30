@@ -72,10 +72,13 @@ def _parse_ascii_netpbm(f: List[str]) -> np.ndarray:
         k = 1
     else:
         w, h, k, *vals = [int(v) for v in vals[1:]]
+    M = np.array(vals)
+    if P == 1:
+        M = -M + 1
     if P == 3:
-        M = np.array(vals).reshape(h, w, 3)
+        M = M.reshape(h, w, 3)
     else:
-        M = np.array(vals).reshape(h, w)
+        M = M.reshape(h, w)
     return _continuous(M, k)
 
 
@@ -94,6 +97,8 @@ def _parse_binary_netpbm(path: str) -> np.ndarray:
             k = int(f.readline().decode()[:-1])
         dtype = np.dtype('B')
         M = np.fromfile(f, dtype)
+        if P == 1:
+            M = -M + 1
         if P == 3:
             M = M.reshape(h, w, 3)
         else:
@@ -186,6 +191,8 @@ def write_netpbm(image: np.ndarray, k: int, path: str,
         P = 1 if k == 1 else 2
     else:
         P = 3
+    if P == 1:
+        image = -image + 1
     with open(path, "w") as f:
         f.write('P%d\n' % P)
         for line in comment:
