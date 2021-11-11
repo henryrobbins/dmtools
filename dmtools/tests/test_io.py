@@ -25,7 +25,10 @@ def test_png_io(name):
 @pytest.mark.parametrize("name",[
     ('color_matrix_ascii.pbm'),
     ('color_matrix_ascii.pgm'),
-    ('color_matrix_ascii.ppm')])
+    ('color_matrix_ascii.ppm'),
+    ('color_matrix_raw.pbm'),
+    ('color_matrix_raw.pgm'),
+    ('color_matrix_raw.ppm')])
 def test_netpbm_io(name):
     # read image
     ext = name.split('.')[-1]
