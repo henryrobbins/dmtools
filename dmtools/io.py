@@ -86,12 +86,10 @@ def _parse_ascii_netpbm(f: List[str]) -> np.ndarray:
 
 
 def _parse_binary_netpbm(path: str) -> np.ndarray:
-    # adapted from https://www.stackvidhya.com/python-read-binary-file/
     with open(path, "rb") as f:
         P = int(f.readline().decode()[1])
-        # change to corresponding ASCII magic number
-        P = P - 3
-        num_tokens = 2 if P == 1 else 3
+        # read lines until all tokens found
+        num_tokens = 2 if P == 4 else 3
         tokens = []
         while len(tokens) < num_tokens:
             line_tokens = f.readline().decode()[:-1].split()
@@ -101,23 +99,22 @@ def _parse_binary_netpbm(path: str) -> np.ndarray:
                 i += 1
         tokens = [int(t) for t in tokens]
         w, h, *_ = tokens
-        if P == 1:
-            k = 1
-        else:
-            k = tokens[2]
-        dtype = np.dtype('uint8')
-        M = np.fromfile(f, dtype)
-        if P == 1:
-            M = -M + 1
+        k = 1 if P == 4 else tokens[2]
+        M = np.fromfile(f, 'uint8')
+        if P == 4:
+            # get bits from bytes
             M = np.unpackbits(M)
             m = int(np.ceil(w / 8)) * 8
             n = int(len(M) / m)
             M = np.reshape(M, (n,m))
+            # ignore excess bits from each row
             M = M[:,:w]
-        if P == 3:
-            M = M.reshape(h, w, 3)
-        else:
+            # inverse 0 and 1 so 0 is white
+            M = -M + 1
+        elif P == 5:
             M = M.reshape(h, w)
+        else:
+            M = M.reshape(h, w, 3)
     return _continuous(M, k)
 
 

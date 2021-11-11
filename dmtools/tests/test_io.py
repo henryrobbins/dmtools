@@ -18,25 +18,26 @@ def test_png_io(name):
     image = read(file_name)
     os.remove(file_name)
 
-    assert np.allclose(src, image, atol=2)
+    assert np.array_equal(src, image)
 
 
-# TODO: Fix binary netpbm parser
-@pytest.mark.parametrize("name",[
-    ('color_matrix_ascii.pbm'),
-    ('color_matrix_ascii.pgm'),
-    ('color_matrix_ascii.ppm'),
-    ('color_matrix_raw.pbm'),
-    ('color_matrix_raw.pgm'),
-    ('color_matrix_raw.ppm')])
-def test_netpbm_io(name):
+@pytest.mark.parametrize("name,k",[
+    ('color_matrix_ascii.pbm', 1),
+    ('color_matrix_ascii.pbm', 255),
+    ('color_matrix_ascii.pgm', 255),
+    ('color_matrix_ascii.ppm', 255),
+    ('color_matrix_raw.pbm', 1),
+    ('color_matrix_raw.pbm', 255),
+    ('color_matrix_raw.pgm', 255),
+    ('color_matrix_raw.ppm', 255)])
+def test_netpbm_io(name, k):
     # read image
     ext = name.split('.')[-1]
     src = read(os.path.join(RESOURCES_PATH, name))
 
     file_name = 'test.%s' % ext
-    write_netpbm(src, 255, file_name)
+    write_netpbm(src, k, file_name, comment=["comment test"])
     image = read(file_name)
     os.remove(file_name)
 
-    assert np.allclose(src, image, atol=2)
+    assert np.array_equal(src, image)
