@@ -1,5 +1,4 @@
 import numpy as np
-from typing import Callable
 
 # Referenced colorconv.py from scikit-image for more efficient implementation
 # of colorspace transformations. Will continue to maintain an independent
@@ -255,26 +254,3 @@ def denormalize(image: np.ndarray, color_space: str) -> np.ndarray:
     shift = norm[color_space]['shift']
     shift_mat = np.ones(image.shape) @ np.diag(shift)
     return (image @ np.diag(scale)) + shift_mat
-
-
-def apply_to_channels(image: np.ndarray,
-                      f_1: Callable,
-                      f_2: Callable,
-                      f_3: Callable) -> np.ndarray:
-    """Return the image with the functions applied to each channel.
-
-    Args:
-        image (np.ndarray): Image (recommended to be normalized).
-        f_1 (Callable): Function to apply to the first channel.
-        f_2 (Callable): Function to apply to the second channel.
-        f_3 (Callable): Function to apply to the third channel.
-
-    Returns:
-        np.ndarray: Pixel matrix with functions applied to each channel.
-    """
-    n,m,k = image.shape
-    p = np.reshape(image, (n*m,3)).astype(float)
-    p[:,0] = f_1(p[:,0])
-    p[:,1] = f_2(p[:,1])
-    p[:,2] = f_3(p[:,2])
-    return np.reshape(p, (n,m,k))
