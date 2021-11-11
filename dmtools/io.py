@@ -68,7 +68,10 @@ def _parse_ascii_netpbm(f: List[str]) -> np.ndarray:
     vals = [v for line in f for v in line.split('#')[0].split()]
     P = int(vals[0][1])
     if P == 1:
-        w, h, *vals = [int(v) for v in vals[1:]]
+        w, h, *vals = [v for v in vals[1:]]
+        w = int(w)
+        h = int(h)
+        vals = [int(i) for i in list(''.join(vals))]
         k = 1
     else:
         w, h, k, *vals = [int(v) for v in vals[1:]]

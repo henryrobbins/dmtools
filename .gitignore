@@ -140,7 +140,7 @@ cython_debug/
 .DS_Store
 
 # Example output
-*.ppm
+examples/colorspace/*.ppm
 !examples/colorspace/barn.ppm
 
 # Project planning document
