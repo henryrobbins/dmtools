@@ -17,13 +17,8 @@ after manuipulating the image, you can export it to a PNG file with
 manipulations. Note that this example script assumes that the script
 ``io_ex.py`` and ``checks_10.png`` are in the same directory.
 
-.. code-block:: python
-
-    # io_ex.py
-    import dmtools
-
-    image = dmtools.read_png('checks_10.png')
-    dmtools.write_png(image, 'checks_10_clone.png')
+.. literalinclude:: scripts/dmtools/io_ex.py
+   :language: python
 
 .. list-table::
     :align: center
@@ -57,18 +52,8 @@ Usually, ``sigma=0.5`` is a good default. The example script below reads
 ``sigma``. You can see the resulting images below where the larger ``sigma``
 results in a blurrier image.
 
-.. code-block:: python
-
-    # simple_blur.py
-    import dmtools
-    from dmtools import transform
-
-    image = dmtools.read_png('red_blue_square.png')
-    blurred_image = transform.blur(image, sigma=5)
-    dmtools.write_png(blurred_image, 'red_blue_square_blur_5.png')
-
-    blurred_image = transform.blur(image, sigma=10)
-    dmtools.write_png(blurred_image, 'red_blue_square_blur_10.png')
+.. literalinclude:: scripts/dmtools/simple_blur.py
+   :language: python
 
 .. list-table::
     :align: center
@@ -143,30 +128,8 @@ up using three different filters: "point" or "nearest neighbor", "triangle",
 and a custom filter. You can ignore ``transform.clip`` and
 ``transform.normalize`` for now. The resulting images are also shown.
 
-.. code-block:: python
-
-    # rescale_ex.py
-    import dmtools
-    from dmtools import transform
-    import numpy as np
-
-    image = dmtools.read_png('checks_10.png')
-    scaled_image = transform.rescale(image, k=10, filter='point')
-    scaled_image = transform.clip(scaled_image).astype(np.uint8)
-    dmtools.write_png(scaled_image, 'checks_10_point.png')
-
-    scaled_image = transform.rescale(image, k=10, filter='triangle')
-    scaled_image = transform.clip(scaled_image).astype(np.uint8)
-    dmtools.write_png(scaled_image, 'checks_10_triangle.png')
-
-    def f(x):
-        return np.sin(x)
-
-    # use a custom weighting function and support
-    scaled_image = transform.rescale(image, k=10, weighting_function=f, support=5)
-    scaled_image = transform.normalize(scaled_image).astype(np.uint8)
-    dmtools.write_png(scaled_image, 'checks_10_custom.png')
-
+.. literalinclude:: scripts/dmtools/rescale_ex.py
+   :language: python
 
 .. list-table::
     :align: center
@@ -206,27 +169,8 @@ the [0, 255] range: :py:func:`dmtools.transform.clip`,
 It is recommended to use ``.astype(np.uint8)`` to round. The example script
 below shows how the choice of which of these you use affects the resulting image.
 
-.. code-block:: python
-
-    # clamping_ex.py
-    import dmtools
-    from dmtools import transform
-    import numpy as np
-
-    def f(x):
-        return np.sin(x)
-
-    image = dmtools.read_png('checks_10.png')
-    scaled_image = transform.rescale(image, k=10, weighting_function=f, support=7)
-
-    clip_image = transform.clip(scaled_image).astype(np.uint8)
-    dmtools.write_png(clip_image, 'checks_10_clip.png')
-
-    normalize_image = transform.normalize(scaled_image).astype(np.uint8)
-    dmtools.write_png(normalize_image, 'checks_10_normalize.png')
-
-    wraparound_image = transform.wraparound(scaled_image).astype(np.uint8)
-    dmtools.write_png(wraparound_image, 'checks_10_wraparound.png')
+.. literalinclude:: scripts/dmtools/clamping_ex.py
+   :language: python
 
 .. list-table::
     :align: center
@@ -304,39 +248,8 @@ is given) and some are applied to individual channels. As we are working in the
 RGB (Red, Green, Blue) colorspace, the red channel is channel 0 and the blue
 channel is channel 2.
 
-.. code-block:: python
-
-      # curve.py
-      import dmtools
-      from dmtools import adjustments
-      import numpy as np
-
-      image = dmtools.read('pallette.png')
-
-      # apply identity to all channels
-      tmp = adjustments.apply_curve(image, lambda x: x)
-      dmtools.write_png(tmp, 'pallette_identity.png')
-
-      # apply clip from 0.25 to 0.75 to all channels
-      tmp = adjustments.apply_curve(image, lambda x: np.clip(2*(x-0.25), 0, 1))
-      dmtools.write_png(tmp, 'pallette_clip_25_75.png')
-
-      # apply clip from 0.4 to 0.6 to all channels
-      tmp = adjustments.apply_curve(image, lambda x: np.clip(5*(x-0.4), 0, 1))
-      dmtools.write_png(tmp, 'pallette_clip_40_60.png')
-
-      # apply clip from 0.4 to 0.6 to red channels
-      tmp = adjustments.apply_curve(image, lambda x: np.clip(5*(x-0.4), 0, 1), 0)
-      dmtools.write_png(tmp, 'pallette_clip_40_60_red.png')
-
-      # apply clip from 0.4 to 0.6 to blue channels
-      tmp = adjustments.apply_curve(image, lambda x: np.clip(5*(x-0.4), 0, 1), 2)
-      dmtools.write_png(tmp, 'pallette_clip_40_60_blue.png')
-
-      # apply parabola to all channels
-      tmp = adjustments.apply_curve(image, lambda x: 4*np.power(x - 0.5, 2))
-      dmtools.write_png(tmp, 'pallette_parabola.png')
-
+.. literalinclude:: scripts/dmtools/curve.py
+   :language: python
 
 .. list-table::
     :align: center

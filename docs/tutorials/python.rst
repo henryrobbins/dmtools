@@ -125,14 +125,8 @@ and run ``code .`` to open VS Code (don't close your terminal because you will
 need it to run the Python scripts). You will see a file navigation window on
 the left. Create a new file called ``hello_world.py``.
 
-.. code-block:: python
-
-    # hello_world.py
-
-    print("Hello World!")
-
-    # Expected Output:
-    # Hello World!
+.. literalinclude:: scripts/python/hello_world.py
+   :language: python
 
 The lines with ``#`` at the beginning are just comments in the Python code. You
 do not need to include them but they can give helpful information! Save the
@@ -161,29 +155,8 @@ to apply the sine function to some value. The math package also
 provides some useful functions you may want to use like the floor and ceiling
 function.
 
-.. code-block:: python
-
-    # simple_math.py
-
-    # addition, subtraction, multiplication, and division
-    print(1 + 1)  # 2
-    print(3 - 1)  # 2
-    print(1 * 2)  # 2
-    print(4 / 2)  # 2.0
-
-    # exponents
-    print(3**2)        # 9
-    print(9**(1 / 2))  # 3
-
-    # math functions from numpy
-    import numpy as np
-    print(np.sin(1))  # 0.8414709848078965
-    print(np.sin(np.pi / 2))  # 1.0
-
-    # math functions from math
-    import math
-    print(math.floor(0.5))  # 0
-    print(math.ceil(0.5))  # 1
+.. literalinclude:: scripts/python/simple_math.py
+   :language: python
 
 Variables
 ---------
@@ -193,17 +166,8 @@ In the script below, we set the variable ``x`` to be ``1`` and  ``y`` to be
 ``2``. We can then use these variables just like they were the values we
 assigned them to.
 
-.. code-block:: python
-
-    # variables.py
-
-    x = 1
-    y = 2
-    z = x + y
-
-    print(x + y)  # 3
-    print(y * 2)  # 4
-    print(z)      # 3
+.. literalinclude:: scripts/python/variables.py
+   :language: python
 
 Loops
 -----
@@ -215,25 +179,8 @@ every time we run through the loop. The lines of code that are run in every
 iteration of the loop make up the loop body. We indent the lines that are in
 the loop body.
 
-.. code-block:: python
-
-    # loops.py
-
-    for i in range(5):
-        print(i)
-
-    x = 0
-    for i in range(5):
-        x = x + i
-    print(x)
-
-    # Expected Output:
-    # 0
-    # 1
-    # 2
-    # 3
-    # 4
-    # 10
+.. literalinclude:: scripts/python/loops.py
+   :language: python
 
 Conditional Statements
 ----------------------
@@ -250,32 +197,8 @@ where the body of the conditional statement runs if ``x`` is ``True``. The
 body of the conditional statement is denoted with indentation like the
 loop body.
 
-.. code-block:: python
-
-    # condition.py
-
-    x = True
-    y = False
-
-    print(x == True)   # True
-    print(x == False)  # False
-    print(x != False)  # True
-
-    print(not x)  # False
-
-    print(x & y)        # False
-    print(x & (not y))  # True
-    print(x | y)        # True
-    print((not x) | y)  # False
-
-    if True:
-        print('True!')
-
-    if False:
-        print('This will not print.')
-
-    if x | y:
-        print('True!')
+.. literalinclude:: scripts/python/condition.py
+   :language: python
 
 Lists
 -----
@@ -287,21 +210,8 @@ notation ``x[i]`` where ``i`` is the index of the value we want. Python is
 zero-indexed which means that the first value in a list has index zero. We can
 add values to lists with ``.append()``. We can also add lists together.
 
-.. code-block:: python
-
-    # lists.py
-
-    x = [1, 2, 3]
-    y = [4, 5]
-
-    print(x)     # [1, 2, 3]
-    print(x[0])  # 1
-    print(x[2])  # 3
-
-    x.append(4)
-    print(x)     # [1, 2, 3, 4]
-
-    print(x + y) # [1, 2, 3, 4, 5]
+.. literalinclude:: scripts/python/lists.py
+   :language: python
 
 List Comprehension
 ------------------
@@ -310,25 +220,8 @@ One of the many nice features in Python is called list comprehension. It allows
 us to initialize a list. It essentially combines the syntax for a list with
 the syntax for a loop allowing us to define a list with less code.
 
-.. code-block:: python
-
-    # list_comprehension.py
-
-    # without list comprehension
-
-    x = []  # this list is empty
-    for i in range(4):
-        x.append(i)
-    print(x)  # [0, 1, 2, 3]
-
-    # with list comprehension
-
-    x = [i for i in range(4)]
-    print(x)  # [0, 1, 2, 3]
-
-    y = [i**2 for i in range(4) if i**2 != 4]
-    print(y)  # [0, 1, 9]
-
+.. literalinclude:: scripts/python/list_comprehension.py
+   :language: python
 
 Functions
 ---------
@@ -345,28 +238,8 @@ when we want to call the function, we use the notation ``f(x, y, ...)`` where
 ``f`` is the name of the function and ``x, y, ...`` are the arguments or actual
 values we are assigning the parameters of that function.
 
-
-.. code-block:: python
-
-    # functions.py
-
-    # this function returns something
-    def add(x, y):
-        return x + y
-
-    x = add(2,3)
-    y = add(7,8)
-    print(x)       # 5
-    print(y)       # 15
-
-    # this function does not return anything
-    def append_one(x):
-        x.append(1)
-
-    x = [4, 3, 2]
-    y = append_one(x)
-    print(x)       # [4, 3, 2, 1]
-    print(y)       # None
+.. literalinclude:: scripts/python/functions.py
+   :language: python
 
 That concludes the tutorial! If you want to do something in Python but don't
 know the syntax, `Stack Overflow`_ is a great resource. It is also a great
