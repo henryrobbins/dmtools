@@ -301,4 +301,4 @@ few important observations. The identity function does not alter the image.
 The clip functions reduce contrast at either end of the tonal range but
 increase it in the center of the range. The clip to [0.40, 0.60] has a more
 pronounced effect that the clip to [0.25, 0.75]. Lastly, when the curve is
-applied to a single filter, the colors of other channels are unaffected.
+applied to a single channel, the colors of other channels are unaffected.
