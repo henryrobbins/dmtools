@@ -16,6 +16,7 @@ def apply_curve(image: np.ndarray, f: Callable, c: int = -1) -> np.ndarray:
     if c == -1:
         return f(image)
     else:
+        image = np.copy(image)
         n,m,k = image.shape
         channels = np.reshape(image, (n*m,k))
         channels[:,c] = f(channels[:,c])
