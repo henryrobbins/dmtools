@@ -11,6 +11,7 @@ cov-html:
 lint:
 	flake8 dmtools
 
+.PHONY: dist
 dist:
 	rm -rf dist/*
 	python3 -m build
