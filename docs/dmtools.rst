@@ -2,7 +2,7 @@ dmtools package
 ===============
 
 dmtools.io module
----------------------
+-----------------
 
 .. automodule:: dmtools.io
    :members:
@@ -10,9 +10,17 @@ dmtools.io module
    :show-inheritance:
 
 dmtools.transform module
-----------------------
+------------------------
 
 .. automodule:: dmtools.transform
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+dmtools.adjustments module
+--------------------------
+
+.. automodule:: dmtools.adjustments
    :members:
    :undoc-members:
    :show-inheritance:
