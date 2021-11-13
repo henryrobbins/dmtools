@@ -13,9 +13,9 @@ these videos as well. Lastly, ASCII art can be produced with the ascii module.
 __author__ = 'Henry Robbins'
 
 from . import animation
-from . import ascii
 from . import colorspace
 from . import sound
 from . import arrange
 from . import transform
-from .io import read, read_png, write_png, read_netpbm, write_netpbm
+from .io import (read, read_png, write_png, read_netpbm,
+                 write_netpbm, write_ascii)

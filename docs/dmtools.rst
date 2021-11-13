@@ -41,14 +41,6 @@ dmtools.animation module
    :undoc-members:
    :show-inheritance:
 
-dmtools.ascii module
---------------------
-
-.. automodule:: dmtools.ascii
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 dmtools.sound module
 --------------------
 

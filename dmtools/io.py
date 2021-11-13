@@ -1,5 +1,6 @@
 import os
 import numpy as np
+import pkgutil
 from imageio import imread, imwrite
 from typing import List
 from ._log import _log_msg
@@ -218,6 +219,40 @@ def write_netpbm(image: np.ndarray, k: int, path: str,
         lines = image.astype(str).tolist()
         f.write('\n'.join([' '.join(line) for line in lines]))
         f.write('\n')
+        logging.info(_log_msg(path, os.stat(path).st_size))
+
+
+def write_ascii(image: np.ndarray, path: str, txt:str = False):
+    """Write object to an ASCII art representation.
+
+    Args:
+        image (np.ndarray): NumPy array representing image.
+        path (str): String file path.
+        txt (str): True iff write to a txt file. Defaults to False.
+    """
+    char_map = "   -~:;=!*#$@"
+    image = _discretize(image, len(char_map)-1)
+    if not txt:
+        # generate char map to small images of each character
+        file = pkgutil.get_data(__name__, "resources/ascii.pgm")
+        f = file.decode().split('\n')
+        M = _parse_ascii_netpbm(f)
+        char_ims = [np.pad(M,((0,0),(6,6))) for M in np.split(M, 13, axis=1)]
+        char_image_map = dict(zip(list(" .,-~:;=!*#$@"), char_ims))
+
+        # create image of ascii art and write to PNG
+        A = np.copy(image)
+        n,m = A.shape
+        M = []
+        for i in range(n):
+            M.append([char_image_map[char_map[A[i,j]]] for j in range(m)])
+        M = np.block(M)
+        write_png(M, path)
+        logging.info(_log_msg(path, os.stat(path).st_size))
+    else:
+        with open(path, "w") as f:
+            lines = [[char_map[j] for j in row] for row in image]
+            f.write('\n'.join([' '.join(line) for line in lines]))
         logging.info(_log_msg(path, os.stat(path).st_size))
 
 
