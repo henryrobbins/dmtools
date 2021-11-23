@@ -230,7 +230,7 @@ def overlay(over: np.ndarray, under: np.ndarray) -> np.ndarray:
     """Return the image formed by overlaying one image on another.
 
     This implementation of overlay uses the over operator formula provided in
-    ``Alpha Compositing``.
+    `Alpha Compositing`_.
 
     .. _Alpha Compositing: https://en.wikipedia.org/wiki/Alpha_compositing
 
