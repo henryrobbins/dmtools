@@ -202,6 +202,49 @@ respectively. Lastly, ``checks_10_normalize.png`` normalizes the minimum and
 largest value to 0 and 255 causing this image to loose contrast in the center
 when compared to the clipping algorithm.
 
+Another function provided by the transform module is
+:py:func:`dmtools.transform.overlay`. It allows for layering two images. In the
+case of fully opaque images, the function is uninteresting as the top image
+will completely obfuscate the below image. However, when images have lower
+opacities, this function handles what is called `Alpha Compositing`_. In the
+example script below, we input two images at half opacity and view the result of
+overlaying in both possible orientations. Note how the overlay function creates
+the effect of the top image being placed over the bottom image.
+
+.. literalinclude:: scripts/dmtools/overlay.py
+   :language: python
+
+.. list-table::
+    :align: center
+
+    * - .. figure:: images/blue_square.png
+            :alt: blue_square.png
+            :align: center
+
+            blue_square.png
+
+      - .. figure:: images/orange_square.png
+            :alt: orange_square.png
+            :align: center
+
+            orange_square.png
+
+.. list-table::
+    :align: center
+
+    * - .. figure:: images/blue_over_orange.png
+            :alt: blue_over_orange.png
+            :align: center
+
+            blue_over_orange.png
+
+      - .. figure:: images/orange_over_blue.png
+            :alt: orange_over_blue.png
+            :align: center
+
+            orange_over_blue.png
+
+
 adjustments
 -----------
 
@@ -302,3 +345,5 @@ The clip functions reduce contrast at either end of the tonal range but
 increase it in the center of the range. The clip to [0.40, 0.60] has a more
 pronounced effect that the clip to [0.25, 0.75]. Lastly, when the curve is
 applied to a single channel, the colors of other channels are unaffected.
+
+.. _Alpha Compositing: https://en.wikipedia.org/wiki/Alpha_compositing
