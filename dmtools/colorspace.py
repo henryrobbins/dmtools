@@ -48,7 +48,9 @@ def RGB_to_gray(image: np.ndarray) -> np.ndarray:
     Returns:
         np.ndarray: Image in grayscale.
     """
-    return image @ rgb_to_gray.T
+    image = np.copy(image)
+    image[:,:,:3] = image[:,:,:3] @ rgb_to_gray.T
+    return image
 
 
 def gray_to_RGB(image: np.ndarray) -> np.ndarray:
@@ -75,7 +77,9 @@ def RGB_to_XYZ(image: np.ndarray) -> np.ndarray:
     Returns:
         np.ndarray: Image in CIE XYZ space.
     """
-    return image @ rgb_to_xyz.T
+    image = np.copy(image)
+    image[:,:,:3] = image[:,:,:3] @ rgb_to_xyz.T
+    return image
 
 
 def XYZ_to_RGB(image: np.ndarray) -> np.ndarray:
@@ -90,7 +94,9 @@ def XYZ_to_RGB(image: np.ndarray) -> np.ndarray:
     Returns:
         np.ndarray: Image in CIE RGB space.
     """
-    return image @ xyz_to_rgb.T
+    image = np.copy(image)
+    image[:,:,:3] = image[:,:,:3] @ xyz_to_rgb.T
+    return image
 
 
 def RGB_to_YUV(image: np.ndarray) -> np.ndarray:
@@ -105,7 +111,9 @@ def RGB_to_YUV(image: np.ndarray) -> np.ndarray:
     Returns:
         np.ndarray: Image in YUV space.
     """
-    return image @ rgb_to_yuv.T
+    image = np.copy(image)
+    image[:,:,:3] = image[:,:,:3] @ rgb_to_yuv.T
+    return image
 
 
 def YUV_to_RGB(image: np.ndarray) -> np.ndarray:
@@ -120,7 +128,9 @@ def YUV_to_RGB(image: np.ndarray) -> np.ndarray:
     Returns:
         np.ndarray: Image in CIE RGB space.
     """
-    return image @ yuv_to_rgb.T
+    image = np.copy(image)
+    image[:,:,:3] = image[:,:,:3] @ yuv_to_rgb.T
+    return image
 
 
 def XYZ_to_Lab(image: np.ndarray, illuminant: str = 'D65') -> np.ndarray:
@@ -149,10 +159,12 @@ def XYZ_to_Lab(image: np.ndarray, illuminant: str = 'D65') -> np.ndarray:
         b = 200*(f(Y/Y_n) - f(Z/Z_n))
         return np.array([L,a,b])
 
+    image = np.copy(image)
     n,m,k = image.shape
-    p = np.reshape(image, (n*m,3)).astype(float)
+    p = np.reshape(image[:,:,:3], (n*m,3)).astype(float)
     p = np.apply_along_axis(to_Lab, 1, p)
-    return np.reshape(p, (n,m,k))
+    image[:,:,:3] = np.reshape(p, (n,m,3))
+    return image
 
 
 def Lab_to_XYZ(image: np.ndarray, illuminant: str = 'D65') -> np.ndarray:
@@ -181,10 +193,12 @@ def Lab_to_XYZ(image: np.ndarray, illuminant: str = 'D65') -> np.ndarray:
         Z = Z_n*f_inv(((L + 16)/116) - b/200)
         return np.array([X,Y,Z])
 
+    image = np.copy(image)
     n,m,k = image.shape
-    p = np.reshape(image, (n*m,3)).astype(float)
+    p = np.reshape(image[:,:,:3], (n*m,3)).astype(float)
     p = np.apply_along_axis(to_XYZ, 1, p)
-    return np.reshape(p, (n,m,k))
+    image[:,:,:3] = np.reshape(p, (n,m,3))
+    return image
 
 
 def RGB_to_Lab(image: np.ndarray, illuminant: str = 'D65') -> np.ndarray:

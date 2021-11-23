@@ -44,9 +44,6 @@ def read_png(path: str) -> np.ndarray:
         np.ndarray: NumPy array representing the image.
     """
     image = imread(uri=path, format='png')
-    # ignore the transparency channel when reading png files
-    if len(image.shape) > 2 and image.shape[2] == 4:
-        image = image[:,:,:3]
     return _continuous(image, 255)
 
 

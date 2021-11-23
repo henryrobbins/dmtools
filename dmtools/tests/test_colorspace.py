@@ -9,13 +9,16 @@ from dmtools.colorspace import \
 # -----------
 
 # single white pixel (single channel)
-ONE_CHANNEL_WHITE_PIXEL = np.array([[1]])
+ONE_CHANNEL_WHITE_PIXEL = np.array([[1.0]])
 
 # single white pixel (three channels)
-THREE_CHANNEL_WHITE_PIXEL = np.array([[[1, 1, 1]]])
+THREE_CHANNEL_WHITE_PIXEL = np.array([[[1.0, 1.0, 1.0]]])
 
 # single color pixel
 COLOR_PIXEL = np.array([[[0.45, 0.33, 0.98]]])
+
+# opaque pixel
+OPAQUE_PIXEL = np.array([[[0.45, 0.33, 0.98, 0.50]]])
 
 
 @pytest.mark.parametrize("f,source,new",[
@@ -29,9 +32,15 @@ def test_colorspace_transformation(f, source, new):
     (gray_to_RGB, RGB_to_gray, ONE_CHANNEL_WHITE_PIXEL),
     (RGB_to_XYZ, XYZ_to_RGB, COLOR_PIXEL),
     (RGB_to_XYZ, XYZ_to_RGB, THREE_CHANNEL_WHITE_PIXEL),
+    (RGB_to_XYZ, XYZ_to_RGB, OPAQUE_PIXEL),
     (RGB_to_YUV, YUV_to_RGB, COLOR_PIXEL),
     (RGB_to_YUV, YUV_to_RGB, THREE_CHANNEL_WHITE_PIXEL),
+    (RGB_to_YUV, YUV_to_RGB, OPAQUE_PIXEL),
     (RGB_to_Lab, Lab_to_RGB, COLOR_PIXEL),
-    (RGB_to_Lab, Lab_to_RGB, THREE_CHANNEL_WHITE_PIXEL)])
+    (RGB_to_Lab, Lab_to_RGB, THREE_CHANNEL_WHITE_PIXEL),
+    (RGB_to_Lab, Lab_to_RGB, OPAQUE_PIXEL)])
 def test_colorspace_inverse(f, f_inv, image):
+    print(image)
+    print(f(image))
+    print(f_inv(f(image)))
     assert np.allclose(image, f_inv(f(image)), atol=1e-6)

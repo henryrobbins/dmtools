@@ -91,6 +91,7 @@ def test_gaussian_blur(image, k, blur, new_name):
 def test_blur(image, sigma, new_name):
     src = read(os.path.join(RESOURCES_PATH, image, 'src.png'))
     new = read(os.path.join(RESOURCES_PATH, image, new_name + '.png'))
+    new = new[:,:,:3]  # drop the alpha channel to compare
     assert np.allclose(new, blur(src, sigma=sigma), atol=2)
 
 
