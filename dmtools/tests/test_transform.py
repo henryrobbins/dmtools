@@ -1,7 +1,8 @@
 import os
 import pytest
 import numpy as np
-from dmtools.transform import rescale, blur, clip, normalize, wraparound
+from dmtools.transform import (rescale, blur, overlay, clip, normalize,
+                               wraparound)
 from dmtools.colorspace import gray_to_RGB
 from dmtools.io import read
 
@@ -63,12 +64,12 @@ def test_rescale(image, filter, k, new_name):
     # single channel
     src = read(os.path.join(RESOURCES_PATH, image, 'src.png'))
     new = read(os.path.join(RESOURCES_PATH, image, new_name + '.png'))
-    assert np.allclose(new, clip(rescale(src, k=k, filter=filter)), atol=2)
+    assert np.allclose(new, clip(rescale(src, k=k, filter=filter)), atol=0.01)
 
     # three channel
     src = gray_to_RGB(src)
     new = gray_to_RGB(new)
-    assert np.allclose(new, clip(rescale(src, k=k, filter=filter)), atol=2)
+    assert np.allclose(new, clip(rescale(src, k=k, filter=filter)), atol=0.01)
 
 
 @pytest.mark.parametrize("image,k,blur,new_name",[
@@ -79,7 +80,7 @@ def test_gaussian_blur(image, k, blur, new_name):
     src = read(os.path.join(RESOURCES_PATH, image, 'src.png'))
     new = read(os.path.join(RESOURCES_PATH, image, new_name + '.png'))
     assert np.allclose(new, rescale(src, k=k, filter='gaussian', blur=blur),
-                       atol=2)
+                       atol=0.01)
 
 
 @pytest.mark.parametrize("image,sigma,new_name",[
@@ -92,7 +93,17 @@ def test_blur(image, sigma, new_name):
     src = read(os.path.join(RESOURCES_PATH, image, 'src.png'))
     new = read(os.path.join(RESOURCES_PATH, image, new_name + '.png'))
     new = new[:,:,:3]  # drop the alpha channel to compare
-    assert np.allclose(new, blur(src, sigma=sigma), atol=2)
+    assert np.allclose(new, blur(src, sigma=sigma), atol=0.01)
+
+
+@pytest.mark.parametrize("over,under,result",[
+    ('blue_square.png', 'orange_square.png', 'blue_over_orange.png'),
+    ('orange_square.png', 'blue_square.png', 'orange_over_blue.png')])
+def test_overlay(over, under, result):
+    over_img = read(os.path.join(RESOURCES_PATH, 'overlay_tests', over))
+    under_img = read(os.path.join(RESOURCES_PATH, 'overlay_tests', under))
+    result_img = read(os.path.join(RESOURCES_PATH, 'overlay_tests', result))
+    assert np.allclose(result_img, overlay(over_img, under_img), atol=0.01)
 
 
 @pytest.mark.parametrize("src,new",[

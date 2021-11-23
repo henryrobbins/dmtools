@@ -226,6 +226,30 @@ def blur(image: np.ndarray, sigma: float, radius: float = 0) -> np.ndarray:
     return rescale(image, k=1, weighting_function=f, support=radius)
 
 
+def overlay(over: np.ndarray, under: np.ndarray) -> np.ndarray:
+    """Return the image formed by overlaying one image on another.
+
+    This implementation of overlay uses the over operator formula provided in
+    ``Alpha Compositing``.
+
+    .. _Alpha Compositing: https://en.wikipedia.org/wiki/Alpha_compositing
+
+    Args:
+        over (np.ndarray): Image on top.
+        under (np.ndarray): Image on bottom.
+
+    Returns:
+        np.ndarray: The two images overlaid.
+    """
+    assert over.shape == under.shape
+    a_over = np.stack(3*[over[:,:,3]], axis=2)
+    a_under = np.stack(3*[under[:,:,3]], axis=2)
+    a = a_over + a_under * (1 - a_over)
+    color = (over[:,:,:3] * a_over) + ((under[:,:,:3] * a_under) * (1-a_over))
+    color = np.divide(color, a, out=np.zeros_like(color), where=(a != 0))
+    return np.append(color, a[:,:,0:1], axis=2)
+
+
 def clip(image: np.ndarray) -> np.ndarray:
     """Clip gray/color values that are out of bounds.
 
