@@ -105,9 +105,33 @@ def _over_composite_operator(A: np.ndarray, B: np.ndarray) -> np.ndarray:
     return np.append(xR, aR, axis=2)
 
 
+def _add_composite_operator(A: np.ndarray, B: np.ndarray) -> np.ndarray:
+    """Add composite operator.
+
+    For more information about the add composite operator, see
+    `Cairo Compositing Operators <https://www.cairographics.org/operators/>`_.
+
+    Args:
+        A (np.ndarray): Source image represented as 4-channel Numpy array.
+        B (np.ndarray): Destination image represented as 4-channel Numpy array.
+
+    Returns:
+        np.ndarray: The A and B images composited.
+    """
+    xA, aA = np.split(A, [3], axis=2)
+    xB, aB = np.split(B, [3], axis=2)
+    xaA = xA * aA
+    xaB = xB * aB
+    aR = np.clip(aA + aB, 0, 1)
+    num = xaA + xaB
+    xR = np.divide(num, aR, out=np.zeros_like(num), where=(aR != 0))
+    return np.append(xR, aR, axis=2)
+
+
 COMPOSITE_OPERATORS = \
     {'over':      _over_composite_operator,
-     'dest_over': lambda A,B: _over_composite_operator(B,A)}
+     'dest_over': lambda A,B: _over_composite_operator(B,A),
+     'add':       _add_composite_operator}
 
 
 EPSILON = 1.0e-6
@@ -265,6 +289,7 @@ def composite(source: np.ndarray,
 
     -  ("over"): two semi-transparent slides; source over dest.
     -  ("dest_over"): two semi-transparent slides; dest over source.
+    -  ("add"): Add source and dest.
 
     The built-in operators use the `Cairo Compositing Operators`_.
 
@@ -274,7 +299,7 @@ def composite(source: np.ndarray,
     Args:
         source (np.ndarray): Image on top.
         dest (np.ndarray): Image on bottom.
-        operator (str): The compositing operator to use {over, dest_over}
+        operator (str): The compositing operator to use {over, dest_over, add}
 
     Returns:
         np.ndarray: The two images overlaid.
