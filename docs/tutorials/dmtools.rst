@@ -203,15 +203,15 @@ largest value to 0 and 255 causing this image to loose contrast in the center
 when compared to the clipping algorithm.
 
 Another function provided by the transform module is
-:py:func:`dmtools.transform.overlay`. It allows for layering two images. In the
+:py:func:`dmtools.transform.composite`. It allows for layering two images. In the
 case of fully opaque images, the function is uninteresting as the top image
 will completely obfuscate the below image. However, when images have lower
 opacities, this function handles what is called `Alpha Compositing`_. In the
 example script below, we input two images at half opacity and view the result of
-overlaying in both possible orientations. Note how the overlay function creates
+overlaying in both possible orientations. Note how the composite function creates
 the effect of the top image being placed over the bottom image.
 
-.. literalinclude:: scripts/dmtools/overlay.py
+.. literalinclude:: scripts/dmtools/composite.py
    :language: python
 
 .. list-table::

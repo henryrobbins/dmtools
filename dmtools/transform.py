@@ -81,6 +81,35 @@ RESIZE_FILTERS = \
      'catrom':   (_catmull_rom_weighting_function,  2.0),
      'gaussian': (_gaussian_weighting_function,     2.0)}
 
+
+def _over_composite_operator(A: np.ndarray, B: np.ndarray) -> np.ndarray:
+    """Over composite operator.
+
+    For more information about the over composite operator, see
+    `Cairo Compositing Operators <https://www.cairographics.org/operators/>`_.
+
+    Args:
+        A (np.ndarray): Source image represented as 4-channel Numpy array.
+        B (np.ndarray): Destination image represented as 4-channel Numpy array.
+
+    Returns:
+        np.ndarray: The A and B images composited.
+    """
+    xA, aA = np.split(A, [3], axis=2)
+    xB, aB = np.split(B, [3], axis=2)
+    xaA = xA * aA
+    xaB = xB * aB
+    aR = aA + aB * (1 - aA)
+    num = xaA + xaB * (1 - aA)
+    xR = np.divide(num, aR, out=np.zeros_like(num), where=(aR != 0))
+    return np.append(xR, aR, axis=2)
+
+
+COMPOSITE_OPERATORS = \
+    {'over':      _over_composite_operator,
+     'dest_over': lambda A,B: _over_composite_operator(B,A)}
+
+
 EPSILON = 1.0e-6
 
 
@@ -226,28 +255,31 @@ def blur(image: np.ndarray, sigma: float, radius: float = 0) -> np.ndarray:
     return rescale(image, k=1, weighting_function=f, support=radius)
 
 
-def overlay(over: np.ndarray, under: np.ndarray) -> np.ndarray:
-    """Return the image formed by overlaying one image on another.
+def composite(source: np.ndarray,
+              dest: np.ndarray,
+              operator: str = 'over') -> np.ndarray:
+    """Return the image formed by compositing one image with another.
 
-    This implementation of overlay uses the over operator formula provided in
-    `Alpha Compositing`_.
+    For more information about alpha compositing, see `Alpha Compositing`_.
+    The following compositing operators are built-in:
+
+    -  ("over"): two semi-transparent slides; source over dest.
+    -  ("dest_over"): two semi-transparent slides; dest over source.
+
+    The built-in operators use the `Cairo Compositing Operators`_.
 
     .. _Alpha Compositing: https://en.wikipedia.org/wiki/Alpha_compositing
+    .. _Cairo Compositing Operators: https://www.cairographics.org/operators
 
     Args:
-        over (np.ndarray): Image on top.
-        under (np.ndarray): Image on bottom.
+        source (np.ndarray): Image on top.
+        dest (np.ndarray): Image on bottom.
+        operator (str): The compositing operator to use {over, dest_over}
 
     Returns:
         np.ndarray: The two images overlaid.
     """
-    assert over.shape == under.shape
-    a_over = np.stack(3*[over[:,:,3]], axis=2)
-    a_under = np.stack(3*[under[:,:,3]], axis=2)
-    a = a_over + a_under * (1 - a_over)
-    color = (over[:,:,:3] * a_over) + ((under[:,:,:3] * a_under) * (1-a_over))
-    color = np.divide(color, a, out=np.zeros_like(color), where=(a != 0))
-    return np.append(color, a[:,:,0:1], axis=2)
+    return COMPOSITE_OPERATORS[operator](source, dest)
 
 
 def clip(image: np.ndarray) -> np.ndarray:
