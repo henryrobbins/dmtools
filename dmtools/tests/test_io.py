@@ -1,7 +1,8 @@
 import os
 import pytest
 import numpy as np
-from dmtools.io import read, write_netpbm, write_png, write_ascii
+from imageio import imread
+from dmtools.io import Metadata, read, write_netpbm, write_png, write_ascii
 
 RESOURCES_PATH = os.path.join(os.path.dirname(__file__), 'resources/io_tests')
 
@@ -36,7 +37,7 @@ def test_netpbm_io(name, k):
     src = read(os.path.join(RESOURCES_PATH, name))
 
     file_name = 'test.%s' % ext
-    write_netpbm(src, k, file_name, comment=["comment test"])
+    write_netpbm(src, k, file_name)
     image = read(file_name)
     os.remove(file_name)
 
@@ -65,3 +66,18 @@ def test_ascii_io(src, txt_expected_path, png_expected_path):
     png_expected = read(os.path.join(RESOURCES_PATH, png_expected_path))
     os.remove('test.png')
     assert np.array_equal(png_actual, png_expected)
+
+
+def test_metadata_io():
+    metadata = Metadata()
+    src = read(os.path.join(RESOURCES_PATH, "color_matrix.png"))
+
+    write_png(src, "color_matrix_metadata.png", metadata=metadata)
+    write_netpbm(src, 255, "color_matrix_metadata.ppm", metadata=metadata)
+    png_metadata = imread("color_matrix_metadata.png").meta
+    os.remove("color_matrix_metadata.png")
+    os.remove("color_matrix_metadata.ppm")
+
+    assert png_metadata['Creation Time'] == metadata.creation_time
+    assert png_metadata['Software'] == metadata.software
+    assert png_metadata['Source'] == metadata.source

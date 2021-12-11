@@ -63,3 +63,6 @@ html_theme_options = {
 html_static_path = ['_static']
 
 master_doc = 'index'
+
+# include __init__ documentation
+autoclass_content = 'both'

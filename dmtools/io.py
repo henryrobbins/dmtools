@@ -1,10 +1,112 @@
 import os
+import sys
 import numpy as np
 import pkgutil
+from datetime import datetime
 from imageio import imread, imwrite
+from PIL import PngImagePlugin
 from typing import List
 from ._log import _log_msg
 import logging
+
+
+class Metadata:
+    """Maintain metadata for an image. Based on the `PNG`_ format.
+
+    .. _PNG: https://www.w3.org/TR/PNG/#11textinfo
+    """
+
+    def __init__(self,
+                 title: str = None,
+                 author: str = None,
+                 description: str = None,
+                 copyright: str = None,
+                 creation_time: str = None,
+                 software: str = None,
+                 disclaimer: str = None,
+                 warning: str = None,
+                 source: str = None,
+                 comment: str = None):
+        """Initialize metadata.
+
+        Args:
+            title (str): Short (one line) title or caption for image. \
+                Defaults to None
+            author (str): Name of image's creator. \
+                Defaults to None
+            description (str): Description of image (possibly long). \
+                Defaults to None
+            copyright (str): Copyright notice. Defaults to None
+            creation_time (str): Time of original image creation. \
+                Defaults to the time of initialization.
+            software (str): Software used to create the image. \
+                Defaults to "dmtools".
+            disclaimer (str): Legal disclaimer. Defaults to None.
+            warning (str): Warning of nature of content. Defaults to None.
+            source (str): Device used to create the image. \
+                Defaults to the source code of the invoked script.
+            comment (str): Miscellaneous comment. Defaults to None.
+        """
+        self.title = title
+        self.author = author
+        self.description = description
+        self.copyright = copyright
+        if creation_time is None:
+            self.creation_time = datetime.now().strftime("%m-%d-%Y %H:%M:%S")
+        else:
+            self.creation_time = creation_time
+        self.software = "dmtools" if software is None else software
+        self.disclaimer = disclaimer
+        self.warning = warning
+        self.source = open(sys.argv[0]).read() if source is None else source
+        self.comment = comment
+
+    def _to_pnginfo(self) -> PngImagePlugin.PngInfo:
+        """Return a PngInfo object with this metadata.
+
+        Returns:
+            PngImagePlugin.PngInfo: Corresponding PngInfo object.
+        """
+        info = PngImagePlugin.PngInfo()
+        inst_var_to_attribute_name = {
+            self.title: "Title",
+            self.author: "Author",
+            self.description: "Description",
+            self.copyright: "Copyright",
+            self.creation_time: "Creation Time",
+            self.software: "Software",
+            self.disclaimer: "Disclaimer",
+            self.warning: "Warning",
+            self.source: "Source",
+            self.comment: "Comment"
+        }
+        for k,v in inst_var_to_attribute_name.items():
+            if k is not None:
+                info.add_text(v, k)
+        return info
+
+    def _to_comment_string(self) -> str:
+        """Return a string representation of this metadata.
+
+        Returns:
+            str: String representation of metadata.
+        """
+        var_to_string = {
+            self.title: "Title",
+            self.author: "Author",
+            self.description: "Description",
+            self.copyright: "Copyright",
+            self.creation_time: "Creation Time",
+            self.software: "Software",
+            self.disclaimer: "Disclaimer",
+            self.warning: "Warning",
+            self.source: "Source",
+            self.comment: "Comment"
+        }
+        non_none = {k:v for k,v in var_to_string.items() if k is not None}
+        lines = ["%s: %s\n" % (v,k) for k,v in non_none.items()]
+        comment = "".join(lines)
+        return "\n".join("# %s" % l for l in comment.split("\n")) + "\n"
 
 
 def _continuous(image: np.ndarray, k: int) -> np.ndarray:
@@ -47,7 +149,7 @@ def read_png(path: str) -> np.ndarray:
     return _continuous(image, 255)
 
 
-def write_png(image: np.ndarray, path: str):
+def write_png(image: np.ndarray, path: str, metadata=Metadata()):
     """Write NumPy array to a png file.
 
     The NumPy array should have values in the range [0, 1].
@@ -56,9 +158,10 @@ def write_png(image: np.ndarray, path: str):
     Args:
         image (np.ndarray): NumPy array representing image.
         path (str): String file path.
+        metadata (Metadata): Metadata for image. Defaults to Metadata().
     """
     im = _discretize(image, 255).astype(np.uint8)
-    imwrite(im=im, uri=path, format='png')
+    imwrite(im=im, uri=path, format='png', pnginfo=metadata._to_pnginfo())
 
 
 def _parse_ascii_netpbm(f: List[str]) -> np.ndarray:
@@ -184,8 +287,7 @@ def read_netpbm(path: str) -> np.ndarray:
         return _parse_binary_netpbm(path)
 
 
-def write_netpbm(image: np.ndarray, k: int, path: str,
-                 comment: List[str] = []):
+def write_netpbm(image: np.ndarray, k: int, path: str, metadata=Metadata()):
     """Write object to a Netpbm file (pbm, pgm, ppm).
 
     Uses the ASCII (plain) magic numbers.
@@ -194,7 +296,7 @@ def write_netpbm(image: np.ndarray, k: int, path: str,
         image (np.ndarray): NumPy array representing image.
         k (int): Maximum color/gray value.
         path (str): String file path.
-        comment (str): List of comment lines to include in the file.
+        metadata (Metadata): Metadata for image. Defaults to Metadata().
     """
     h, w, *_ = image.shape
     if len(image.shape) == 2:
@@ -205,13 +307,12 @@ def write_netpbm(image: np.ndarray, k: int, path: str,
         image = -image + 1
     with open(path, "w") as f:
         f.write('P%d\n' % P)
-        for line in comment:
-            f.write('# %s\n' % line)
         f.write("%s %s\n" % (w, h))
         if P != 1:
             f.write("%s\n" % (k))
         if P == 3:
             image = image.reshape(h, w * 3)
+        f.write(metadata._to_comment_string())
         image = _discretize(image, k)
         lines = image.astype(str).tolist()
         f.write('\n'.join([' '.join(line) for line in lines]))
