@@ -1,8 +1,10 @@
 import os
+import sys
 import pytest
 import numpy as np
 from imageio import imread
-from dmtools.io import Metadata, read, write_netpbm, write_png, write_ascii
+from dmtools.io import (Metadata, read, write_netpbm, write_png, write_ascii,
+                        recreate_script_from_png)
 
 RESOURCES_PATH = os.path.join(os.path.dirname(__file__), 'resources/io_tests')
 
@@ -81,3 +83,16 @@ def test_metadata_io():
     assert png_metadata['Creation Time'] == metadata.creation_time
     assert png_metadata['Software'] == metadata.software
     assert png_metadata['Source'] == metadata.source
+
+
+def test_recreate_script_from_png():
+
+    source = open(sys.argv[0]).read()
+    image = read(os.path.join(RESOURCES_PATH, "color_matrix.png"))
+    write_png(image, "color_matrix_metadata.png")
+
+    recreate_script_from_png("color_matrix_metadata.png", "test_recreate.py")
+    source_from_file = open("test_recreate.py").read()
+    os.remove("test_recreate.py")
+
+    assert source == source_from_file

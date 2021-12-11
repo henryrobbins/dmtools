@@ -18,4 +18,4 @@ from . import sound
 from . import arrange
 from . import transform
 from .io import (Metadata, read, read_png, write_png, read_netpbm,
-                 write_netpbm, write_ascii)
+                 write_netpbm, write_ascii, recreate_script_from_png)

@@ -378,3 +378,15 @@ def read(path: str) -> np.ndarray:
         raise ValueError("File extension not supported.")
     else:
         return read_f[ext](path)
+
+
+def recreate_script_from_png(image_path: str, script_path: str):
+    """Recreate a script from the metadata of a PNG file.
+
+    Args:
+        image_path (str): String file path of PNG image.
+        script_path (str): String file path of generated script.
+    """
+    with open(script_path, 'w') as f:
+        print()
+        f.write(imread(image_path).meta['Source'])
