@@ -58,7 +58,11 @@ class Metadata:
         self.software = "dmtools" if software is None else software
         self.disclaimer = disclaimer
         self.warning = warning
-        self.source = open(sys.argv[0]).read() if source is None else source
+        if source is None:
+            if sys.argv[0] != "":
+                self.source = open(sys.argv[0]).read()
+            else:
+                self.source = source
         self.comment = comment
 
     def _to_pnginfo(self) -> PngImagePlugin.PngInfo:
@@ -149,7 +153,7 @@ def read_png(path: str) -> np.ndarray:
     return _continuous(image, 255)
 
 
-def write_png(image: np.ndarray, path: str, metadata=Metadata()):
+def write_png(image: np.ndarray, path: str, metadata=None):
     """Write NumPy array to a png file.
 
     The NumPy array should have values in the range [0, 1].
@@ -161,6 +165,7 @@ def write_png(image: np.ndarray, path: str, metadata=Metadata()):
         metadata (Metadata): Metadata for image. Defaults to Metadata().
     """
     im = _discretize(image, 255).astype(np.uint8)
+    metadata = Metadata() if metadata is None else metadata
     imwrite(im=im, uri=path, format='png', pnginfo=metadata._to_pnginfo())
 
 
@@ -287,7 +292,7 @@ def read_netpbm(path: str) -> np.ndarray:
         return _parse_binary_netpbm(path)
 
 
-def write_netpbm(image: np.ndarray, k: int, path: str, metadata=Metadata()):
+def write_netpbm(image: np.ndarray, k: int, path: str, metadata=None):
     """Write object to a Netpbm file (pbm, pgm, ppm).
 
     Uses the ASCII (plain) magic numbers.
@@ -298,6 +303,7 @@ def write_netpbm(image: np.ndarray, k: int, path: str, metadata=Metadata()):
         path (str): String file path.
         metadata (Metadata): Metadata for image. Defaults to Metadata().
     """
+    metadata = Metadata() if metadata is None else metadata
     h, w, *_ = image.shape
     if len(image.shape) == 2:
         P = 1 if k == 1 else 2

@@ -17,5 +17,5 @@ from . import colorspace
 from . import sound
 from . import arrange
 from . import transform
-from .io import (read, read_png, write_png, read_netpbm,
+from .io import (Metadata, read, read_png, write_png, read_netpbm,
                  write_netpbm, write_ascii)
