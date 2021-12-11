@@ -10,9 +10,9 @@ Note that this documentation is under development.
 io (input / output)
 -------------------
 
-The first step in manuipulating images programtically with dmtools is loading
+The first step in manipulating images programmatically with dmtools is loading
 in an image. This is done using :py:func:`dmtools.io.read_png`. Similarly,
-after manuipulating the image, you can export it to a PNG file with
+after manipulating the image, you can export it to a PNG file with
 :py:func:`dmtools.io.write_png`. Here is a short example script with no
 manipulations. Note that this example script assumes that the script
 ``io_ex.py`` and ``checks_10.png`` are in the same directory.
@@ -34,6 +34,30 @@ manipulations. Note that this example script assumes that the script
             :align: center
 
             checks_10_clone.png
+
+Both :py:func:`dmtools.io.write_png` and :py:func:`dmtools.io.write_netpbm`
+write additional metadata to the file automatically. This includes the
+creation time of the image, the software ("dmtools") used to create the image,
+and the source code of the script that created the image. We can also use the
+:py:class:`dmtools.io.Metadata` class to provide additional information. In
+the example below, we export the ``checks_10.png`` file to Netpbm so we can view
+the metadata in plaintext. The example shows the default metadata and an
+example of providing custom metadata.
+
+.. literalinclude:: scripts/dmtools/metadata.py
+   :language: python
+
+checks_10_default_metadata.pbm
+
+.. literalinclude:: scripts/dmtools/checks_10_default_metadata.pbm
+
+checks_10_custom_metadata.pbm
+
+.. literalinclude:: scripts/dmtools/checks_10_custom_metadata.pbm
+
+In addition to writing the source code to an image's metadata by default, the
+function :py:func:`dmtools.io.recreate_script_from_png` allows one to recover
+the script that created a PNG image.
 
 transform
 ---------
