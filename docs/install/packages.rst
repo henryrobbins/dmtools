@@ -30,5 +30,26 @@ error messages, the instllation was a success!
     >>> from dmtools import netpbm
     >>> quit()
 
+Alternatively, you can use `git`_ to maintain the most up-to-date version of
+dmtools rather than waiting for each release. Open up a terminal and navigate
+to the directory where you want to store your local version of dmtools. For
+instructions on navigating directories in the terminal, see
+:ref:`python_tutorial`. Then, type the commands
+
+.. code-block:: bash
+
+    git clone https://github.com/henryrobbins/dmtools.git
+    cd dmtools
+    pip install -e .
+
+This will clone the dmtools repository and then download it as a python package
+you can use like any other. Any time you wish to pull the latest changes,
+navigate to your dmtools directory and run
+
+.. code-block:: bash
+
+    git pull origin master
+
 .. _NumPy: https://numpy.org/
 .. _pip: https://pip.pypa.io/en/stable/installation/
+.. _git: https://git-scm.com/
