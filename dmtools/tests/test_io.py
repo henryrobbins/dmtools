@@ -93,6 +93,7 @@ def test_recreate_script_from_png():
 
     recreate_script_from_png("color_matrix_metadata.png", "test_recreate.py")
     source_from_file = open("test_recreate.py").read()
+    os.remove("color_matrix_metadata.png")
     os.remove("test_recreate.py")
 
     assert source == source_from_file
