@@ -30,7 +30,7 @@ def image_grid(images: List[np.ndarray], w: int, h: int, b: int,
     for i in range(h):
         row = v_border
         for j in range(w):
-            row = np.hstack((row, images[(i*h) + j]))
+            row = np.hstack((row, images[(i*w) + j]))
             row = np.hstack((row, v_border))
         grid_layout = np.vstack((grid_layout, row))
         grid_layout = np.vstack((grid_layout, h_border))
