@@ -49,7 +49,8 @@ def RGB_to_gray(image: np.ndarray) -> np.ndarray:
         np.ndarray: Image in grayscale.
     """
     image = np.copy(image)
-    image[:,:,:3] = image[:,:,:3] @ rgb_to_gray.T
+    # TODO: this causes opacity of 4-channel images to be lost
+    image = image[:,:,:3] @ rgb_to_gray.T
     return image
 
 
