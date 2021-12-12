@@ -3,6 +3,7 @@ import numpy as np
 from math import ceil
 from typing import List
 import logging
+from .io import read, _discretize
 from . import sound
 from ._log import _log_msg
 import os
@@ -32,7 +33,7 @@ def clip(path: str, start: int = 0, end: int = -1) -> List[np.ndarray]:
     files = sorted(listdir_nohidden(path))
     files = files[start:end]
     paths = ["%s/%s" % (path, f) for f in files]
-    frames = [imageio.imread(path) for path in paths]
+    frames = [read(path) for path in paths]
     return frames
 
 
@@ -62,7 +63,7 @@ def to_mp4(frames: List[np.ndarray], path: str, fps: int, s: int = 1,
         fps (int): Frames per second.
         s (int, optional): Multiplier for scaling. Defaults to 1.
     """
-    frames = [f.astype(np.uint8).clip(0, 255) for f in frames]
+    frames = [_discretize(f, 255).astype(np.uint8) for f in frames]
     frames = [_pad_to_16(f) for f in frames]
     imageio.mimwrite(uri="tmp.mp4" if audio is not None else path,
                      ims=frames,
