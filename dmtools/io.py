@@ -164,6 +164,8 @@ def write_png(image: np.ndarray, path: str, metadata=None):
         path (str): String file path.
         metadata (Metadata): Metadata for image. Defaults to Metadata().
     """
+    if path.split('.')[-1] != 'png':
+        path += '.png'
     im = _discretize(image, 255).astype(np.uint8)
     metadata = Metadata() if metadata is None else metadata
     imwrite(im=im, uri=path, format='png', pnginfo=metadata._to_pnginfo())
@@ -309,6 +311,9 @@ def write_netpbm(image: np.ndarray, k: int, path: str, metadata=None):
         P = 1 if k == 1 else 2
     else:
         P = 3
+    P_to_ext = {1: 'pbm', 2: 'pgm', 3: 'ppm'}
+    if path.split('.')[-1] != P_to_ext[P]:
+        path += '.%s' % P_to_ext[P]
     if P == 1:
         image = -image + 1
     with open(path, "w") as f:
@@ -354,6 +359,8 @@ def write_ascii(image: np.ndarray, path: str, txt:str = False):
         write_png(M, path)
         logging.info(_log_msg(path, os.stat(path).st_size))
     else:
+        if path.split('.')[-1] != 'txt':
+            path += '.txt'
         with open(path, "w") as f:
             lines = [[char_map[j] for j in row] for row in image]
             f.write('\n'.join([' '.join(line) for line in lines]))

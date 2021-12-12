@@ -24,21 +24,20 @@ def test_png_io(name):
     assert np.array_equal(src, image)
 
 
-@pytest.mark.parametrize("name,k",[
-    ('color_matrix_ascii.pbm', 1),
-    ('color_matrix_ascii.pbm', 255),
-    ('color_matrix_ascii.pgm', 255),
-    ('color_matrix_ascii.ppm', 255),
-    ('color_matrix_raw.pbm', 1),
-    ('color_matrix_raw.pbm', 255),
-    ('color_matrix_raw.pgm', 255),
-    ('color_matrix_raw.ppm', 255)])
-def test_netpbm_io(name, k):
+@pytest.mark.parametrize("name,k,new_ext",[
+    ('color_matrix_ascii.pbm', 1, 'pbm'),
+    ('color_matrix_ascii.pbm', 255, 'pgm'),
+    ('color_matrix_ascii.pgm', 255, 'pgm'),
+    ('color_matrix_ascii.ppm', 255, 'ppm'),
+    ('color_matrix_raw.pbm', 1, 'pbm'),
+    ('color_matrix_raw.pbm', 255, 'pgm'),
+    ('color_matrix_raw.pgm', 255, 'pgm'),
+    ('color_matrix_raw.ppm', 255, 'ppm')])
+def test_netpbm_io(name, k, new_ext):
     # read image
-    ext = name.split('.')[-1]
     src = read(os.path.join(RESOURCES_PATH, name))
 
-    file_name = 'test.%s' % ext
+    file_name = 'test.%s' % new_ext
     write_netpbm(src, k, file_name)
     image = read(file_name)
     os.remove(file_name)
