@@ -4,9 +4,29 @@ import pytest
 import numpy as np
 from imageio import imread
 from dmtools.io import (Metadata, read, write_netpbm, write_png, write_ascii,
-                        recreate_script_from_png)
+                        recreate_script_from_png, get_next_version)
 
 RESOURCES_PATH = os.path.join(os.path.dirname(__file__), 'resources/io_tests')
+
+
+def test_get_next_version():
+    image = np.array([[[1,1,1]]])  # white pixel image
+
+    # test PNG versioning
+    for i in range(1,10):
+        assert f"white_pixel_{i:04}" == get_next_version("white_pixel")
+        write_png(image, "white_pixel", versioning=True)
+
+    for i in range(1,10):
+        os.remove(f"white_pixel_{i:04}.png")
+
+    # test Netpbm versioning
+    for i in range(1,10):
+        assert f"white_pixel_{i:04}" == get_next_version("white_pixel")
+        write_netpbm(image, 255, "white_pixel", versioning=True)
+
+    for i in range(1,10):
+        os.remove(f"white_pixel_{i:04}.ppm")
 
 
 @pytest.mark.parametrize("name",[

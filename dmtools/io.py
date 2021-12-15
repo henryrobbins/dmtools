@@ -1,5 +1,6 @@
 import os
 import sys
+import re
 import numpy as np
 import pkgutil
 from datetime import datetime
@@ -140,6 +141,23 @@ def _discretize(image: np.ndarray, k: int) -> np.ndarray:
     return np.ceil(k*image - 0.5).astype(int)
 
 
+def get_next_version(path: str) -> str:
+    """Return the name with the next highest version number.
+
+    Args:
+        name (str): String file path
+
+    Returns:
+        str: String file path with version number.
+    """
+    filenames = next(os.walk('.'), (None, None, []))[2]
+    r = re.compile(f"{path}_[0-9]*.(png|pgm|pbm|ppm)")
+    prev = list(filter(r.match, filenames))
+    prev = [int(f.split('_')[-1].split('.')[0]) for f in prev]
+    i = 1 if len(prev) == 0 else max(prev) + 1
+    return f"{path}_{i:04}"
+
+
 def read_png(path: str) -> np.ndarray:
     """Read a png file into a NumPy array.
 
@@ -153,7 +171,7 @@ def read_png(path: str) -> np.ndarray:
     return _continuous(image, 255)
 
 
-def write_png(image: np.ndarray, path: str, metadata=None):
+def write_png(image: np.ndarray, path: str, versioning=False, metadata=None):
     """Write NumPy array to a png file.
 
     The NumPy array should have values in the range [0, 1].
@@ -162,8 +180,11 @@ def write_png(image: np.ndarray, path: str, metadata=None):
     Args:
         image (np.ndarray): NumPy array representing image.
         path (str): String file path.
+        versioning (bool): Version files (rather than overwrite).
         metadata (Metadata): Metadata for image. Defaults to Metadata().
     """
+    if versioning:
+        path = get_next_version(path)
     if path.split('.')[-1] != 'png':
         path += '.png'
     im = _discretize(image, 255).astype(np.uint8)
@@ -294,7 +315,8 @@ def read_netpbm(path: str) -> np.ndarray:
         return _parse_binary_netpbm(path)
 
 
-def write_netpbm(image: np.ndarray, k: int, path: str, metadata=None):
+def write_netpbm(image: np.ndarray, k: int, path: str,
+                 versioning=False, metadata=None):
     """Write object to a Netpbm file (pbm, pgm, ppm).
 
     Uses the ASCII (plain) magic numbers.
@@ -303,8 +325,11 @@ def write_netpbm(image: np.ndarray, k: int, path: str, metadata=None):
         image (np.ndarray): NumPy array representing image.
         k (int): Maximum color/gray value.
         path (str): String file path.
+        versioning (bool): Version files (rather than overwrite).
         metadata (Metadata): Metadata for image. Defaults to Metadata().
     """
+    if versioning:
+        path = get_next_version(path)
     metadata = Metadata() if metadata is None else metadata
     h, w, *_ = image.shape
     if len(image.shape) == 2:
