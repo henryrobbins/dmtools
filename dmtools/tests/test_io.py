@@ -15,16 +15,16 @@ def test_get_next_version():
 
     # test PNG versioning
     for i in range(1,10):
-        assert f"white_pixel_{i:04}" == get_next_version("white_pixel")
-        write_png(image, "white_pixel", versioning=True)
+        assert f"white_pixel_{i:04}.png" == get_next_version("white_pixel.png")
+        write_png(image, "white_pixel.png", versioning=True)
 
     for i in range(1,10):
         os.remove(f"white_pixel_{i:04}.png")
 
     # test Netpbm versioning
     for i in range(1,10):
-        assert f"white_pixel_{i:04}" == get_next_version("white_pixel")
-        write_netpbm(image, 255, "white_pixel", versioning=True)
+        assert f"white_pixel_{i:04}.ppm" == get_next_version("white_pixel.ppm")
+        write_netpbm(image, 255, "white_pixel.ppm", versioning=True)
 
     for i in range(1,10):
         os.remove(f"white_pixel_{i:04}.ppm")
@@ -33,9 +33,9 @@ def test_get_next_version():
     dir_name = "dir_for_version_testing"
     os.makedirs(dir_name, exist_ok=True)
     for i in range(1,10):
-        expected = f"{dir_name}/white_pixel_{i:04}"
-        assert expected == get_next_version(f"{dir_name}/white_pixel")
-        write_png(image, f"{dir_name}/white_pixel", versioning=True)
+        expected = f"{dir_name}/white_pixel_{i:04}.png"
+        assert expected == get_next_version(f"{dir_name}/white_pixel.png")
+        write_png(image, f"{dir_name}/white_pixel.png", versioning=True)
     shutil.rmtree(dir_name)
 
 

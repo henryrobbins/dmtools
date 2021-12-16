@@ -151,11 +151,13 @@ def get_next_version(path: str) -> str:
         str: String file path with version number.
     """
     filenames = os.scandir(max(os.path.dirname(path), '.'))
-    basename = os.path.basename(path)
-    r = re.compile(f"{re.escape(basename)}_([0-9]+).(png|pgm|pbm|ppm)")
+    root, ext = os.path.splitext(path)
+    basename = os.path.basename(root)
+    # match if no extension or any of the dmtools supported file formats
+    r = re.compile(f"{re.escape(basename)}_([0-9]+)(|.png|.pgm|.pbm|.ppm)")
     prev = (int(m[1]) for m in (r.match(f.name) for f in filenames) if m)
     i = 1 + max(prev, default=0)
-    return f"{path}_{i:04}"
+    return f"{root}_{i:04}{ext}"
 
 
 def read_png(path: str) -> np.ndarray:
@@ -185,8 +187,6 @@ def write_png(image: np.ndarray, path: str, versioning=False, metadata=None):
     """
     if versioning:
         path = get_next_version(path)
-    if path.split('.')[-1] != 'png':
-        path += '.png'
     im = _discretize(image, 255).astype(np.uint8)
     metadata = Metadata() if metadata is None else metadata
     imwrite(im=im, uri=path, format='png', pnginfo=metadata._to_pnginfo())
@@ -336,9 +336,6 @@ def write_netpbm(image: np.ndarray, k: int, path: str,
         P = 1 if k == 1 else 2
     else:
         P = 3
-    P_to_ext = {1: 'pbm', 2: 'pgm', 3: 'ppm'}
-    if path.split('.')[-1] != P_to_ext[P]:
-        path += '.%s' % P_to_ext[P]
     if P == 1:
         image = -image + 1
     with open(path, "w") as f:
