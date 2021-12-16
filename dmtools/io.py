@@ -53,7 +53,7 @@ class Metadata:
         self.description = description
         self.copyright = copyright
         if creation_time is None:
-            self.creation_time = datetime.now().strftime("%m-%d-%Y %H:%M:%S")
+            self.creation_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         else:
             self.creation_time = creation_time
         self.software = "dmtools" if software is None else software
