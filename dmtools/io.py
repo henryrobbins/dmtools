@@ -141,7 +141,7 @@ def _discretize(image: np.ndarray, k: int) -> np.ndarray:
     return np.ceil(k*image - 0.5).astype(int)
 
 
-def get_next_version(path: str) -> str:
+def _get_next_version(path: str) -> str:
     """Return the name with the next highest version number.
 
     Args:
@@ -186,7 +186,7 @@ def write_png(image: np.ndarray, path: str, versioning=False, metadata=None):
         metadata (Metadata): Metadata for image. Defaults to Metadata().
     """
     if versioning:
-        path = get_next_version(path)
+        path = _get_next_version(path)
     im = _discretize(image, 255).astype(np.uint8)
     metadata = Metadata() if metadata is None else metadata
     imwrite(im=im, uri=path, format='png', pnginfo=metadata._to_pnginfo())
@@ -329,7 +329,7 @@ def write_netpbm(image: np.ndarray, k: int, path: str,
         metadata (Metadata): Metadata for image. Defaults to Metadata().
     """
     if versioning:
-        path = get_next_version(path)
+        path = _get_next_version(path)
     metadata = Metadata() if metadata is None else metadata
     h, w, *_ = image.shape
     if len(image.shape) == 2:

@@ -5,7 +5,7 @@ import pytest
 import numpy as np
 from imageio import imread
 from dmtools.io import (Metadata, read, write_netpbm, write_png, write_ascii,
-                        recreate_script_from_png, get_next_version)
+                        recreate_script_from_png, _get_next_version)
 
 RESOURCES_PATH = os.path.join(os.path.dirname(__file__), 'resources/io_tests')
 
@@ -15,7 +15,8 @@ def test_get_next_version():
 
     # test PNG versioning
     for i in range(1,10):
-        assert f"white_pixel_{i:04}.png" == get_next_version("white_pixel.png")
+        expected = f"white_pixel_{i:04}.png"
+        assert expected == _get_next_version("white_pixel.png")
         write_png(image, "white_pixel.png", versioning=True)
 
     for i in range(1,10):
@@ -23,7 +24,8 @@ def test_get_next_version():
 
     # test Netpbm versioning
     for i in range(1,10):
-        assert f"white_pixel_{i:04}.ppm" == get_next_version("white_pixel.ppm")
+        expected = f"white_pixel_{i:04}.ppm"
+        assert expected == _get_next_version("white_pixel.ppm")
         write_netpbm(image, 255, "white_pixel.ppm", versioning=True)
 
     for i in range(1,10):
@@ -34,7 +36,7 @@ def test_get_next_version():
     os.makedirs(dir_name, exist_ok=True)
     for i in range(1,10):
         expected = f"{dir_name}/white_pixel_{i:04}.png"
-        assert expected == get_next_version(f"{dir_name}/white_pixel.png")
+        assert expected == _get_next_version(f"{dir_name}/white_pixel.png")
         write_png(image, f"{dir_name}/white_pixel.png", versioning=True)
     shutil.rmtree(dir_name)
 
