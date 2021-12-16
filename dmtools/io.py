@@ -150,8 +150,9 @@ def get_next_version(path: str) -> str:
     Returns:
         str: String file path with version number.
     """
-    filenames = os.scandir('.')
-    r = re.compile(f"{re.escape(path)}_([0-9]+).(png|pgm|pbm|ppm)")
+    filenames = os.scandir(max(os.path.dirname(path), '.'))
+    basename = os.path.basename(path)
+    r = re.compile(f"{re.escape(basename)}_([0-9]+).(png|pgm|pbm|ppm)")
     prev = (int(m[1]) for m in (r.match(f.name) for f in filenames) if m)
     i = 1 + max(prev, default=0)
     return f"{path}_{i:04}"

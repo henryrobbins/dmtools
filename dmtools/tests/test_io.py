@@ -1,5 +1,6 @@
 import os
 import sys
+import shutil
 import pytest
 import numpy as np
 from imageio import imread
@@ -27,6 +28,15 @@ def test_get_next_version():
 
     for i in range(1,10):
         os.remove(f"white_pixel_{i:04}.ppm")
+
+    # test directory prefix
+    dir_name = "dir_for_version_testing"
+    os.makedirs(dir_name, exist_ok=True)
+    for i in range(1,10):
+        expected = f"{dir_name}/white_pixel_{i:04}"
+        assert expected == get_next_version(f"{dir_name}/white_pixel")
+        write_png(image, f"{dir_name}/white_pixel", versioning=True)
+    shutil.rmtree(dir_name)
 
 
 @pytest.mark.parametrize("name",[
