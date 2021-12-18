@@ -2,7 +2,7 @@ Installing Python
 =================
 
 In order to use dmtools, you will need to install the Python programming
-language. We preface the Python installation instructions with a breif Q&A.
+language. We preface the Python installation instructions with a brief Q&A.
 This section is ordered so that each answer naturally leads into the
 following question so it is best read in order.
 
@@ -20,9 +20,9 @@ most likely familiar with Graphical User Interfaces (`GUIs`_). These are
 programs which provide graphical ways of giving the computer instructions using
 the keyboard and mouse to point and click.
 
-`"How does a programming lanaguage let us give instructions to a computer?"`
+`"How does a programming language let us give instructions to a computer?"`
 
-Without getting into too much detail, programming langauges are just like
+Without getting into too much detail, programming languages are just like
 human languages. They have `syntax`_ which defines the structure of the
 language and they have `semantics`_ which define the meaning of certain
 structures in the language. Following these rules, we can write up a set of
@@ -44,13 +44,13 @@ programming language, the limit is quite literally, your imagination.
 Yes, Python is a programming language. But, there are many different ways to
 classify programming languages. There are many characteristics of Python but
 the one we wish to emphasize here is that it is a general-purpose
-`scripting language`_. Scripting lanaguages "automate the exectution of tasks
-that would otherwise be performed indiviually by a human operator." It is
+`scripting language`_. Scripting languages "automate the execution of tasks
+that would otherwise be performed individually by a human operator." It is
 simple in that files written in the language can be run as scripts where the
 computer just goes through the file linearly, executing each task as it is given.
 
 ..
-   _TODO: Perhaps a better description of scripting lanaguage is needed.
+   _TODO: Perhaps a better description of scripting language is needed.
 
 Anaconda
 --------
@@ -88,4 +88,4 @@ You now have Python installed on your computer!
 .. _scripting language: https://wikipedia.org/wiki/Scripting_language
 .. _Anaconda: https://www.anaconda.com/
 .. _Anaconda Individual Edition: https://www.anaconda.com/products/individual-d
-.. _Juypter Notebook: https://jupyter.org/
+.. _Jupyter Notebook: https://jupyter.org/

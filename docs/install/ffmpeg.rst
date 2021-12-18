@@ -15,7 +15,7 @@ to install FFmpeg. To install it, paste the following line in macOS Terminal.
 
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
-When running the above line, you will likley be prompted to install Command
+When running the above line, you will likely be prompted to install Command
 Line Tools (CLT) for Xcode. This can be installed with
 
 .. code-block:: bash
@@ -23,7 +23,7 @@ Line Tools (CLT) for Xcode. This can be installed with
     xcode-select --install
 
 To verify Homebrew was installed properly, run ``brew`` in Terminal and
-you should recieive a help page on various Homebrew commands. With Homebrew now
+you should receive a help page on various Homebrew commands. With Homebrew now
 installed, you can easily install FFmpeg with
 
 .. code-block:: bash

@@ -19,7 +19,7 @@ we will use to install dmtools. Just run the following line.
 
 To the verify the installation worked correctly, open a Python prompt by typing
 ``python`` and then type ``from dmtools import netpbm.`` If you don't get any
-error messages, the instllation was a success!
+error messages, the installation was a success!
 
 .. code-block:: bash
 

@@ -4,8 +4,8 @@ Introduction to Python
 ======================
 
 This tutorial will walk through a short introduction to Python with emphasis on
-the neccessary basics for using dmtools and working with images. To get the
-most out of this tutorial, it is recommeneded to follow along by running all
+the necessary basics for using dmtools and working with images. To get the
+most out of this tutorial, it is recommended to follow along by running all
 the code snippets yourself.
 
 Python Scripts
@@ -32,7 +32,7 @@ When you open up a terminal, you will see a prompt like the following:
     (base) Name-Of-Machine:~ Name-Of-User$
 
 Let's break down what information is contained in this prompt. The ``(base)``
-let's us know that we are in the base Python envrionment. Don't worry too much
+let's us know that we are in the base Python environment. Don't worry too much
 about what that means. The ``Name-Of-Machine`` and ``Name-Of-User`` tell us
 (you guessed it) the name of the machine / computer and the user. The ``$`` is
 just an indication that it is the end of the prompt and you can type your
@@ -149,7 +149,7 @@ Math
 We can add, multipy, subtract, and divide numbers quite easily. What if we
 want to use some more complex math functions like the sine function? A lot of
 these are provided by a package called NumPy (which we will look at much
-closer in :ref:`numpy_tutorial`). To access these functins, we first need to
+closer in :ref:`numpy_tutorial`). To access these functions, we first need to
 import the package with ``import numpy as np``. We can then use ``np.sin()``
 to apply the sine function to some value. The math package also
 provides some useful functions you may want to use like the floor and ceiling
