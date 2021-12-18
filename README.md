@@ -6,16 +6,16 @@
 [![codecov](https://codecov.io/gh/henryrobbins/dmtools/branch/master/graphs/badge.svg)](https://codecov.io/gh/henryrobbins/dmtools)
 
 dmtools (Digital Media Tools) is a Python package providing low-level tools for
-working with digital media programmatically. It support the PNG and [Netpbm][1]
+working with digital media programmatically. It supports the PNG and [Netpbm][1]
 image file formats as well as the MPEG-4 and [WAV][2] video and audio file
 formats respectively.
 
 The `transform` module provides image transformation tools such as rescale
 (based on the [ImageMagick][3] implementation) and composite (based on the
 [Cairo][4] implementation). The `adjustments` module provides a curves tool and
-the `colorspace` module provides for colorspace conversion tools. The `arrange`
+the `colorspace` module provides colorspace conversion tools. The `arrange`
 module provides image layout tools. Lastly, the `animation` and `sound` modules
-provides tools for working with video and sound respectively. For more details,
+provide tools for working with video and sound respectively. For more details,
 see the [Documentation][8].
 
 # Installations
@@ -74,7 +74,7 @@ Licensed under the [MIT License](https://choosealicense.com/licenses/mit/)
 [2]: <https://en.wikipedia.org/wiki/WAV> "WAV"
 [3]: <https://legacy.imagemagick.org/Usage/resize/> "ImageMagick"
 [4]: <https://cairographics.org/operators/> "Cairo"
-[5]: <http://ffmpeg.org/about.html)> "ffmpeg"
+[5]: <https://ffmpeg.org/about.html> "ffmpeg"
 [6]: <https://brew.sh/> "Homebrew"
 [7]: <https://dmtools.henryrobbins.com/en/latest/install/index.html> "Installation"
 [8]: <https://dmtools.henryrobbins.com/en/latest/modules.html> "Documentation"
