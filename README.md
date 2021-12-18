@@ -6,16 +6,19 @@
 [![codecov](https://codecov.io/gh/henryrobbins/dmtools/branch/master/graphs/badge.svg)](https://codecov.io/gh/henryrobbins/dmtools)
 
 dmtools (Digital Media Tools) is a Python package providing low-level tools for
-working with digital media programmatically. The `netpbm` module allows one to
-read and create [Netpbm](http://netpbm.sourceforge.net/) images.
-[Color space](https://wikipedia.org/wiki/Color_space) transformations can be
-done with the `colorspace` module. Using [ffmpeg](http://ffmpeg.org/about.html),
-the `animation` module can export `.mp4` videos formed from a list of images
-and the `sound` module can be used to add sound to these videos as well.
-Lastly, [ASCII](https://wikipedia.org/wiki/ASCII) art can be produced with
-the `ascii` module.
+working with digital media programmatically. It support the PNG and [Netpbm][1]
+image file formats as well as the MPEG-4 and [WAV][2] video and audio file
+formats respectively.
 
-# Installation
+The `transform` module provides image transformation tools such as rescale
+(based on the [ImageMagick][3] implementation) and composite (based on the
+[Cairo][4] implementation). The `adjustments` module provides a curves tool and
+the `colorspace` module provides for colorspace conversion tools. The `arrange`
+module provides image layout tools. Lastly, the `animation` and `sound` modules
+provides tools for working with video and sound respectively. For more details,
+see the [Documentation][8].
+
+# Installations
 
 The quickest way to get started is with a pip install.
 
@@ -23,33 +26,58 @@ The quickest way to get started is with a pip install.
 pip install dmtools
 ```
 
-The `animation` module requires [ffmpeg](http://ffmpeg.org/about.html) which
-you can install with a package manager like [Homebrew](https://brew.sh/). Note
-that this may take some time to install.
+The `animation` module requires [ffmpeg][5] which you can install with a package
+manager like [Homebrew][6]. Note that this may take some time to install.
 
 ```
 brew install ffmpeg
 ```
 
+For in-depth installation instructions see [Installation][7].
+
 # Usage
 
-The most common use case consists of reading a Netpbm image, transforming it
-in some way, and then writing the resulting image to a Netpbm or PNG format.
-In the example below, we read a Netpbm image called `example.pbm`, swap the
-black and white pixels, and then write the new image to `example.png`.
+The usage example below illustrates how an image can be read, manipulated,
+and exported using dmtools. It features a change of color space, inversion of
+the red channel, and blur. For more usage examples, see the
+[Introduction to dmtools][9] in [Tutorials][10]. Both the input image
+`checks_5.png` and output image `result.png` can be found in the [dmtools][11]
+GitHub repository.
 
 ```python
-import numpy as np
-from dmtools import netpbm
+import dmtools
+from dmtools import colorspace, transform, adjustments, arrange
 
-image = netpbm.read_netpbm('example.pbm')
-M = -(image.M - 1)
-image = netpbm.Netpbm(P=1, k=1, M=M)
-image.to_png('example.png')
+image = dmtools.read("checks_5.png")
+image = colorspace.gray_to_RGB(image)
+image = adjustments.apply_curve(image, lambda x: 1 - x, 0)
+image = transform.blur(image, 5)
+image = arrange.image_grid([image]*2, 2, 1, 15, color=1)
+
+dmtools.write_png(image, "result.png")
+
 ```
 
-![example.png](example.png)
+![checks_5.png](checks_5.png)
+
+*checks_5.png*
+
+![result.png](result.png)
+
+*result.png*
 
 ## License
 
 Licensed under the [MIT License](https://choosealicense.com/licenses/mit/)
+
+[1]: <http://netpbm.sourceforge.net/> "Netpbm"
+[2]: <https://en.wikipedia.org/wiki/WAV> "WAV"
+[3]: <https://legacy.imagemagick.org/Usage/resize/> "ImageMagick"
+[4]: <https://cairographics.org/operators/> "Cairo"
+[5]: <http://ffmpeg.org/about.html)> "ffmpeg"
+[6]: <https://brew.sh/> "Homebrew"
+[7]: <https://dmtools.henryrobbins.com/en/latest/install/index.html> "Installation"
+[8]: <https://dmtools.henryrobbins.com/en/latest/modules.html> "Documentation"
+[9]: <https://dmtools.henryrobbins.com/en/latest/tutorials/dmtools.html> "Introduction"
+[10]: <https://dmtools.henryrobbins.com/en/latest/tutorials/index.html> "Tutorials"
+[11]: <https://github.com/henryrobbins/dmtools> "dmtools"
