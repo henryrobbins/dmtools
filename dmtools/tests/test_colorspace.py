@@ -2,7 +2,7 @@ import pytest
 import numpy as np
 from dmtools.colorspace import \
     gray_to_RGB, RGB_to_gray, RGB_to_XYZ, XYZ_to_RGB, RGB_to_YUV, YUV_to_RGB, \
-    RGB_to_Lab, Lab_to_RGB
+    RGB_to_Lab, Lab_to_RGB, add_alpha
 
 # -----------
 # TEST IMAGES
@@ -44,3 +44,7 @@ def test_colorspace_inverse(f, f_inv, image):
     print(f(image))
     print(f_inv(f(image)))
     assert np.allclose(image, f_inv(f(image)), atol=1e-6)
+
+
+def test_add_alpha():
+    assert np.allclose(COLOR_PIXEL, add_alpha(COLOR_PIXEL)[:,:,:3], atol=1e-6)

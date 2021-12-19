@@ -66,6 +66,19 @@ def gray_to_RGB(image: np.ndarray) -> np.ndarray:
     return np.stack(3 * (image,), axis=-1)
 
 
+def add_alpha(image: np.ndarray) -> np.ndarray:
+    """Add an alpha channel to a three color channel image.
+
+    Args:
+        image (np.ndarray): Image with three color channels.
+
+    Returns:
+        np.ndarray: Four channel image with alpha channel.
+    """
+    n,m,*_ = image.shape
+    return np.concatenate((image, np.ones((n,m,1))), axis=-1)
+
+
 def RGB_to_XYZ(image: np.ndarray) -> np.ndarray:
     """Convert an image in CIE RGB space to XYZ space.
 
