@@ -66,17 +66,18 @@ def gray_to_RGB(image: np.ndarray) -> np.ndarray:
     return np.stack(3 * (image,), axis=-1)
 
 
-def add_alpha(image: np.ndarray) -> np.ndarray:
+def add_alpha(image: np.ndarray, a: float = 1) -> np.ndarray:
     """Add an alpha channel to a three color channel image.
 
     Args:
         image (np.ndarray): Image with three color channels.
+        a (float): Alpha value to use in the image.
 
     Returns:
         np.ndarray: Four channel image with alpha channel.
     """
     n,m,*_ = image.shape
-    return np.concatenate((image, np.ones((n,m,1))), axis=-1)
+    return np.concatenate((image, a * np.ones((n,m,1))), axis=-1)
 
 
 def RGB_to_XYZ(image: np.ndarray) -> np.ndarray:
