@@ -2,7 +2,8 @@ import os
 import pytest
 import numpy as np
 from dmtools.transform import (rescale, blur, composite, clip, normalize,
-                               wraparound)
+                               wraparound, _over_alpha_composite,
+                               _over_color_composite)
 from dmtools.colorspace import gray_to_RGB
 from dmtools.io import read
 
@@ -100,11 +101,20 @@ def test_blur(image, sigma, new_name):
     ('over', 'over.png'),
     ('dest_over', 'dest_over.png'),
     ('add', 'add.png')])
-def test_overlay(operator, result):
+def test_composite(operator, result):
     A = read(os.path.join(RESOURCES_PATH, 'composite_tests', 'blue.png'))
     B = read(os.path.join(RESOURCES_PATH, 'composite_tests', 'red.png'))
     result = read(os.path.join(RESOURCES_PATH, 'composite_tests', result))
     assert np.allclose(result, composite(A, B, operator), atol=0.01)
+
+
+def test_composite_functions():
+    A = read(os.path.join(RESOURCES_PATH, 'composite_tests', 'blue.png'))
+    B = read(os.path.join(RESOURCES_PATH, 'composite_tests', 'red.png'))
+    result = read(os.path.join(RESOURCES_PATH, 'composite_tests', 'over.png'))
+    image = composite(A, B, alpha_composite_function=_over_alpha_composite,
+                      color_composite_function=_over_color_composite)
+    assert np.allclose(result, image, atol=0.01)
 
 
 @pytest.mark.parametrize("src,new",[

@@ -82,56 +82,47 @@ RESIZE_FILTERS = \
      'gaussian': (_gaussian_weighting_function,     2.0)}
 
 
-def _over_composite_operator(A: np.ndarray, B: np.ndarray) -> np.ndarray:
-    """Over composite operator.
-
-    For more information about the over composite operator, see
-    `Cairo Compositing Operators <https://www.cairographics.org/operators/>`_.
+def _safe_divide(n: np.ndarray, d: np.ndarray) -> np.ndarray:
+    """Divide NumPy arrays where divide by zero is zero.
 
     Args:
-        A (np.ndarray): Source image represented as 4-channel Numpy array.
-        B (np.ndarray): Destination image represented as 4-channel Numpy array.
+        n (np.ndarray): Numerator NumPy array.
+        d (np.ndarray): Denominator NumPy array.
 
     Returns:
-        np.ndarray: The A and B images composited.
+        np.ndarray: Numerator divided by denominator.
     """
-    xA, aA = np.split(A, [3], axis=2)
-    xB, aB = np.split(B, [3], axis=2)
-    xaA = xA * aA
-    xaB = xB * aB
-    aR = aA + aB * (1 - aA)
-    num = xaA + xaB * (1 - aA)
-    xR = np.divide(num, aR, out=np.zeros_like(num), where=(aR != 0))
-    return np.append(xR, aR, axis=2)
+    return np.divide(n, d, out=np.zeros_like(n), where=(d != 0))
 
 
-def _add_composite_operator(A: np.ndarray, B: np.ndarray) -> np.ndarray:
-    """Add composite operator.
+def _over_alpha_composite(aA, aB) -> np.ndarray:
+    return aA + aB * (1 - aA)
 
-    For more information about the add composite operator, see
-    `Cairo Compositing Operators <https://www.cairographics.org/operators/>`_.
 
-    Args:
-        A (np.ndarray): Source image represented as 4-channel Numpy array.
-        B (np.ndarray): Destination image represented as 4-channel Numpy array.
+def _over_color_composite(xA, aA, xB, aB, xaA, xaB, aR) -> np.ndarray:
+    return _safe_divide(xaA + xaB * (1 - aA), aR)
 
-    Returns:
-        np.ndarray: The A and B images composited.
-    """
-    xA, aA = np.split(A, [3], axis=2)
-    xB, aB = np.split(B, [3], axis=2)
-    xaA = xA * aA
-    xaB = xB * aB
-    aR = np.clip(aA + aB, 0, 1)
-    num = xaA + xaB
-    xR = np.divide(num, aR, out=np.zeros_like(num), where=(aR != 0))
-    return np.append(xR, aR, axis=2)
+
+def _dest_over_alpha_composite(aA, aB) -> np.ndarray:
+    return aB + aA * (1 - aB)
+
+
+def _dest_over_color_composite(xA, aA, xB, aB, xaA, xaB, aR) -> np.ndarray:
+    return _safe_divide(xaB + xaA * (1 - aB), aR)
+
+
+def _add_alpha_composite(aA, aB) -> np.ndarray:
+    return np.clip(aA + aB, 0, 1)
+
+
+def _add_color_composite(xA, aA, xB, aB, xaA, xaB, aR) -> np.ndarray:
+    return _safe_divide(xaA + xaB, aR)
 
 
 COMPOSITE_OPERATORS = \
-    {'over':      _over_composite_operator,
-     'dest_over': lambda A,B: _over_composite_operator(B,A),
-     'add':       _add_composite_operator}
+    {'over':      (_over_alpha_composite, _over_color_composite),
+     'dest_over': (_dest_over_alpha_composite, _dest_over_color_composite),
+     'add':       (_add_alpha_composite, _add_color_composite)}
 
 
 EPSILON = 1.0e-6
@@ -281,7 +272,9 @@ def blur(image: np.ndarray, sigma: float, radius: float = 0) -> np.ndarray:
 
 def composite(source: np.ndarray,
               dest: np.ndarray,
-              operator: str = 'over') -> np.ndarray:
+              operator: str = 'over',
+              alpha_composite_function: Callable = None,
+              color_composite_function: Callable = None) -> np.ndarray:
     """Return the image formed by compositing one image with another.
 
     For more information about alpha compositing, see `Alpha Compositing`_.
@@ -300,11 +293,29 @@ def composite(source: np.ndarray,
         source (np.ndarray): Image on top.
         dest (np.ndarray): Image on bottom.
         operator (str): The compositing operator to use {over, dest_over, add}
+        alpha_composite_function (Callable): Alpha composite function to use.
+        color_composite_function (Callable): Color composite function to use.
 
     Returns:
         np.ndarray: The two images overlaid.
     """
-    return COMPOSITE_OPERATORS[operator](source, dest)
+    xA, aA = np.split(source, [3], axis=2)
+    xB, aB = np.split(dest, [3], axis=2)
+    xaA = xA * aA
+    xaB = xB * aB
+
+    if alpha_composite_function is not None:
+        if color_composite_function is None:
+            error_msg = "Alpha composite provided without color composite."
+            raise ValueError(error_msg)
+        alpha_composite = alpha_composite_function
+        color_composite = color_composite_function
+    else:
+        alpha_composite, color_composite = COMPOSITE_OPERATORS[operator]
+
+    aR = alpha_composite(aA, aB)
+    xR = color_composite(xA, aA, xB, aB, xaA, xaB, aR)
+    return np.append(xR, aR, axis=2)
 
 
 def clip(image: np.ndarray) -> np.ndarray:
