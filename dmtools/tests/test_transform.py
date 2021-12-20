@@ -3,7 +3,7 @@ import pytest
 import numpy as np
 from dmtools.transform import (rescale, blur, composite, clip, normalize,
                                wraparound, _over_alpha_composite,
-                               _over_color_composite, crop)
+                               _over_color_composite, crop, substitute)
 from dmtools.colorspace import gray_to_RGB
 from dmtools.io import read
 
@@ -115,6 +115,19 @@ def test_composite_functions():
     image = composite(A, B, alpha_composite_function=_over_alpha_composite,
                       color_composite_function=_over_color_composite)
     assert np.allclose(result, image, atol=0.01)
+
+
+@pytest.mark.parametrize("path,sub_path,x,y,relative,loc,exp_path",[
+    ('red_box', 'blue_box', 100, 200, False, 'upper-left', 'red_blue_box'),
+    ('red_box', 'blue_box', 100, 100, False, 'lower-left', 'red_blue_box'),
+    ('red_box', 'blue_box', 150, 150, False, 'center', 'red_blue_box'),
+    ('red_box', 'blue_box', 0.5, 0.5, True, 'center', 'red_blue_box')])
+def test_substitute(path, sub_path, x, y, relative, loc, exp_path):
+    image = read(f"{RESOURCES_PATH}/substitute_tests/{path}.png")
+    sub_image = read(f"{RESOURCES_PATH}/substitute_tests/{sub_path}.png")
+    exp = read(f"{RESOURCES_PATH}/substitute_tests/{exp_path}.png")
+    result = substitute(image, sub_image, x, y, relative=relative, loc=loc)
+    assert np.allclose(exp, result, atol=0.01)
 
 
 @pytest.mark.parametrize("path,x,y,w,h,relative,loc,exp_path",[

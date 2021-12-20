@@ -322,20 +322,52 @@ def _standardize_selection(image: np.ndarray, x: float, y: float, w: float,
                            h: float, relative: bool, loc: str) -> List[float]:
     if relative:
         n,m,*_ = image.shape
-        x = int(m * x)
-        y = int(n * y)
-        w = int(m * w)
-        h = int(n * h)
+        x = m * x
+        y = n * y
+        w = m * w
+        h = n * h
     if loc == "upper-left":
         y = image.shape[0] - y
     elif loc == "lower-left":
         pass
     elif loc == "center":
-        x = int(x - (w / 2)) + 1
-        y = int(y - (h / 2)) + 1
+        x = x - (w / 2)
+        y = y - (h / 2)
     else:
         raise ValueError(f"{loc} is not a supported loc.")
-    return x, y, w, h
+    return int(x), int(y), int(w), int(h)
+
+
+def substitute(image: np.ndarray, substitution: np.ndarray, x: float, y: float,
+               relative: bool = False, loc: str = 'upper-left') -> np.ndarray:
+    """Substitute a portion of image with substitution.
+
+    Args:
+        image (np.ndarray): Base image.
+        substitution (np.ndarray): Image to substitute into the base image.
+        x (float): x coordinate of the point (relative to left of image).
+        y (float): y coordinate of the point (relative to bottom of image).
+        relative (bool): If True, x, y, w, and h are given relative to the \
+            dimensions of the image. Defaults to False.
+        loc (str): Location of (x,y) relative to substituted portion: \
+            {upper-left, lower-left, center}.
+
+    Returns:
+        np.ndarray: The image with substitution substituted in.
+    """
+    if relative:
+        n,m,*_ = image.shape
+        h,w,*_ = substitution.shape
+        w = w / m
+        h = h / n
+    else:
+        h,w,*_ = substitution.shape
+    x, y, w, h = _standardize_selection(image, x, y, w, h, relative, loc)
+    if len(image.shape) == 3:
+        image[y:y+h, x:x+w, :] = substitution
+    else:
+        image[y:y+h, x:x+w] = substitution
+    return image
 
 
 def crop(image: np.ndarray, x: float, y: float, w: float, h: float,
