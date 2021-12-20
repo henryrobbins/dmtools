@@ -318,6 +318,44 @@ def composite(source: np.ndarray,
     return np.append(xR, aR, axis=2)
 
 
+def crop(image: np.ndarray, x: float, y: float, w: float, h: float,
+         relative: bool = False, loc: str = 'upper-left') -> np.ndarray:
+    """Crop an image using an (x,y) point, width, and height.
+
+    Args:
+        image (np.ndarray): Image to be cropped.
+        x (float): x coordinate of the point (relative to left of image).
+        y (float): y coordinate of the point (relative to bottom of image).
+        w (float): Width of the cropped portion.
+        h (float): Height of the cropped portion.
+        relative (bool): If True, x, y, w, and h are given relative to the \
+            dimensions of the image. Defaults to False.
+        loc (str): Location of (x,y) relative to cropped portion: \
+            {upper-left, center}.
+
+    Returns:
+        np.ndarray: The cropped portion of the image.
+    """
+    if relative:
+        n,m,*_ = image.shape
+        x = int(m * x)
+        y = int(n * y)
+        w = int(m * w)
+        h = int(n * h)
+        print(x,y,w,h)
+    if loc == "upper-left":
+        pass
+    elif loc == "center":
+        x = int(x - (w / 2)) + 1
+        y = int(y - (h / 2)) + 1
+    else:
+        raise ValueError(f"{loc} is not a supported loc.")
+    if len(image.shape) == 3:
+        return image[y:y+h, x:x+h, :]
+    else:
+        return image[y:y+h, x:x+h]
+
+
 def clip(image: np.ndarray) -> np.ndarray:
     """Clip gray/color values that are out of bounds.
 

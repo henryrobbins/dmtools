@@ -3,7 +3,7 @@ import pytest
 import numpy as np
 from dmtools.transform import (rescale, blur, composite, clip, normalize,
                                wraparound, _over_alpha_composite,
-                               _over_color_composite)
+                               _over_color_composite, crop)
 from dmtools.colorspace import gray_to_RGB
 from dmtools.io import read
 
@@ -115,6 +115,22 @@ def test_composite_functions():
     image = composite(A, B, alpha_composite_function=_over_alpha_composite,
                       color_composite_function=_over_color_composite)
     assert np.allclose(result, image, atol=0.01)
+
+
+@pytest.mark.parametrize("path,x,y,w,h,relative,loc,exp_path",[
+    ('black_square', 0, 0, 125, 125, False, 'upper-left', 'black_square'),
+    ('red_square', 0, 0, 125, 125, False, 'upper-left', 'red_square'),
+    ('black_square', 25, 25, 25, 25, False, 'upper-left', 'black_box'),
+    ('red_square', 25, 25, 25, 25, False, 'upper-left', 'red_box'),
+    ('black_square', 0.2, 0.2, 0.2, 0.2, True, 'upper-left', 'black_box'),
+    ('red_square', 0.2, 0.2, 0.2, 0.2, True, 'upper-left', 'red_box'),
+    ('black_square', 0.5, 0.5, 0.6, 0.6, True, 'center', 'black_corner'),
+    ('red_square', 0.5, 0.5, 0.6, 0.6, True, 'center', 'red_corner')])
+def test_crop(path, x, y, w, h, relative, loc, exp_path):
+    image = read(os.path.join(RESOURCES_PATH, "crop_tests", f"{path}.png"))
+    exp = read(os.path.join(RESOURCES_PATH, "crop_tests", f"{exp_path}.png"))
+    result = crop(image, x, y, w, h, relative=relative, loc=loc)
+    assert np.allclose(exp, result, atol=0.01)
 
 
 @pytest.mark.parametrize("src,new",[
