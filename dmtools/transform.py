@@ -1,7 +1,7 @@
 import numpy as np
 from math import floor, ceil, sqrt
 from functools import partial
-from typing import Callable
+from typing import List, Callable
 
 
 def _box_weighting_function(x: float) -> float:
@@ -318,6 +318,26 @@ def composite(source: np.ndarray,
     return np.append(xR, aR, axis=2)
 
 
+def _standardize_selection(image: np.ndarray, x: float, y: float, w: float,
+                           h: float, relative: bool, loc: str) -> List[float]:
+    if relative:
+        n,m,*_ = image.shape
+        x = int(m * x)
+        y = int(n * y)
+        w = int(m * w)
+        h = int(n * h)
+    if loc == "upper-left":
+        y = image.shape[0] - y
+    elif loc == "lower-left":
+        pass
+    elif loc == "center":
+        x = int(x - (w / 2)) + 1
+        y = int(y - (h / 2)) + 1
+    else:
+        raise ValueError(f"{loc} is not a supported loc.")
+    return x, y, w, h
+
+
 def crop(image: np.ndarray, x: float, y: float, w: float, h: float,
          relative: bool = False, loc: str = 'upper-left') -> np.ndarray:
     """Crop an image using an (x,y) point, width, and height.
@@ -331,29 +351,16 @@ def crop(image: np.ndarray, x: float, y: float, w: float, h: float,
         relative (bool): If True, x, y, w, and h are given relative to the \
             dimensions of the image. Defaults to False.
         loc (str): Location of (x,y) relative to cropped portion: \
-            {upper-left, center}.
+            {upper-left, lower-left, center}.
 
     Returns:
         np.ndarray: The cropped portion of the image.
     """
-    if relative:
-        n,m,*_ = image.shape
-        x = int(m * x)
-        y = int(n * y)
-        w = int(m * w)
-        h = int(n * h)
-        print(x,y,w,h)
-    if loc == "upper-left":
-        pass
-    elif loc == "center":
-        x = int(x - (w / 2)) + 1
-        y = int(y - (h / 2)) + 1
-    else:
-        raise ValueError(f"{loc} is not a supported loc.")
+    x, y, w, h = _standardize_selection(image, x, y, w, h, relative, loc)
     if len(image.shape) == 3:
-        return image[y:y+h, x:x+h, :]
+        return image[y:y+h, x:x+w, :]
     else:
-        return image[y:y+h, x:x+h]
+        return image[y:y+h, x:x+w]
 
 
 def clip(image: np.ndarray) -> np.ndarray:
