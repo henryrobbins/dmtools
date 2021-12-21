@@ -189,7 +189,7 @@ def rescale(image: np.ndarray,
     Args:
         image (np.ndarray): Image to rescale.
         k (int): Scaling factor.
-        filter (str): {point, box, triangle, catrom, gaussian}.
+        filter (ResizeFilter): Resize filter to be used.
         weighting_function (Callable): Weighting function to use.
         support (float): Support of the provided weighting function.
 
