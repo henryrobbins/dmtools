@@ -4,7 +4,7 @@ import numpy as np
 from dmtools.transform import (rescale, blur, composite, clip, normalize,
                                wraparound, _over_alpha_composite,
                                _over_color_composite, crop, substitute,
-                               ResizeFilter)
+                               ResizeFilter, CompositeOp)
 from dmtools.colorspace import gray_to_RGB
 from dmtools.io import read
 
@@ -99,9 +99,9 @@ def test_blur(image, sigma, new_name):
 
 
 @pytest.mark.parametrize("operator,result",[
-    ('over', 'over.png'),
-    ('dest_over', 'dest_over.png'),
-    ('add', 'add.png')])
+    (CompositeOp.OVER, 'over.png'),
+    (CompositeOp.DEST_OVER, 'dest_over.png'),
+    (CompositeOp.ADD, 'add.png')])
 def test_composite(operator, result):
     A = read(os.path.join(RESOURCES_PATH, 'composite_tests', 'blue.png'))
     B = read(os.path.join(RESOURCES_PATH, 'composite_tests', 'red.png'))

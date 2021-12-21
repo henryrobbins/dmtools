@@ -73,10 +73,10 @@ def _add_color_composite(xA, aA, xB, aB, xaA, xaB, aR) -> np.ndarray:
     return _safe_divide(xaA + xaB, aR)
 
 
-COMPOSITE_OPERATORS = \
-    {'over':      (_over_alpha_composite, _over_color_composite),
-     'dest_over': (_dest_over_alpha_composite, _dest_over_color_composite),
-     'add':       (_add_alpha_composite, _add_color_composite)}
+class CompositeOp(Enum):
+    OVER = (_over_alpha_composite, _over_color_composite)
+    DEST_OVER = (_dest_over_alpha_composite, _dest_over_color_composite)
+    ADD = (_add_alpha_composite, _add_color_composite)
 
 
 EPSILON = 1.0e-6
@@ -226,7 +226,7 @@ def blur(image: np.ndarray, sigma: float, radius: float = 0) -> np.ndarray:
 
 def composite(source: np.ndarray,
               dest: np.ndarray,
-              operator: str = 'over',
+              operator: CompositeOp = CompositeOp.OVER,
               alpha_composite_function: Callable = None,
               color_composite_function: Callable = None) -> np.ndarray:
     """Return the image formed by compositing one image with another.
@@ -234,9 +234,9 @@ def composite(source: np.ndarray,
     For more information about alpha compositing, see `Alpha Compositing`_.
     The following compositing operators are built-in:
 
-    -  ("over"): two semi-transparent slides; source over dest.
-    -  ("dest_over"): two semi-transparent slides; dest over source.
-    -  ("add"): Add source and dest.
+    -  (OVER): two semi-transparent slides; source over dest.
+    -  (DEST_OVER): two semi-transparent slides; dest over source.
+    -  (ADD): Add source and dest.
 
     The built-in operators use the `Cairo Compositing Operators`_.
 
@@ -246,7 +246,7 @@ def composite(source: np.ndarray,
     Args:
         source (np.ndarray): Image on top.
         dest (np.ndarray): Image on bottom.
-        operator (str): The compositing operator to use {over, dest_over, add}
+        operator (CompositeOp): The compositing operator to use.
         alpha_composite_function (Callable): Alpha composite function to use.
         color_composite_function (Callable): Color composite function to use.
 
@@ -265,7 +265,7 @@ def composite(source: np.ndarray,
         alpha_composite = alpha_composite_function
         color_composite = color_composite_function
     else:
-        alpha_composite, color_composite = COMPOSITE_OPERATORS[operator]
+        alpha_composite, color_composite = operator.value
 
     aR = alpha_composite(aA, aB)
     xR = color_composite(xA, aA, xB, aB, xaA, xaB, aR)
