@@ -4,7 +4,7 @@ import numpy as np
 from dmtools.transform import (rescale, blur, composite, clip, normalize,
                                wraparound, _over_alpha_composite,
                                _over_color_composite, crop, substitute,
-                               ResizeFilter, CompositeOp)
+                               ResizeFilter, CompositeOp, Loc)
 from dmtools.colorspace import gray_to_RGB
 from dmtools.io import read
 
@@ -119,10 +119,10 @@ def test_composite_functions():
 
 
 @pytest.mark.parametrize("path,sub_path,x,y,relative,loc,exp_path",[
-    ('red_box', 'blue_box', 100, 100, False, 'upper-left', 'red_blue_box'),
-    ('red_box', 'blue_box', 100, 200, False, 'lower-left', 'red_blue_box'),
-    ('red_box', 'blue_box', 150, 150, False, 'center', 'red_blue_box'),
-    ('red_box', 'blue_box', 0.5, 0.5, True, 'center', 'red_blue_box')])
+    ('red_box', 'blue_box', 100, 100, False, Loc.UPPER_LEFT, 'red_blue_box'),
+    ('red_box', 'blue_box', 100, 200, False, Loc.LOWER_LEFT, 'red_blue_box'),
+    ('red_box', 'blue_box', 150, 150, False, Loc.CENTER, 'red_blue_box'),
+    ('red_box', 'blue_box', 0.5, 0.5, True, Loc.CENTER, 'red_blue_box')])
 def test_substitute(path, sub_path, x, y, relative, loc, exp_path):
     image = read(f"{RESOURCES_PATH}/substitute_tests/{path}.png")
     sub_image = read(f"{RESOURCES_PATH}/substitute_tests/{sub_path}.png")
@@ -132,14 +132,14 @@ def test_substitute(path, sub_path, x, y, relative, loc, exp_path):
 
 
 @pytest.mark.parametrize("path,x,y,w,h,relative,loc,exp_path",[
-    ('black_square', 0, 0, 125, 125, False, 'upper-left', 'black_square'),
-    ('red_square', 0, 125, 125, 125, False, 'lower-left', 'red_square'),
-    ('black_square', 25, 75, 25, 25, False, 'upper-left', 'black_box'),
-    ('red_square', 25, 75, 25, 25, False, 'upper-left', 'red_box'),
-    ('black_square', 0.2, 0.8, 0.2, 0.2, True, 'lower-left', 'black_box'),
-    ('red_square', 0.2, 0.2, 0.2, 0.2, True, 'upper-left', 'red_box'),
-    ('black_square', 0.5, 0.5, 0.6, 0.6, True, 'center', 'black_corner'),
-    ('red_square', 0.5, 0.5, 0.6, 0.6, True, 'center', 'red_corner')])
+    ('black_square', 0, 0, 125, 125, False, Loc.UPPER_LEFT, 'black_square'),
+    ('red_square', 0, 125, 125, 125, False, Loc.LOWER_LEFT, 'red_square'),
+    ('black_square', 25, 75, 25, 25, False, Loc.UPPER_LEFT, 'black_box'),
+    ('red_square', 25, 75, 25, 25, False, Loc.UPPER_LEFT, 'red_box'),
+    ('black_square', 0.2, 0.8, 0.2, 0.2, True, Loc.LOWER_LEFT, 'black_box'),
+    ('red_square', 0.2, 0.2, 0.2, 0.2, True, Loc.UPPER_LEFT, 'red_box'),
+    ('black_square', 0.5, 0.5, 0.6, 0.6, True, Loc.CENTER, 'black_corner'),
+    ('red_square', 0.5, 0.5, 0.6, 0.6, True, Loc.CENTER, 'red_corner')])
 def test_crop(path, x, y, w, h, relative, loc, exp_path):
     image = read(os.path.join(RESOURCES_PATH, "crop_tests", f"{path}.png"))
     exp = read(os.path.join(RESOURCES_PATH, "crop_tests", f"{exp_path}.png"))

@@ -5,6 +5,12 @@ from enum import Enum
 from typing import List, Callable
 
 
+class Loc(Enum):
+    UPPER_LEFT = "upper_left"
+    LOWER_LEFT = "lower_left"
+    CENTER = "center"
+
+
 def _box_weighting_function(x: float) -> float:
     return 1 if x <= 0.5 else 0
 
@@ -273,27 +279,28 @@ def composite(source: np.ndarray,
 
 
 def _standardize_selection(image: np.ndarray, x: float, y: float, w: float,
-                           h: float, relative: bool, loc: str) -> List[float]:
+                           h: float, relative: bool, loc: Loc) -> List[float]:
     if relative:
         n,m,*_ = image.shape
         x = m * x
         y = n * y
         w = m * w
         h = n * h
-    if loc == "upper-left":
+    if loc == Loc.UPPER_LEFT:
         pass
-    elif loc == "lower-left":
+    elif loc == Loc.LOWER_LEFT:
         y = image.shape[0] - y
-    elif loc == "center":
+    elif loc == Loc.CENTER:
         x = x - (w / 2)
         y = y - (h / 2)
     else:
-        raise ValueError(f"{loc} is not a supported loc.")
+        raise ValueError(f"{loc.value} is not a supported loc.")
     return int(x), int(y), int(w), int(h)
 
 
 def substitute(image: np.ndarray, substitution: np.ndarray, x: float, y: float,
-               relative: bool = False, loc: str = 'upper-left') -> np.ndarray:
+               relative: bool = False,
+               loc: Loc = Loc.UPPER_LEFT) -> np.ndarray:
     """Substitute a portion of image with substitution.
 
     Args:
@@ -303,8 +310,7 @@ def substitute(image: np.ndarray, substitution: np.ndarray, x: float, y: float,
         y (float): y coordinate of the point (relative to top of image).
         relative (bool): If True, x, y, w, and h are given relative to the \
             dimensions of the image. Defaults to False.
-        loc (str): Location of (x,y) relative to substituted portion: \
-            {upper-left, lower-left, center}.
+        loc (Loc): Location of (x,y) relative to substituted portion.
 
     Returns:
         np.ndarray: The image with substitution substituted in.
@@ -325,7 +331,7 @@ def substitute(image: np.ndarray, substitution: np.ndarray, x: float, y: float,
 
 
 def crop(image: np.ndarray, x: float, y: float, w: float, h: float,
-         relative: bool = False, loc: str = 'upper-left') -> np.ndarray:
+         relative: bool = False, loc: Loc = Loc.UPPER_LEFT) -> np.ndarray:
     """Crop an image using an (x,y) point, width, and height.
 
     Args:
@@ -336,8 +342,7 @@ def crop(image: np.ndarray, x: float, y: float, w: float, h: float,
         h (float): Height of the cropped portion.
         relative (bool): If True, x, y, w, and h are given relative to the \
             dimensions of the image. Defaults to False.
-        loc (str): Location of (x,y) relative to cropped portion: \
-            {upper-left, lower-left, center}.
+        loc (Loc): Location of (x,y) relative to substituted portion.
 
     Returns:
         np.ndarray: The cropped portion of the image.
