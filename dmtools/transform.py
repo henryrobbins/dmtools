@@ -327,9 +327,9 @@ def _standardize_selection(image: np.ndarray, x: float, y: float, w: float,
         w = m * w
         h = n * h
     if loc == "upper-left":
-        y = image.shape[0] - y
-    elif loc == "lower-left":
         pass
+    elif loc == "lower-left":
+        y = image.shape[0] - y
     elif loc == "center":
         x = x - (w / 2)
         y = y - (h / 2)
@@ -346,7 +346,7 @@ def substitute(image: np.ndarray, substitution: np.ndarray, x: float, y: float,
         image (np.ndarray): Base image.
         substitution (np.ndarray): Image to substitute into the base image.
         x (float): x coordinate of the point (relative to left of image).
-        y (float): y coordinate of the point (relative to bottom of image).
+        y (float): y coordinate of the point (relative to top of image).
         relative (bool): If True, x, y, w, and h are given relative to the \
             dimensions of the image. Defaults to False.
         loc (str): Location of (x,y) relative to substituted portion: \
@@ -377,7 +377,7 @@ def crop(image: np.ndarray, x: float, y: float, w: float, h: float,
     Args:
         image (np.ndarray): Image to be cropped.
         x (float): x coordinate of the point (relative to left of image).
-        y (float): y coordinate of the point (relative to bottom of image).
+        y (float): y coordinate of the point (relative to top of image).
         w (float): Width of the cropped portion.
         h (float): Height of the cropped portion.
         relative (bool): If True, x, y, w, and h are given relative to the \

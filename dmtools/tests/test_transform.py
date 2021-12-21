@@ -118,8 +118,8 @@ def test_composite_functions():
 
 
 @pytest.mark.parametrize("path,sub_path,x,y,relative,loc,exp_path",[
-    ('red_box', 'blue_box', 100, 200, False, 'upper-left', 'red_blue_box'),
-    ('red_box', 'blue_box', 100, 100, False, 'lower-left', 'red_blue_box'),
+    ('red_box', 'blue_box', 100, 100, False, 'upper-left', 'red_blue_box'),
+    ('red_box', 'blue_box', 100, 200, False, 'lower-left', 'red_blue_box'),
     ('red_box', 'blue_box', 150, 150, False, 'center', 'red_blue_box'),
     ('red_box', 'blue_box', 0.5, 0.5, True, 'center', 'red_blue_box')])
 def test_substitute(path, sub_path, x, y, relative, loc, exp_path):
@@ -131,12 +131,12 @@ def test_substitute(path, sub_path, x, y, relative, loc, exp_path):
 
 
 @pytest.mark.parametrize("path,x,y,w,h,relative,loc,exp_path",[
-    ('black_square', 0, 125, 125, 125, False, 'upper-left', 'black_square'),
-    ('red_square', 0, 0, 125, 125, False, 'lower-left', 'red_square'),
-    ('black_square', 25, 50, 25, 25, False, 'upper-left', 'black_box'),
-    ('red_square', 25, 50, 25, 25, False, 'upper-left', 'red_box'),
-    ('black_square', 0.2, 0.2, 0.2, 0.2, True, 'lower-left', 'black_box'),
-    ('red_square', 0.2, 0.8, 0.2, 0.2, True, 'upper-left', 'red_box'),
+    ('black_square', 0, 0, 125, 125, False, 'upper-left', 'black_square'),
+    ('red_square', 0, 125, 125, 125, False, 'lower-left', 'red_square'),
+    ('black_square', 25, 75, 25, 25, False, 'upper-left', 'black_box'),
+    ('red_square', 25, 75, 25, 25, False, 'upper-left', 'red_box'),
+    ('black_square', 0.2, 0.8, 0.2, 0.2, True, 'lower-left', 'black_box'),
+    ('red_square', 0.2, 0.2, 0.2, 0.2, True, 'upper-left', 'red_box'),
     ('black_square', 0.5, 0.5, 0.6, 0.6, True, 'center', 'black_corner'),
     ('red_square', 0.5, 0.5, 0.6, 0.6, True, 'center', 'red_corner')])
 def test_crop(path, x, y, w, h, relative, loc, exp_path):
