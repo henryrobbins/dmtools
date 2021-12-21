@@ -3,7 +3,7 @@ from math import floor, ceil, sqrt
 from functools import partial
 from enum import Enum
 from collections import namedtuple
-from typing import Union, List, Callable
+from typing import Union, List
 
 
 class Loc(Enum):
@@ -113,10 +113,35 @@ def _add_color_composite(xA, aA, xB, aB, xaA, xaB, aR) -> np.ndarray:
     return _safe_divide(xaA + xaB, aR)
 
 
-class CompositeOp(Enum):
-    OVER = (_over_alpha_composite, _over_color_composite)
-    DEST_OVER = (_dest_over_alpha_composite, _dest_over_color_composite)
-    ADD = (_add_alpha_composite, _add_color_composite)
+CompositeOp = namedtuple('CompositeOp', 'alpha color')
+CompositeOp.__doc__ = """\
+Image alpha compositing operators.
+
+To learn more about image alpha compositing, see `Alpha Compositing`_.
+
+Parameters:
+    alpha (Callable): The function producing the alpha of the resulting image.
+    color (Callable): The function producing the color of the resulting image.
+
+.. _Alpha Compositing: https://en.wikipedia.org/wiki/Alpha_compositing
+"""
+
+
+class CompositeOpName(Enum):
+    """An enumeration of supported image alpha compositing operator names.
+
+    The supported operators are a subset of `Cairo`_ operators.
+
+    -  (OVER): two semi-transparent slides; source over dest.
+    -  (DEST_OVER): two semi-transparent slides; dest over source.
+    -  (ADD): Add source and dest.
+
+    .. _Cairo: https://www.cairographics.org/operators
+    """
+    OVER = CompositeOp(_over_alpha_composite, _over_color_composite)
+    DEST_OVER = CompositeOp(_dest_over_alpha_composite,
+                            _dest_over_color_composite)
+    ADD = CompositeOp(_add_alpha_composite, _add_color_composite)
 
 
 EPSILON = 1.0e-6
@@ -236,31 +261,22 @@ def blur(image: np.ndarray, sigma: float, radius: float = 0) -> np.ndarray:
     return rescale(image, k=1, filter=filter)
 
 
-def composite(source: np.ndarray,
-              dest: np.ndarray,
-              operator: CompositeOp = CompositeOp.OVER,
-              alpha_composite_function: Callable = None,
-              color_composite_function: Callable = None) -> np.ndarray:
+def composite(source: np.ndarray, dest: np.ndarray,
+              operator: Union[CompositeOpName, CompositeOp] =
+              CompositeOpName.OVER) -> np.ndarray:
     """Return the image formed by compositing one image with another.
 
-    For more information about alpha compositing, see `Alpha Compositing`_.
-    The following compositing operators are built-in:
-
-    -  (OVER): two semi-transparent slides; source over dest.
-    -  (DEST_OVER): two semi-transparent slides; dest over source.
-    -  (ADD): Add source and dest.
-
-    The built-in operators use the `Cairo Compositing Operators`_.
+    For more information about alpha compositing, see `Alpha Compositing`_. The
+    implementation is largely based on the `Cairo`_ implementation.
 
     .. _Alpha Compositing: https://en.wikipedia.org/wiki/Alpha_compositing
-    .. _Cairo Compositing Operators: https://www.cairographics.org/operators
+    .. _Cairo: https://www.cairographics.org/operators
 
     Args:
         source (np.ndarray): Image on top.
         dest (np.ndarray): Image on bottom.
-        operator (CompositeOp): The compositing operator to use.
-        alpha_composite_function (Callable): Alpha composite function to use.
-        color_composite_function (Callable): Color composite function to use.
+        operator (Union[CompositeOpName, CompositeOp]): \
+            The compositing operator to use.
 
     Returns:
         np.ndarray: The two images overlaid.
@@ -270,14 +286,11 @@ def composite(source: np.ndarray,
     xaA = xA * aA
     xaB = xB * aB
 
-    if alpha_composite_function is not None:
-        if color_composite_function is None:
-            error_msg = "Alpha composite provided without color composite."
-            raise ValueError(error_msg)
-        alpha_composite = alpha_composite_function
-        color_composite = color_composite_function
-    else:
-        alpha_composite, color_composite = operator.value
+    if not isinstance(operator, CompositeOp):
+        operator = operator.value
+
+    alpha_composite = operator.alpha
+    color_composite = operator.color
 
     aR = alpha_composite(aA, aB)
     xR = color_composite(xA, aA, xB, aB, xaA, xaB, aR)

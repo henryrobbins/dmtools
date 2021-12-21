@@ -4,7 +4,8 @@ import numpy as np
 from dmtools.transform import (rescale, blur, composite, clip, normalize,
                                wraparound, _over_alpha_composite,
                                _over_color_composite, crop, substitute,
-                               ResizeFilterName, CompositeOp, Loc)
+                               ResizeFilterName, CompositeOpName, CompositeOp,
+                               Loc)
 from dmtools.colorspace import gray_to_RGB
 from dmtools.io import read
 
@@ -99,9 +100,9 @@ def test_blur(image, sigma, new_name):
 
 
 @pytest.mark.parametrize("operator,result",[
-    (CompositeOp.OVER, 'over.png'),
-    (CompositeOp.DEST_OVER, 'dest_over.png'),
-    (CompositeOp.ADD, 'add.png')])
+    (CompositeOpName.OVER, 'over.png'),
+    (CompositeOpName.DEST_OVER, 'dest_over.png'),
+    (CompositeOpName.ADD, 'add.png')])
 def test_composite(operator, result):
     A = read(os.path.join(RESOURCES_PATH, 'composite_tests', 'blue.png'))
     B = read(os.path.join(RESOURCES_PATH, 'composite_tests', 'red.png'))
@@ -113,8 +114,8 @@ def test_composite_functions():
     A = read(os.path.join(RESOURCES_PATH, 'composite_tests', 'blue.png'))
     B = read(os.path.join(RESOURCES_PATH, 'composite_tests', 'red.png'))
     result = read(os.path.join(RESOURCES_PATH, 'composite_tests', 'over.png'))
-    image = composite(A, B, alpha_composite_function=_over_alpha_composite,
-                      color_composite_function=_over_color_composite)
+    op = CompositeOp(_over_alpha_composite, _over_color_composite)
+    image = composite(A, B, operator=op)
     assert np.allclose(result, image, atol=0.01)
 
 
