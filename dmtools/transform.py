@@ -2,7 +2,8 @@ import numpy as np
 from math import floor, ceil, sqrt
 from functools import partial
 from enum import Enum
-from typing import List, Callable
+from collections import namedtuple
+from typing import Union, List, Callable
 
 
 class Loc(Enum):
@@ -34,12 +35,45 @@ def _gaussian_weighting_function(x: float, sigma: float = 0.5,
     return (1 / sqrt(2*np.pi*sigma**2))*np.power(np.e, -x**2 / (2*sigma**2))
 
 
-class ResizeFilter(Enum):
-    POINT = (_box_weighting_function, 0.0)
-    BOX = (_box_weighting_function, 0.5)
-    TRIANGLE = (_triangle_weighting_function, 1.0)
-    CATROM = (_catmull_rom_weighting_function, 2.0)
-    GAUSSIAN = (_gaussian_weighting_function, 2.0)
+ResizeFilter = namedtuple('ResizeFilter', 'weighting_function support')
+ResizeFilter.__doc__ = """\
+Image resize filter.
+
+To learn more about image resize filters, see the `ImageMagick`_ reference on
+`Resampling Filters`_.
+
+Parameters:
+    weighting_function (Callable): Weighting function defined on [0, support].
+    support (float): The ideal neighborhood size of the filter.
+
+.. _ImageMagick: https://imagemagick.org/script/index.php
+.. _Resampling Filters: https://legacy.imagemagick.org/Usage/filter/
+"""
+
+
+class ResizeFilterName(Enum):
+    """An enumeration of supported resize filter names.
+
+    The supported filters are a subset of `ImageMagick`_ filters.
+
+    - `Point Filter`_ (POINT): Nearest-neighbor heuristic.
+    - `Box Filter`_ (BOX): Average of neighboring pixels.
+    - `Triangle Filter`_ (TRIANGLE): Linear decrease in pixel weight.
+    - `Catmull-Rom Filter`_ (CATROM): Produces a sharper edge.
+    - `Gaussian Filter`_ (GAUSSIAN): Blurs image. Useful as low pass filter.
+
+    .. _ImageMagick: https://imagemagick.org/script/index.php
+    .. _Point Filter: https://legacy.imagemagick.org/Usage/filter/#point
+    .. _Box Filter: https://legacy.imagemagick.org/Usage/filter/#box
+    .. _Triangle Filter: https://legacy.imagemagick.org/Usage/filter/#triangle
+    .. _Catmull-Rom Filter: https://legacy.imagemagick.org/Usage/filter/#cubics
+    .. _Gaussian Filter: https://legacy.imagemagick.org/Usage/filter/#gaussian
+    """
+    POINT = ResizeFilter(_box_weighting_function, 0.0)
+    BOX = ResizeFilter(_box_weighting_function, 0.5)
+    TRIANGLE = ResizeFilter(_triangle_weighting_function, 1.0)
+    CATROM = ResizeFilter(_catmull_rom_weighting_function, 2.0)
+    GAUSSIAN = ResizeFilter(_gaussian_weighting_function, 2.0)
 
 
 def _safe_divide(n: np.ndarray, d: np.ndarray) -> np.ndarray:
@@ -88,21 +122,14 @@ class CompositeOp(Enum):
 EPSILON = 1.0e-6
 
 
-def _rescale_axis(image: np.ndarray,
-                  axis: int,
-                  k: int,
-                  filter: ResizeFilter,
-                  weighting_function: Callable = None,
-                  support: Callable = None,
+def _rescale_axis(image: np.ndarray, axis: int, k: int,
+                  filter: Union[ResizeFilterName, ResizeFilter],
                   **kwargs) -> np.ndarray:
     # set the weighting function and support
-    if weighting_function is not None:
-        if support is None:
-            raise ValueError('Weighting function provided without support.')
-        f = weighting_function
-        support = support
-    else:
-        f, support = filter.value
+    if not isinstance(filter, ResizeFilter):
+        filter = filter.value
+    f = filter.weighting_function
+    support = filter.support
 
     # scale support if blur keyword argument is passed
     if 'blur' in kwargs:
@@ -159,50 +186,28 @@ def _rescale_axis(image: np.ndarray,
     return rescaled_image
 
 
-def rescale(image: np.ndarray,
-            k: int,
-            filter: ResizeFilter = ResizeFilter.POINT,
-            weighting_function: Callable = None,
-            support: Callable = None,
-            **kwargs) -> np.ndarray:
+def rescale(image: np.ndarray, k: int,
+            filter: Union[ResizeFilterName, ResizeFilter] =
+            ResizeFilterName.POINT, **kwargs) -> np.ndarray:
     """Rescale the image by the given scaling factor.
 
     This image rescale implentation is largley based off of the `ImageMagick`_
-    impmenetation. The following filters are built-in:
-
-    - `Point Filter`_ (POINT): Nearest-neighbor heuristic.
-    - `Box Filter`_ (BOX): Average of neighboring pixels.
-    - `Triangle Filter`_ (TRIANGLE): Linear decrease in pixel weight.
-    - `Catmull-Rom Filter`_ (CATROM): Produces a sharper edge.
-    - `Gaussian Filter`_ (GAUSSIAN): Blurs image. Useful as low pass filter.
-
-    Additionally, advanced users can specify a custom filter by providing a
-    weighting function and a support.
+    impmenetation.
 
     .. _ImageMagick: https://imagemagick.org/script/index.php
-    .. _Point Filter: https://legacy.imagemagick.org/Usage/filter/#point
-    .. _Box Filter: https://legacy.imagemagick.org/Usage/filter/#box
-    .. _Triangle Filter: https://legacy.imagemagick.org/Usage/filter/#triangle
-    .. _Catmull-Rom Filter: https://legacy.imagemagick.org/Usage/filter/#cubics
-    .. _Gaussian Filter: https://legacy.imagemagick.org/Usage/filter/#gaussian
 
     Args:
         image (np.ndarray): Image to rescale.
         k (int): Scaling factor.
-        filter (ResizeFilter): Resize filter to be used.
-        weighting_function (Callable): Weighting function to use.
-        support (float): Support of the provided weighting function.
+        filter (Union[ResizeFilterName, ResizeFilter]): Resize filter to use.
 
     Returns:
         np.ndarray: Rescaled image.
     """
     rescaled_image = _rescale_axis(image=image, axis=0, k=k, filter=filter,
-                                   weighting_function=weighting_function,
-                                   support=support, **kwargs)
+                                   **kwargs)
     rescaled_image = _rescale_axis(image=rescaled_image, axis=1, k=k,
-                                   filter=filter,
-                                   weighting_function=weighting_function,
-                                   support=support, **kwargs)
+                                   filter=filter, **kwargs)
     return rescaled_image
 
 
@@ -227,7 +232,8 @@ def blur(image: np.ndarray, sigma: float, radius: float = 0) -> np.ndarray:
     if radius == 0:
         radius = 4 * sigma
     f = partial(_gaussian_weighting_function, sigma=sigma)
-    return rescale(image, k=1, weighting_function=f, support=radius)
+    filter = ResizeFilter(f, radius)
+    return rescale(image, k=1, filter=filter)
 
 
 def composite(source: np.ndarray,
