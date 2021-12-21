@@ -211,27 +211,40 @@ def _rescale_axis(image: np.ndarray, axis: int, k: int,
     return rescaled_image
 
 
-def rescale(image: np.ndarray, k: int,
+def rescale(image: np.ndarray, k: int = -1, w: int = -1, h: int = -1,
             filter: Union[ResizeFilterName, ResizeFilter] =
             ResizeFilterName.POINT, **kwargs) -> np.ndarray:
-    """Rescale the image by the given scaling factor.
+    """Rescale the image.
 
-    This image rescale implentation is largley based off of the `ImageMagick`_
-    impmenetation.
+    Provide either a global scale factor k or the desired dimensions (w,h) of
+    the rescaled image. This image rescale implentation is largley based off of
+    the `ImageMagick`_ impmenetation.
 
     .. _ImageMagick: https://imagemagick.org/script/index.php
 
     Args:
         image (np.ndarray): Image to rescale.
         k (int): Scaling factor.
+        w (int): Desired width (in pixels).
+        h (int): Desired height (in pixels).
         filter (Union[ResizeFilterName, ResizeFilter]): Resize filter to use.
 
     Returns:
         np.ndarray: Rescaled image.
     """
-    rescaled_image = _rescale_axis(image=image, axis=0, k=k, filter=filter,
-                                   **kwargs)
-    rescaled_image = _rescale_axis(image=rescaled_image, axis=1, k=k,
+    if k != -1:
+        w_scale = k
+        h_scale = k
+    elif w != -1 and h != -1:
+        n,m,*_ = image.shape
+        w_scale = w / m
+        h_scale = h / n
+    else:
+        raise ValueError("Provide scale factor k or desired dimensions (w,h).")
+
+    rescaled_image = _rescale_axis(image=image, axis=0, k=h_scale,
+                                   filter=filter, **kwargs)
+    rescaled_image = _rescale_axis(image=rescaled_image, axis=1, k=w_scale,
                                    filter=filter, **kwargs)
     return rescaled_image
 

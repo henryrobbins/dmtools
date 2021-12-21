@@ -63,7 +63,7 @@ RESOURCES_PATH = os.path.join(os.path.dirname(__file__), 'resources')
     ('checks_5', ResizeFilterName.CATROM, 1.6, 'catrom_1.6'),
     ('checks_5', ResizeFilterName.CATROM, 1.8, 'catrom_1.8'),
     ('checks_5', ResizeFilterName.CATROM, 2.0, 'catrom_2.0')])
-def test_rescale(image, filter, k, new_name):
+def test_rescale_k_argument(image, filter, k, new_name):
     # single channel
     src = read(os.path.join(RESOURCES_PATH, image, 'src.png'))
     new = read(os.path.join(RESOURCES_PATH, image, new_name + '.png'))
@@ -73,6 +73,17 @@ def test_rescale(image, filter, k, new_name):
     src = gray_to_RGB(src)
     new = gray_to_RGB(new)
     assert np.allclose(new, clip(rescale(src, k=k, filter=filter)), atol=0.01)
+
+
+@pytest.mark.parametrize("image_path,w,h,expected_path",[
+    ("red_blue", 3, 100, "red_blue_3_100"),
+    ("red_blue", 100, 3, "red_blue_100_3"),
+    ("red_blue", 300, 600, "red_blue_300_600"),
+    ("red_blue", 600, 300, "red_blue_600_300")])
+def test_rescale_w_h_arguments(image_path, w, h, expected_path):
+    image = read(f"{RESOURCES_PATH}/rescale_tests/{image_path}.png")
+    expected = read(f"{RESOURCES_PATH}/rescale_tests/{expected_path}.png")
+    assert np.allclose(expected, rescale(image, w=w, h=h), atol=0.01)
 
 
 @pytest.mark.parametrize("image,k,blur,new_name",[
