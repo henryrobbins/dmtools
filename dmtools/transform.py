@@ -1,51 +1,19 @@
 import numpy as np
 from math import floor, ceil, sqrt
 from functools import partial
+from enum import Enum
 from typing import List, Callable
 
 
 def _box_weighting_function(x: float) -> float:
-    """Box filter's weighting function.
-
-    For more information about the Box filter, see
-    `Box <https://legacy.imagemagick.org/Usage/filter/#box>`_.
-
-    Args:
-        x (float): distance to source pixel.
-
-    Returns:
-        float: weight on the source pixel.
-    """
     return 1 if x <= 0.5 else 0
 
 
 def _triangle_weighting_function(x: float) -> float:
-    """Triangle filter's weighting function.
-
-    For more information about the Triangle filter, see
-    `Triangle <https://legacy.imagemagick.org/Usage/filter/#triangle>`_.
-
-    Args:
-        x (float): distance to source pixel.
-
-    Returns:
-        float: weight on the source pixel.
-    """
     return max(1 - x, 0.0)
 
 
 def _catmull_rom_weighting_function(x: float) -> float:
-    """Catmull-Rom filter's weighting function.
-
-    For more information about the Catmull-Rom filter, see
-    `Cubic Filters <https://legacy.imagemagick.org/Usage/filter/#cubics>`_.
-
-    Args:
-        x (float): distance to source pixel.
-
-    Returns:
-        float: weight on the source pixel.
-    """
     if x <= 1:
         return (3*x**3 - 5*x**2 + 2) / 2
     elif x <= 2:
@@ -54,32 +22,18 @@ def _catmull_rom_weighting_function(x: float) -> float:
         return 0
 
 
-def _gaussian_weighting_function(x: float,
-                                 sigma: float = 0.5,
+def _gaussian_weighting_function(x: float, sigma: float = 0.5,
                                  blur: float = 1.0) -> float:
-    """Gaussian blur function.
-
-    For information about Gaussian blur, see
-    `Gaussian <https://legacy.imagemagick.org/Usage/filter/#gaussian>`_.
-
-    Args:
-        x (float): Distance to source pixel.
-        sigma (float): Determines the "neighborhood" of blur. Defaults to 0.5.
-        blur (float): Scale sigma by some multiplier. Defaults to 1.0.
-
-    Returns:
-        float: weight on the source pixel.
-    """
     sigma = sigma * blur
     return (1 / sqrt(2*np.pi*sigma**2))*np.power(np.e, -x**2 / (2*sigma**2))
 
 
-RESIZE_FILTERS = \
-    {'point':    (_box_weighting_function,          0.0),
-     'box':      (_box_weighting_function,          0.5),
-     'triangle': (_triangle_weighting_function,     1.0),
-     'catrom':   (_catmull_rom_weighting_function,  2.0),
-     'gaussian': (_gaussian_weighting_function,     2.0)}
+class ResizeFilter(Enum):
+    POINT = (_box_weighting_function, 0.0)
+    BOX = (_box_weighting_function, 0.5)
+    TRIANGLE = (_triangle_weighting_function, 1.0)
+    CATROM = (_catmull_rom_weighting_function, 2.0)
+    GAUSSIAN = (_gaussian_weighting_function, 2.0)
 
 
 def _safe_divide(n: np.ndarray, d: np.ndarray) -> np.ndarray:
@@ -131,7 +85,7 @@ EPSILON = 1.0e-6
 def _rescale_axis(image: np.ndarray,
                   axis: int,
                   k: int,
-                  filter: str,
+                  filter: ResizeFilter,
                   weighting_function: Callable = None,
                   support: Callable = None,
                   **kwargs) -> np.ndarray:
@@ -142,7 +96,7 @@ def _rescale_axis(image: np.ndarray,
         f = weighting_function
         support = support
     else:
-        f, support = RESIZE_FILTERS[filter]
+        f, support = filter.value
 
     # scale support if blur keyword argument is passed
     if 'blur' in kwargs:
@@ -201,7 +155,7 @@ def _rescale_axis(image: np.ndarray,
 
 def rescale(image: np.ndarray,
             k: int,
-            filter: str = 'point',
+            filter: ResizeFilter = ResizeFilter.POINT,
             weighting_function: Callable = None,
             support: Callable = None,
             **kwargs) -> np.ndarray:
@@ -210,11 +164,11 @@ def rescale(image: np.ndarray,
     This image rescale implentation is largley based off of the `ImageMagick`_
     impmenetation. The following filters are built-in:
 
-    - `Point Filter`_ ("point"): Nearest-neighbor heuristic.
-    - `Box Filter`_ ("box"): Average of neighboring pixels.
-    - `Triangle Filter`_ ("triangle"): Linear decrease in pixel weight.
-    - `Catmull-Rom Filter`_ ("catrom"): Produces a sharper edge.
-    - `Gaussian Filter`_ ("gaussian"): Blurs image. Useful as low pass filter.
+    - `Point Filter`_ (POINT): Nearest-neighbor heuristic.
+    - `Box Filter`_ (BOX): Average of neighboring pixels.
+    - `Triangle Filter`_ (TRIANGLE): Linear decrease in pixel weight.
+    - `Catmull-Rom Filter`_ (CATROM): Produces a sharper edge.
+    - `Gaussian Filter`_ (GAUSSIAN): Blurs image. Useful as low pass filter.
 
     Additionally, advanced users can specify a custom filter by providing a
     weighting function and a support.

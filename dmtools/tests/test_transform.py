@@ -3,7 +3,8 @@ import pytest
 import numpy as np
 from dmtools.transform import (rescale, blur, composite, clip, normalize,
                                wraparound, _over_alpha_composite,
-                               _over_color_composite, crop, substitute)
+                               _over_color_composite, crop, substitute,
+                               ResizeFilter)
 from dmtools.colorspace import gray_to_RGB
 from dmtools.io import read
 
@@ -21,46 +22,46 @@ RESOURCES_PATH = os.path.join(os.path.dirname(__file__), 'resources')
 
 
 @pytest.mark.parametrize("image,filter,k,new_name",[
-    ('checks_10', 'point', 0.9, 'point_0.9'),
-    ('checks_10', 'point', 0.8, 'point_0.8'),
-    ('checks_10', 'point', 0.7, 'point_0.7'),
-    ('checks_10', 'point', 0.6, 'point_0.6'),
-    ('checks_10', 'point', 0.5, 'point_0.5'),
-    ('checks_10', 'box', 0.9, 'box_0.9'),
-    # ('checks_10', 'box', 0.8, 'box_0.8'), strangely differs from ImageMagick
-    ('checks_10', 'box', 0.7, 'box_0.7'),
-    ('checks_10', 'box', 0.6, 'box_0.6'),
-    ('checks_10', 'box', 0.5, 'box_0.5'),
-    ('checks_5', 'box', 1.2, 'box_1.2'),
-    ('checks_5', 'point', 1.2, 'box_1.2'),
-    ('checks_5', 'box', 1.4, 'box_1.4'),
-    ('checks_5', 'point', 1.4, 'box_1.4'),
-    ('checks_5', 'box', 1.6, 'box_1.6'),
-    ('checks_5', 'point', 1.6, 'box_1.6'),
-    ('checks_5', 'box', 1.8, 'box_1.8'),
-    ('checks_5', 'point', 1.8, 'box_1.8'),
-    ('checks_5', 'box', 2.0, 'box_2.0'),
-    ('checks_5', 'point', 2.0, 'box_2.0'),
-    ('checks_10', 'triangle', 0.9, 'triangle_0.9'),
-    ('checks_10', 'triangle', 0.8, 'triangle_0.8'),
-    ('checks_10', 'triangle', 0.7, 'triangle_0.7'),
-    ('checks_10', 'triangle', 0.6, 'triangle_0.6'),
-    ('checks_10', 'triangle', 0.5, 'triangle_0.5'),
-    ('checks_5', 'triangle', 1.2, 'triangle_1.2'),
-    ('checks_5', 'triangle', 1.4, 'triangle_1.4'),
-    ('checks_5', 'triangle', 1.6, 'triangle_1.6'),
-    ('checks_5', 'triangle', 1.8, 'triangle_1.8'),
-    ('checks_5', 'triangle', 2.0, 'triangle_2.0'),
-    ('checks_10', 'catrom', 0.9, 'catrom_0.9'),
-    ('checks_10', 'catrom', 0.8, 'catrom_0.8'),
-    ('checks_10', 'catrom', 0.7, 'catrom_0.7'),
-    ('checks_10', 'catrom', 0.6, 'catrom_0.6'),
-    ('checks_10', 'catrom', 0.5, 'catrom_0.5'),
-    ('checks_5', 'catrom', 1.2, 'catrom_1.2'),
-    ('checks_5', 'catrom', 1.4, 'catrom_1.4'),
-    ('checks_5', 'catrom', 1.6, 'catrom_1.6'),
-    ('checks_5', 'catrom', 1.8, 'catrom_1.8'),
-    ('checks_5', 'catrom', 2.0, 'catrom_2.0')])
+    ('checks_10', ResizeFilter.POINT, 0.9, 'point_0.9'),
+    ('checks_10', ResizeFilter.POINT, 0.8, 'point_0.8'),
+    ('checks_10', ResizeFilter.POINT, 0.7, 'point_0.7'),
+    ('checks_10', ResizeFilter.POINT, 0.6, 'point_0.6'),
+    ('checks_10', ResizeFilter.POINT, 0.5, 'point_0.5'),
+    ('checks_10', ResizeFilter.BOX, 0.9, 'box_0.9'),
+    # ('checks_10', ResizeFilter.BOX, 0.8, 'box_0.8'), ImageMagick differs
+    ('checks_10', ResizeFilter.BOX, 0.7, 'box_0.7'),
+    ('checks_10', ResizeFilter.BOX, 0.6, 'box_0.6'),
+    ('checks_10', ResizeFilter.BOX, 0.5, 'box_0.5'),
+    ('checks_5', ResizeFilter.BOX, 1.2, 'box_1.2'),
+    ('checks_5', ResizeFilter.POINT, 1.2, 'box_1.2'),
+    ('checks_5', ResizeFilter.BOX, 1.4, 'box_1.4'),
+    ('checks_5', ResizeFilter.POINT, 1.4, 'box_1.4'),
+    ('checks_5', ResizeFilter.BOX, 1.6, 'box_1.6'),
+    ('checks_5', ResizeFilter.POINT, 1.6, 'box_1.6'),
+    ('checks_5', ResizeFilter.BOX, 1.8, 'box_1.8'),
+    ('checks_5', ResizeFilter.POINT, 1.8, 'box_1.8'),
+    ('checks_5', ResizeFilter.BOX, 2.0, 'box_2.0'),
+    ('checks_5', ResizeFilter.POINT, 2.0, 'box_2.0'),
+    ('checks_10', ResizeFilter.TRIANGLE, 0.9, 'triangle_0.9'),
+    ('checks_10', ResizeFilter.TRIANGLE, 0.8, 'triangle_0.8'),
+    ('checks_10', ResizeFilter.TRIANGLE, 0.7, 'triangle_0.7'),
+    ('checks_10', ResizeFilter.TRIANGLE, 0.6, 'triangle_0.6'),
+    ('checks_10', ResizeFilter.TRIANGLE, 0.5, 'triangle_0.5'),
+    ('checks_5', ResizeFilter.TRIANGLE, 1.2, 'triangle_1.2'),
+    ('checks_5', ResizeFilter.TRIANGLE, 1.4, 'triangle_1.4'),
+    ('checks_5', ResizeFilter.TRIANGLE, 1.6, 'triangle_1.6'),
+    ('checks_5', ResizeFilter.TRIANGLE, 1.8, 'triangle_1.8'),
+    ('checks_5', ResizeFilter.TRIANGLE, 2.0, 'triangle_2.0'),
+    ('checks_10', ResizeFilter.CATROM, 0.9, 'catrom_0.9'),
+    ('checks_10', ResizeFilter.CATROM, 0.8, 'catrom_0.8'),
+    ('checks_10', ResizeFilter.CATROM, 0.7, 'catrom_0.7'),
+    ('checks_10', ResizeFilter.CATROM, 0.6, 'catrom_0.6'),
+    ('checks_10', ResizeFilter.CATROM, 0.5, 'catrom_0.5'),
+    ('checks_5', ResizeFilter.CATROM, 1.2, 'catrom_1.2'),
+    ('checks_5', ResizeFilter.CATROM, 1.4, 'catrom_1.4'),
+    ('checks_5', ResizeFilter.CATROM, 1.6, 'catrom_1.6'),
+    ('checks_5', ResizeFilter.CATROM, 1.8, 'catrom_1.8'),
+    ('checks_5', ResizeFilter.CATROM, 2.0, 'catrom_2.0')])
 def test_rescale(image, filter, k, new_name):
     # single channel
     src = read(os.path.join(RESOURCES_PATH, image, 'src.png'))
@@ -80,8 +81,8 @@ def test_rescale(image, filter, k, new_name):
 def test_gaussian_blur(image, k, blur, new_name):
     src = read(os.path.join(RESOURCES_PATH, image, 'src.png'))
     new = read(os.path.join(RESOURCES_PATH, image, new_name + '.png'))
-    assert np.allclose(new, rescale(src, k=k, filter='gaussian', blur=blur),
-                       atol=0.01)
+    assert np.allclose(new, rescale(src, k=k, filter=ResizeFilter.GAUSSIAN,
+                       blur=blur), atol=0.01)
 
 
 @pytest.mark.parametrize("image,sigma,new_name",[
