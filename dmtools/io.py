@@ -124,6 +124,8 @@ def _continuous(image: np.ndarray, k: int) -> np.ndarray:
     Returns:
         np.ndarray: Continuous image with values in [0,1].
     """
+    # TODO: Consider changing to
+    # (image / (k+1)) + (1 / (2 * (k+1)))
     return image / k
 
 
@@ -137,7 +139,8 @@ def _discretize(image: np.ndarray, k: int) -> np.ndarray:
     Returns:
         np.ndarray: Discrete image with values in [0,k].
     """
-    # TODO: Is this the right way to discretize?
+    # TODO: Consider changing to
+    # np.ceil(image * (k+1)).astype(int) + 1
     return np.ceil(k*image - 0.5).astype(int)
 
 
