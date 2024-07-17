@@ -1,7 +1,7 @@
 # <img alt="dmtools" src="docs/branding/dmtools_dark.png" height="90">
 
 [![PyPI pyversions](https://img.shields.io/pypi/pyversions/dmtools.svg)](https://pypi.python.org/pypi/dmtools/)
-[![CircleCI](https://circleci.com/gh/henryrobbins/dmtools.svg?style=shield&circle-token=23cdbbfe0a606bd908e1a2a92bdff6f66d3e1c54)](https://app.circleci.com/pipelines/github/henryrobbins/dmtools)
+[![CircleCI](https://circleci.com/gh/henryrobbins/dmtools.svg?style=shield)](https://app.circleci.com/pipelines/github/henryrobbins/dmtools)
 [![Documentation Status](https://readthedocs.org/projects/dmtools/badge/?version=latest)](https://dmtools.readthedocs.io/en/latest/?badge=latest)
 [![codecov](https://codecov.io/gh/henryrobbins/dmtools/branch/master/graphs/badge.svg)](https://codecov.io/gh/henryrobbins/dmtools)
 
