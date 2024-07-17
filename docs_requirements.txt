@@ -15,3 +15,4 @@ six==1.16.0
 tifffile==2021.8.30
 typing==3.7.4.3
 sphinx_copybutton==0.4.0
+sphinx_rtd_theme==1.0.0
